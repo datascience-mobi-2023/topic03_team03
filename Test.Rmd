@@ -1,6 +1,6 @@
 ---
-title: "Test"
-author: "Viktor Bonin"
+title: "Topic 3: Proteome-wide Screen for RNA-dependent Proteins; Subtopic 3: HeLa synchronized in Interphase"
+author: "Hannah, Johann, Kira, Viktor"
 date: "2023-04-30"
 output: html_document
 ---
@@ -9,13 +9,13 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Test
+## Topic 3: Proteome-wide Screen for RNA-dependent Proteins
+#### Subtopic 3: HeLa Cells Synchronized in Interphase
 
-Hey, this is a test (just figuring out how github is working).
+First, we will load the dataset containing the mass spectrometry data from HeLa cells synchronized in interphase:
 
 ```{r}
-x=c(1,2,3,4,5,6,7,8,9)
-y=c(1,2,0.8,3.2,4,3.5,6,8,9)
-plot(x,y,type="l")
+RDeeP_HeLa_Interphase = read.table("C:/Users/vikto/Desktop/Studium/11_Viertes Semester/09_Data_Analysis/Topic_3_R-DeeP_sub_3_HeLa-Interphase/RDeeP_HeLa_Interphase.csv", header=TRUE, row.names=1, sep = ";")
+head(RDeeP_HeLa_Interphase)
 ```
 
