@@ -16,7 +16,6 @@ First, we will load the dataset containing the mass spectrometry data from HeLa 
 
 ```{r}
 RDeeP_HeLa_Interphase = read.csv("https://www.dropbox.com/s/nm9bgsyg7cv6wu1/RDeeP_HeLa_Interphase.csv?dl=1", header=TRUE, row.names=1, sep = ";")
-# i really dont know why changing "0" to "1" at the end of the url made it work, but it did
 head(RDeeP_HeLa_Interphase)
 View(RDeeP_HeLa_Interphase)
 
