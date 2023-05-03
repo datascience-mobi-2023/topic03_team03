@@ -19,12 +19,5 @@ RDeeP_HeLa_Interphase = read.csv("https://www.dropbox.com/s/nm9bgsyg7cv6wu1/RDee
 # i really dont know why changing "0" to "1" at the end of the url made it work, but it did
 head(RDeeP_HeLa_Interphase)
 View(RDeeP_HeLa_Interphase)
-
-<<<<<<< HEAD
-##Test
-
-=======
-a=2
->>>>>>> 02869ed7dcb0ad8ad577dd7114224614931cb6fa
 ```
 
