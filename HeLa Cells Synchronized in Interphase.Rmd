@@ -190,3 +190,12 @@ Ctrl_Norm_100 = as.data.frame(sapply(RDeeP_HeLa_Interphase_Ctrl, function(i){(i/
 
 RNase_Norm_100 = as.data.frame(sapply(RDeeP_HeLa_Interphase_RNase, function(i){(i/apply(RDeeP_HeLa_Interphase_RNase,1,sum))*100}))
 ```
+
+#### 1.7 Data Exploration, First Graphical Representations
+```{r}
+plot(1:25, Mean_Ctrl[which(rownames(RDeeP_HeLa_Interphase)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN")
+lines(1:25, Mean_RNase[which(rownames(RDeeP_HeLa_Interphase)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
+grid()
+legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
+```
+
