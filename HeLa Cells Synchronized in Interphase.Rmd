@@ -44,14 +44,14 @@ which(rowSums(RDeeP_HeLa_Interphase_RNase)==0)
 ## Löschen der Nullreihen im Controldataset
 
 
-RDeeP_HeLa_Interphase_Ctrl <- RDeeP_HeLa_Interphase_Ctrl[!(rownames(RDeeP_HeLa_Interphase_Ctrl)%in% c("FHOD3_HUMAN","P210L_HUMAN","PKD1_HUMAN","TGM7_HUMAN")),]
+RDeeP_HeLa_Interphase_Ctrl <- RDeeP_HeLa_Interphase_Ctrl[!(rownames(RDeeP_HeLa_Interphase_Ctrl)%in% c("FHOD3_HUMAN","P210L_HUMAN","PKD1_HUMAN","TGM7_HUMAN","KIF1A_HUMANKIF1A_HUMAN")),]
 View(RDeeP_HeLa_Interphase_Ctrl)
 which(rownames(RDeeP_HeLa_Interphase_Ctrl)== "FHOD3_HUMAN")
 which(rownames(RDeeP_HeLa_Interphase_Ctrl)== "P210L_HUMAN")
 
 ##Löschen der Nullreihen im RNase-Dataset
 
-RDeeP_HeLa_Interphase_RNase <- RDeeP_HeLa_Interphase_RNase[!(rownames(RDeeP_HeLa_Interphase_RNase) %in% c("FHOD3_HUMAN", "KIF1A_HUMANKIF1A_HUMAN")),]
+RDeeP_HeLa_Interphase_RNase <- RDeeP_HeLa_Interphase_RNase[!(rownames(RDeeP_HeLa_Interphase_RNase) %in% c("FHOD3_HUMAN","P210L_HUMAN","PKD1_HUMAN","TGM7_HUMAN", "KIF1A_HUMANKIF1A_HUMAN")),]
 which(rownames(RDeeP_HeLa_Interphase_RNase)== "FHOD3_HUMAN")
 which(rownames(RDeeP_HeLa_Interphase_RNase)== "KIF1A_HUMANKIF1A_HUMAN")
 ```
