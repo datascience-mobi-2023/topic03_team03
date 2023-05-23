@@ -179,6 +179,12 @@ Mean_Ctrl = cbind(M_Ctrl_01, M_Ctrl_02, M_Ctrl_03, M_Ctrl_04, M_Ctrl_05, M_Ctrl_
 
 colnames(Mean_Ctrl) <- c('Fraction1_Ctrl_Mean','Fraction2_Ctrl_Mean','Fraction3_Ctrl_Mean','Fraction4_Ctrl_Mean','Fraction5_Ctrl_Mean','Fraction6_Ctrl_Mean','Fraction7_Ctrl_Mean','Fraction8_Ctrl_Mean','Fraction9_Ctrl_Mean','Fraction10_Ctrl_Mean','Fraction11_Ctrl_Mean','Fraction12_Ctrl_Mean','Fraction13_Ctrl_Mean','Fraction14_Ctrl_Mean','Fraction15_Ctrl_Mean','Fraction16_Ctrl_Mean','Fraction17_Ctrl_Mean','Fraction18_Ctrl_Mean','Fraction19_Ctrl_Mean','Fraction20_Ctrl_Mean','Fraction21_Ctrl_Mean','Fraction22_Ctrl_Mean','Fraction23_Ctrl_Mean','Fraction24_Ctrl_Mean','Fraction25_Ctrl_Mean')
 
+#clearing the Environment of unnecessary data
+remove(Ctrl_01, Ctrl_02, Ctrl_03, Ctrl_04, Ctrl_05, Ctrl_06, Ctrl_07, Ctrl_08, Ctrl_09, Ctrl_10, Ctrl_11, Ctrl_12, Ctrl_13, Ctrl_14, Ctrl_15, Ctrl_16, Ctrl_17, Ctrl_18, Ctrl_19, Ctrl_20, Ctrl_21, Ctrl_22, Ctrl_23, Ctrl_24, Ctrl_25,
+RNase_01, RNase_02, RNase_03, RNase_04, RNase_05, RNase_06, RNase_07, RNase_08, RNase_09, RNase_10, RNase_11, RNase_12, RNase_13, RNase_14, RNase_15, RNase_16, RNase_17, RNase_18, RNase_19, RNase_20, RNase_21, RNase_22, RNase_23, RNase_24, RNase_25,
+M_Ctrl_01, M_Ctrl_02, M_Ctrl_03, M_Ctrl_04, M_Ctrl_05, M_Ctrl_06, M_Ctrl_07, M_Ctrl_08, M_Ctrl_09, M_Ctrl_10, M_Ctrl_11, M_Ctrl_12, M_Ctrl_13, M_Ctrl_14, M_Ctrl_15, M_Ctrl_16, M_Ctrl_17, M_Ctrl_18, M_Ctrl_19, M_Ctrl_20, M_Ctrl_21, M_Ctrl_22, M_Ctrl_23, M_Ctrl_24, M_Ctrl_25,
+M_RNase_01, M_RNase_02, M_RNase_03, M_RNase_04, M_RNase_05, M_RNase_06, M_RNase_07, M_RNase_08, M_RNase_09, M_RNase_10, M_RNase_11, M_RNase_12, M_RNase_13, M_RNase_14, M_RNase_15, M_RNase_16, M_RNase_17, M_RNase_18, M_RNase_19, M_RNase_20, M_RNase_21, M_RNase_22, M_RNase_23, M_RNase_24, M_RNase_25)
+
 ```
 
 #### 1.5 Normalize Rows to 100
