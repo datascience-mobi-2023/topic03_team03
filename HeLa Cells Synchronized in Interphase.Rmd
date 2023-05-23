@@ -32,10 +32,8 @@ We can also split the dataset into two seperate datasets that contain the Contro
 RDeeP_HeLa_Interphase_Ctrl = cbind(RDeeP_HeLa_Interphase[,1:3],RDeeP_HeLa_Interphase[,7:9],RDeeP_HeLa_Interphase[,13:15],RDeeP_HeLa_Interphase[,19:21],RDeeP_HeLa_Interphase[,25:27],RDeeP_HeLa_Interphase[,31:33],RDeeP_HeLa_Interphase[,37:39],RDeeP_HeLa_Interphase[,43:45],RDeeP_HeLa_Interphase[,49:51],RDeeP_HeLa_Interphase[,55:57],RDeeP_HeLa_Interphase[,61:63],RDeeP_HeLa_Interphase[,67:69],RDeeP_HeLa_Interphase[,73:75],RDeeP_HeLa_Interphase[,79:81],RDeeP_HeLa_Interphase[,85:87],RDeeP_HeLa_Interphase[,91:93],RDeeP_HeLa_Interphase[,97:99],RDeeP_HeLa_Interphase[,103:105],RDeeP_HeLa_Interphase[,109:111],RDeeP_HeLa_Interphase[,115:117],RDeeP_HeLa_Interphase[,121:123],RDeeP_HeLa_Interphase[,127:129],RDeeP_HeLa_Interphase[,133:135],RDeeP_HeLa_Interphase[,139:141],RDeeP_HeLa_Interphase[,145:147])
 RDeeP_HeLa_Interphase_RNase=RDeeP_HeLa_Interphase[,-which(names(RDeeP_HeLa_Interphase) %in% colnames(RDeeP_HeLa_Interphase_Ctrl))]
 ```
-```{r}
-View(RDeeP_HeLa_Interphase_Ctrl)
-View(RDeeP_HeLa_Interphase_RNase)
 
+```{r}
 ## ÜBerprüfen welche Reihen in den Datasets nur Nullen enthalten
 
 which(rowSums(RDeeP_HeLa_Interphase_Ctrl)==0)
@@ -43,16 +41,19 @@ which(rowSums(RDeeP_HeLa_Interphase_RNase)==0)
 
 ## Löschen der Nullreihen im Controldataset
 
-
 RDeeP_HeLa_Interphase_Ctrl <- RDeeP_HeLa_Interphase_Ctrl[!(rownames(RDeeP_HeLa_Interphase_Ctrl)%in% c("FHOD3_HUMAN","P210L_HUMAN","PKD1_HUMAN","TGM7_HUMAN","KIF1A_HUMAN")),]
-View(RDeeP_HeLa_Interphase_Ctrl)
-which(rownames(RDeeP_HeLa_Interphase_Ctrl)== "FHOD3_HUMAN")
-which(rownames(RDeeP_HeLa_Interphase_Ctrl)== "P210L_HUMAN")
 
 ##Löschen der Nullreihen im RNase-Dataset
 
 RDeeP_HeLa_Interphase_RNase <- RDeeP_HeLa_Interphase_RNase[!(rownames(RDeeP_HeLa_Interphase_RNase) %in% c("FHOD3_HUMAN","P210L_HUMAN","PKD1_HUMAN","TGM7_HUMAN", "KIF1A_HUMAN")),]
-which(rownames(RDeeP_HeLa_Interphase_RNase)== "FHOD3_HUMAN")
-which(rownames(RDeeP_HeLa_Interphase_RNase)== "KIF1A_HUMAN")
+```
+
+#### 1.5 Normalize Rows to 100
+
+This will be done for the Control and RNase Datasets separately:
+```{r}
+Ctrl_Norm_100 = as.data.frame(sapply(RDeeP_HeLa_Interphase_Ctrl, function(i){(i/apply(RDeeP_HeLa_Interphase_Ctrl,1,sum))*100}))
+
+RNase_Norm_100 = as.data.frame(sapply(RDeeP_HeLa_Interphase_RNase, function(i){(i/apply(RDeeP_HeLa_Interphase_RNase,1,sum))*100}))
 ```
 
