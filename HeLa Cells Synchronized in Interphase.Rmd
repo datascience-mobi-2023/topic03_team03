@@ -60,59 +60,33 @@ RDeeP_HeLa_Interphase_RNase <- RDeeP_HeLa_Interphase_RNase[!(rownames(RDeeP_HeLa
 
 ```{r}
 
-# split RNase dataset into seperate datasets per fraction
-RNase_01 <- RDeeP_HeLa_Interphase_RNase[,1:3]
-RNase_02 <- RDeeP_HeLa_Interphase_RNase[,4:6]
-RNase_03 <- RDeeP_HeLa_Interphase_RNase[,7:9]
-RNase_04 <- RDeeP_HeLa_Interphase_RNase[,10:12]
-RNase_05 <- RDeeP_HeLa_Interphase_RNase[,13:15]
-RNase_06 <- RDeeP_HeLa_Interphase_RNase[,16:18]
-RNase_07 <- RDeeP_HeLa_Interphase_RNase[,19:21]
-RNase_08 <- RDeeP_HeLa_Interphase_RNase[,22:24]
-RNase_09 <- RDeeP_HeLa_Interphase_RNase[,25:27]
-RNase_10 <- RDeeP_HeLa_Interphase_RNase[,28:30]
-RNase_11 <- RDeeP_HeLa_Interphase_RNase[,31:33]
-RNase_12 <- RDeeP_HeLa_Interphase_RNase[,34:36]
-RNase_13 <- RDeeP_HeLa_Interphase_RNase[,37:39]
-RNase_14 <- RDeeP_HeLa_Interphase_RNase[,40:42]
-RNase_15 <- RDeeP_HeLa_Interphase_RNase[,43:45]
-RNase_16 <- RDeeP_HeLa_Interphase_RNase[,46:48]
-RNase_17 <- RDeeP_HeLa_Interphase_RNase[,49:51]
-RNase_18 <- RDeeP_HeLa_Interphase_RNase[,52:54]
-RNase_19 <- RDeeP_HeLa_Interphase_RNase[,55:57]
-RNase_20 <- RDeeP_HeLa_Interphase_RNase[,58:60]
-RNase_21 <- RDeeP_HeLa_Interphase_RNase[,61:63]
-RNase_22 <- RDeeP_HeLa_Interphase_RNase[,44:66]
-RNase_23 <- RDeeP_HeLa_Interphase_RNase[,67:69]
-RNase_24 <- RDeeP_HeLa_Interphase_RNase[,70:72]
-RNase_25 <- RDeeP_HeLa_Interphase_RNase[,73:75]
+# calculate mean of triplicates for each fraction split into seperate datasets
 
-# calculate mean of triplicates for each fraction
-M_RNase_01 = as.data.frame(apply(RNase_01, 1, function(x) {mean(x)}))
-M_RNase_02 = as.data.frame(apply(RNase_02, 1, function(x) {mean(x)}))
-M_RNase_03 = as.data.frame(apply(RNase_03, 1, function(x) {mean(x)}))
-M_RNase_04 = as.data.frame(apply(RNase_04, 1, function(x) {mean(x)}))
-M_RNase_05 = as.data.frame(apply(RNase_05, 1, function(x) {mean(x)}))
-M_RNase_06 = as.data.frame(apply(RNase_06, 1, function(x) {mean(x)}))
-M_RNase_07 = as.data.frame(apply(RNase_07, 1, function(x) {mean(x)}))
-M_RNase_08 = as.data.frame(apply(RNase_08, 1, function(x) {mean(x)}))
-M_RNase_09 = as.data.frame(apply(RNase_09, 1, function(x) {mean(x)}))
-M_RNase_10 = as.data.frame(apply(RNase_10, 1, function(x) {mean(x)}))
-M_RNase_11 = as.data.frame(apply(RNase_11, 1, function(x) {mean(x)}))
-M_RNase_12 = as.data.frame(apply(RNase_12, 1, function(x) {mean(x)}))
-M_RNase_13 = as.data.frame(apply(RNase_13, 1, function(x) {mean(x)}))
-M_RNase_14 = as.data.frame(apply(RNase_14, 1, function(x) {mean(x)}))
-M_RNase_15 = as.data.frame(apply(RNase_15, 1, function(x) {mean(x)}))
-M_RNase_16 = as.data.frame(apply(RNase_16, 1, function(x) {mean(x)}))
-M_RNase_17 = as.data.frame(apply(RNase_17, 1, function(x) {mean(x)}))
-M_RNase_18 = as.data.frame(apply(RNase_18, 1, function(x) {mean(x)}))
-M_RNase_19 = as.data.frame(apply(RNase_19, 1, function(x) {mean(x)}))
-M_RNase_20 = as.data.frame(apply(RNase_20, 1, function(x) {mean(x)}))
-M_RNase_21 = as.data.frame(apply(RNase_21, 1, function(x) {mean(x)}))
-M_RNase_22 = as.data.frame(apply(RNase_22, 1, function(x) {mean(x)}))
-M_RNase_23 = as.data.frame(apply(RNase_23, 1, function(x) {mean(x)}))
-M_RNase_24 = as.data.frame(apply(RNase_24, 1, function(x) {mean(x)}))
-M_RNase_25  = as.data.frame(apply(RNase_25, 1, function(x) {mean(x)}))
+M_RNase_01 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,1:3], 1, function(x) {mean(x)}))
+M_RNase_02 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,4:6], 1, function(x) {mean(x)}))
+M_RNase_03 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,7:9], 1, function(x) {mean(x)}))
+M_RNase_04 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,10:12], 1, function(x) {mean(x)}))
+M_RNase_05 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,13:15], 1, function(x) {mean(x)}))
+M_RNase_06 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,16:18], 1, function(x) {mean(x)}))
+M_RNase_07 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,19:21], 1, function(x) {mean(x)}))
+M_RNase_08 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,22:24], 1, function(x) {mean(x)}))
+M_RNase_09 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,25:27], 1, function(x) {mean(x)}))
+M_RNase_10 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,28:30], 1, function(x) {mean(x)}))
+M_RNase_11 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,31:33], 1, function(x) {mean(x)}))
+M_RNase_12 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,34:36], 1, function(x) {mean(x)}))
+M_RNase_13 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,37:39], 1, function(x) {mean(x)}))
+M_RNase_14 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,40:42], 1, function(x) {mean(x)}))
+M_RNase_15 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,43:45], 1, function(x) {mean(x)}))
+M_RNase_16 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,46:48], 1, function(x) {mean(x)}))
+M_RNase_17 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,49:51], 1, function(x) {mean(x)}))
+M_RNase_18 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,52:54], 1, function(x) {mean(x)}))
+M_RNase_19 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,55:57], 1, function(x) {mean(x)}))
+M_RNase_20 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,58:60], 1, function(x) {mean(x)}))
+M_RNase_21 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,61:63], 1, function(x) {mean(x)}))
+M_RNase_22 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,64:66], 1, function(x) {mean(x)}))
+M_RNase_23 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,67:69], 1, function(x) {mean(x)}))
+M_RNase_24 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,70:72], 1, function(x) {mean(x)}))
+M_RNase_25 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,73:75], 1, function(x) {mean(x)}))
 
 #create new dataset combining the means for all 25 fractions
 Mean_RNase = cbind(M_RNase_01, M_RNase_02, M_RNase_03, M_RNase_04, M_RNase_05, M_RNase_06, M_RNase_07, M_RNase_08, M_RNase_09, M_RNase_10, M_RNase_11, M_RNase_12, M_RNase_13, M_RNase_14, M_RNase_15, M_RNase_16, M_RNase_17, M_RNase_18, M_RNase_19, M_RNase_20, M_RNase_21, M_RNase_22, M_RNase_23, M_RNase_24, M_RNase_25)
@@ -120,59 +94,33 @@ Mean_RNase = cbind(M_RNase_01, M_RNase_02, M_RNase_03, M_RNase_04, M_RNase_05, M
 colnames(Mean_RNase) <- c('Fraction1_RNase_Mean','Fraction2_RNase_Mean','Fraction3_RNase_Mean','Fraction4_RNase_Mean','Fraction5_RNase_Mean','Fraction6_RNase_Mean','Fraction7_RNase_Mean','Fraction8_RNase_Mean','Fraction9_RNase_Mean','Fraction10_RNase_Mean','Fraction11_RNase_Mean','Fraction12_RNase_Mean','Fraction13_RNase_Mean','Fraction14_RNase_Mean','Fraction15_RNase_Mean','Fraction16_RNase_Mean','Fraction17_RNase_Mean','Fraction18_RNase_Mean','Fraction19_RNase_Mean','Fraction20_RNase_Mean','Fraction21_RNase_Mean','Fraction22_RNase_Mean','Fraction23_RNase_Mean','Fraction24_RNase_Mean','Fraction25_RNase_Mean')
 
 #####repeat for Control dataset
-# split Ctrl dataset into seperate datasets per fraction
-Ctrl_01 <- RDeeP_HeLa_Interphase_Ctrl[,1:3]
-Ctrl_02 <- RDeeP_HeLa_Interphase_Ctrl[,4:6]
-Ctrl_03 <- RDeeP_HeLa_Interphase_Ctrl[,7:9]
-Ctrl_04 <- RDeeP_HeLa_Interphase_Ctrl[,10:12]
-Ctrl_05 <- RDeeP_HeLa_Interphase_Ctrl[,13:15]
-Ctrl_06 <- RDeeP_HeLa_Interphase_Ctrl[,16:18]
-Ctrl_07 <- RDeeP_HeLa_Interphase_Ctrl[,19:21]
-Ctrl_08 <- RDeeP_HeLa_Interphase_Ctrl[,22:24]
-Ctrl_09 <- RDeeP_HeLa_Interphase_Ctrl[,25:27]
-Ctrl_10 <- RDeeP_HeLa_Interphase_Ctrl[,28:30]
-Ctrl_11 <- RDeeP_HeLa_Interphase_Ctrl[,31:33]
-Ctrl_12 <- RDeeP_HeLa_Interphase_Ctrl[,34:36]
-Ctrl_13 <- RDeeP_HeLa_Interphase_Ctrl[,37:39]
-Ctrl_14 <- RDeeP_HeLa_Interphase_Ctrl[,40:42]
-Ctrl_15 <- RDeeP_HeLa_Interphase_Ctrl[,43:45]
-Ctrl_16 <- RDeeP_HeLa_Interphase_Ctrl[,46:48]
-Ctrl_17 <- RDeeP_HeLa_Interphase_Ctrl[,49:51]
-Ctrl_18 <- RDeeP_HeLa_Interphase_Ctrl[,52:54]
-Ctrl_19 <- RDeeP_HeLa_Interphase_Ctrl[,55:57]
-Ctrl_20 <- RDeeP_HeLa_Interphase_Ctrl[,58:60]
-Ctrl_21 <- RDeeP_HeLa_Interphase_Ctrl[,61:63]
-Ctrl_22 <- RDeeP_HeLa_Interphase_Ctrl[,44:66]
-Ctrl_23 <- RDeeP_HeLa_Interphase_Ctrl[,67:69]
-Ctrl_24 <- RDeeP_HeLa_Interphase_Ctrl[,70:72]
-Ctrl_25 <- RDeeP_HeLa_Interphase_Ctrl[,73:75]
 
-# calculate mean of triplicates for each fraction
-M_Ctrl_01 = as.data.frame(apply(Ctrl_01, 1, function(x) {mean(x)}))
-M_Ctrl_02 = as.data.frame(apply(Ctrl_02, 1, function(x) {mean(x)}))
-M_Ctrl_03 = as.data.frame(apply(Ctrl_03, 1, function(x) {mean(x)}))
-M_Ctrl_04 = as.data.frame(apply(Ctrl_04, 1, function(x) {mean(x)}))
-M_Ctrl_05 = as.data.frame(apply(Ctrl_05, 1, function(x) {mean(x)}))
-M_Ctrl_06 = as.data.frame(apply(Ctrl_06, 1, function(x) {mean(x)}))
-M_Ctrl_07 = as.data.frame(apply(Ctrl_07, 1, function(x) {mean(x)}))
-M_Ctrl_08 = as.data.frame(apply(Ctrl_08, 1, function(x) {mean(x)}))
-M_Ctrl_09 = as.data.frame(apply(Ctrl_09, 1, function(x) {mean(x)}))
-M_Ctrl_10 = as.data.frame(apply(Ctrl_10, 1, function(x) {mean(x)}))
-M_Ctrl_11 = as.data.frame(apply(Ctrl_11, 1, function(x) {mean(x)}))
-M_Ctrl_12 = as.data.frame(apply(Ctrl_12, 1, function(x) {mean(x)}))
-M_Ctrl_13 = as.data.frame(apply(Ctrl_13, 1, function(x) {mean(x)}))
-M_Ctrl_14 = as.data.frame(apply(Ctrl_14, 1, function(x) {mean(x)}))
-M_Ctrl_15 = as.data.frame(apply(Ctrl_15, 1, function(x) {mean(x)}))
-M_Ctrl_16 = as.data.frame(apply(Ctrl_16, 1, function(x) {mean(x)}))
-M_Ctrl_17 = as.data.frame(apply(Ctrl_17, 1, function(x) {mean(x)}))
-M_Ctrl_18 = as.data.frame(apply(Ctrl_18, 1, function(x) {mean(x)}))
-M_Ctrl_19 = as.data.frame(apply(Ctrl_19, 1, function(x) {mean(x)}))
-M_Ctrl_20 = as.data.frame(apply(Ctrl_20, 1, function(x) {mean(x)}))
-M_Ctrl_21 = as.data.frame(apply(Ctrl_21, 1, function(x) {mean(x)}))
-M_Ctrl_22 = as.data.frame(apply(Ctrl_22, 1, function(x) {mean(x)}))
-M_Ctrl_23 = as.data.frame(apply(Ctrl_23, 1, function(x) {mean(x)}))
-M_Ctrl_24 = as.data.frame(apply(Ctrl_24, 1, function(x) {mean(x)}))
-M_Ctrl_25  = as.data.frame(apply(Ctrl_25, 1, function(x) {mean(x)}))
+# calculate mean of triplicates for each fraction split into seperate datasets
+M_Ctrl_01 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,1:3], 1, function(x) {mean(x)}))
+M_Ctrl_02 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,4:6], 1, function(x) {mean(x)}))
+M_Ctrl_03 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,7:9], 1, function(x) {mean(x)}))
+M_Ctrl_04 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,10:12], 1, function(x) {mean(x)}))
+M_Ctrl_05 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,13:15], 1, function(x) {mean(x)}))
+M_Ctrl_06 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,16:18], 1, function(x) {mean(x)}))
+M_Ctrl_07 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,19:21], 1, function(x) {mean(x)}))
+M_Ctrl_08 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,22:24], 1, function(x) {mean(x)}))
+M_Ctrl_09 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,25:27], 1, function(x) {mean(x)}))
+M_Ctrl_10 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,28:30], 1, function(x) {mean(x)}))
+M_Ctrl_11 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,31:33], 1, function(x) {mean(x)}))
+M_Ctrl_12 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,34:36], 1, function(x) {mean(x)}))
+M_Ctrl_13 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,37:39], 1, function(x) {mean(x)}))
+M_Ctrl_14 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,40:42], 1, function(x) {mean(x)}))
+M_Ctrl_15 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,43:45], 1, function(x) {mean(x)}))
+M_Ctrl_16 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,46:48], 1, function(x) {mean(x)}))
+M_Ctrl_17 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,49:51], 1, function(x) {mean(x)}))
+M_Ctrl_18 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,52:54], 1, function(x) {mean(x)}))
+M_Ctrl_19 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,55:57], 1, function(x) {mean(x)}))
+M_Ctrl_20 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,58:60], 1, function(x) {mean(x)}))
+M_Ctrl_21 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,61:63], 1, function(x) {mean(x)}))
+M_Ctrl_22 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,64:66], 1, function(x) {mean(x)}))
+M_Ctrl_23 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,67:69], 1, function(x) {mean(x)}))
+M_Ctrl_24 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,70:72], 1, function(x) {mean(x)}))
+M_Ctrl_25 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,73:75], 1, function(x) {mean(x)}))
 
 #create new dataset combining the means for all 25 fractions
 Mean_Ctrl = cbind(M_Ctrl_01, M_Ctrl_02, M_Ctrl_03, M_Ctrl_04, M_Ctrl_05, M_Ctrl_06, M_Ctrl_07, M_Ctrl_08, M_Ctrl_09, M_Ctrl_10, M_Ctrl_11, M_Ctrl_12, M_Ctrl_13, M_Ctrl_14, M_Ctrl_15, M_Ctrl_16, M_Ctrl_17, M_Ctrl_18, M_Ctrl_19, M_Ctrl_20, M_Ctrl_21, M_Ctrl_22, M_Ctrl_23, M_Ctrl_24, M_Ctrl_25)
@@ -180,9 +128,7 @@ Mean_Ctrl = cbind(M_Ctrl_01, M_Ctrl_02, M_Ctrl_03, M_Ctrl_04, M_Ctrl_05, M_Ctrl_
 colnames(Mean_Ctrl) <- c('Fraction1_Ctrl_Mean','Fraction2_Ctrl_Mean','Fraction3_Ctrl_Mean','Fraction4_Ctrl_Mean','Fraction5_Ctrl_Mean','Fraction6_Ctrl_Mean','Fraction7_Ctrl_Mean','Fraction8_Ctrl_Mean','Fraction9_Ctrl_Mean','Fraction10_Ctrl_Mean','Fraction11_Ctrl_Mean','Fraction12_Ctrl_Mean','Fraction13_Ctrl_Mean','Fraction14_Ctrl_Mean','Fraction15_Ctrl_Mean','Fraction16_Ctrl_Mean','Fraction17_Ctrl_Mean','Fraction18_Ctrl_Mean','Fraction19_Ctrl_Mean','Fraction20_Ctrl_Mean','Fraction21_Ctrl_Mean','Fraction22_Ctrl_Mean','Fraction23_Ctrl_Mean','Fraction24_Ctrl_Mean','Fraction25_Ctrl_Mean')
 
 #clearing the Environment of unnecessary data
-remove(Ctrl_01, Ctrl_02, Ctrl_03, Ctrl_04, Ctrl_05, Ctrl_06, Ctrl_07, Ctrl_08, Ctrl_09, Ctrl_10, Ctrl_11, Ctrl_12, Ctrl_13, Ctrl_14, Ctrl_15, Ctrl_16, Ctrl_17, Ctrl_18, Ctrl_19, Ctrl_20, Ctrl_21, Ctrl_22, Ctrl_23, Ctrl_24, Ctrl_25,
-RNase_01, RNase_02, RNase_03, RNase_04, RNase_05, RNase_06, RNase_07, RNase_08, RNase_09, RNase_10, RNase_11, RNase_12, RNase_13, RNase_14, RNase_15, RNase_16, RNase_17, RNase_18, RNase_19, RNase_20, RNase_21, RNase_22, RNase_23, RNase_24, RNase_25,
-M_Ctrl_01, M_Ctrl_02, M_Ctrl_03, M_Ctrl_04, M_Ctrl_05, M_Ctrl_06, M_Ctrl_07, M_Ctrl_08, M_Ctrl_09, M_Ctrl_10, M_Ctrl_11, M_Ctrl_12, M_Ctrl_13, M_Ctrl_14, M_Ctrl_15, M_Ctrl_16, M_Ctrl_17, M_Ctrl_18, M_Ctrl_19, M_Ctrl_20, M_Ctrl_21, M_Ctrl_22, M_Ctrl_23, M_Ctrl_24, M_Ctrl_25,
+remove(M_Ctrl_01, M_Ctrl_02, M_Ctrl_03, M_Ctrl_04, M_Ctrl_05, M_Ctrl_06, M_Ctrl_07, M_Ctrl_08, M_Ctrl_09, M_Ctrl_10, M_Ctrl_11, M_Ctrl_12, M_Ctrl_13, M_Ctrl_14, M_Ctrl_15, M_Ctrl_16, M_Ctrl_17, M_Ctrl_18, M_Ctrl_19, M_Ctrl_20, M_Ctrl_21, M_Ctrl_22, M_Ctrl_23, M_Ctrl_24, M_Ctrl_25,
 M_RNase_01, M_RNase_02, M_RNase_03, M_RNase_04, M_RNase_05, M_RNase_06, M_RNase_07, M_RNase_08, M_RNase_09, M_RNase_10, M_RNase_11, M_RNase_12, M_RNase_13, M_RNase_14, M_RNase_15, M_RNase_16, M_RNase_17, M_RNase_18, M_RNase_19, M_RNase_20, M_RNase_21, M_RNase_22, M_RNase_23, M_RNase_24, M_RNase_25)
 
 ```
