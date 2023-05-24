@@ -68,7 +68,7 @@ Mean_RNase_Test = as.data.frame(
     }))
 colnames(Mean_RNase_Test) = paste("Fraction",seq(1,25,1),"_RNase_Mean",sep="")
 
-# But for some Reason there are 4219 which are not identical?
+# Test if both data sets are identical
 length(which(Mean_RNase == Mean_RNase_Test)) - 7081*25
 
 # Same thing for the Control Samples:
@@ -80,6 +80,7 @@ Mean_Ctrl_Test = as.data.frame(
 colnames(Mean_Ctrl_Test) = paste("Fraction",seq(1,25,1),"_Ctrl_Mean",sep="")
 
 length(which(Mean_Ctrl == Mean_Ctrl_Test)) - 7081*25
+
 ```
 
 
