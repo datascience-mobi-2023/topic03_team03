@@ -60,6 +60,31 @@ RDeeP_HeLa_Interphase_RNase <- RDeeP_HeLa_Interphase_RNase[!(rownames(RDeeP_HeLa
 
 ```{r}
 
+# Shorter Code that should do the same thing
+Mean_RNase_Test = as.data.frame(
+  sapply(seq(0,72,3), function(i) {
+    apply(RDeeP_HeLa_Interphase_RNase[,c(1,2,3)+c(i,i,i)], 1, function(x) {
+      mean(x)})
+    }))
+colnames(Mean_RNase_Test) = paste("Fraction",seq(1,25,1),"_RNase_Mean",sep="")
+
+# But for some Reason there are 4219 which are not identical?
+length(which(Mean_RNase == Mean_RNase_Test)) - 7081*25
+
+# Same thing for the Control Samples:
+Mean_Ctrl_Test = as.data.frame(
+  sapply(seq(0,72,3), function(i) {
+    apply(RDeeP_HeLa_Interphase_Ctrl[,c(1,2,3)+c(i,i,i)], 1, function(x) {
+      mean(x)})
+    }))
+colnames(Mean_Ctrl_Test) = paste("Fraction",seq(1,25,1),"_Ctrl_Mean",sep="")
+
+length(which(Mean_Ctrl == Mean_Ctrl_Test)) - 7081*25
+```
+
+
+```{r}
+
 # calculate mean of triplicates for each fraction split into seperate datasets
 
 M_RNase_01 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,1:3], 1, function(x) {mean(x)}))
