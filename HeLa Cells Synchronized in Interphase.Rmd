@@ -32,12 +32,35 @@ Are there any rows that only contain zeros?
 which(rowSums(RDeeP_HeLa_Interphase)==0)
 ```
 
-We can also split the dataset into two seperate datasets that contain the Control and RNase values:
 #### 1.1 Split Dataset into Control and RNase
 
+We can also split the dataset into two seperate datasets that contain the Control and RNase values:
+
 ```{r}
-RDeeP_HeLa_Interphase_Ctrl = cbind(RDeeP_HeLa_Interphase[,1:3],RDeeP_HeLa_Interphase[,7:9],RDeeP_HeLa_Interphase[,13:15],RDeeP_HeLa_Interphase[,19:21],RDeeP_HeLa_Interphase[,25:27],RDeeP_HeLa_Interphase[,31:33],RDeeP_HeLa_Interphase[,37:39],RDeeP_HeLa_Interphase[,43:45],RDeeP_HeLa_Interphase[,49:51],RDeeP_HeLa_Interphase[,55:57],RDeeP_HeLa_Interphase[,61:63],RDeeP_HeLa_Interphase[,67:69],RDeeP_HeLa_Interphase[,73:75],RDeeP_HeLa_Interphase[,79:81],RDeeP_HeLa_Interphase[,85:87],RDeeP_HeLa_Interphase[,91:93],RDeeP_HeLa_Interphase[,97:99],RDeeP_HeLa_Interphase[,103:105],RDeeP_HeLa_Interphase[,109:111],RDeeP_HeLa_Interphase[,115:117],RDeeP_HeLa_Interphase[,121:123],RDeeP_HeLa_Interphase[,127:129],RDeeP_HeLa_Interphase[,133:135],RDeeP_HeLa_Interphase[,139:141],RDeeP_HeLa_Interphase[,145:147])
-RDeeP_HeLa_Interphase_RNase=RDeeP_HeLa_Interphase[,-which(names(RDeeP_HeLa_Interphase) %in% colnames(RDeeP_HeLa_Interphase_Ctrl))]
+RDeeP_HeLa_Interphase_Ctrl = as.data.frame(
+                             # Diese Matrix speichern wir noch als Dataframe
+  matrix(
+  # Aus dem großen Vektor, den wir mit "unlist" erstellt haben (mit 531450 Einträgen), machen wir eine Matrix mit      7086 Zeilen und 75 Spalten
+    
+    unlist(
+    # Da die untere Schleife einen Dataframe erstellt mit 75 Spalten und drei Zeilen (jede Zelle enthält einen           Vektor, der einer Spalte im originalen Dataframe entspricht), müssen wir aus diesem Dataframe einen einzigen         großen Vektor mit allen Proteineinträgen generieren (das macht der Befehl "unlist")
+      
+      sapply(seq(0,144,6), function(n) {RDeeP_HeLa_Interphase[,c(1,2,3)+c(n,n,n)]})), 
+      # Schleife, die alle Spalten der Control Samples aus dem Dataframe "RDeep_HeLa_Interphase" in Dreier-Grüppchen       (jeweils die drei Replikate pro Fraktion) nacheinander auswählt
+    
+    nrow=7086, ncol=75))
+
+# Hier werden dem neu erstellten Control Dataframe die Zeilen und Spaltennamen des originalen Dataframes zugeordnet (nutzt die gleiche Schleife zum Auswählen der Control Spalten wie oben)
+colnames(RDeeP_HeLa_Interphase_Ctrl) = as.vector(unlist(sapply(seq(0,144,6), function(n) {colnames(RDeeP_HeLa_Interphase[,c(1,2,3)+c(n,n,n)])})))
+
+rownames(RDeeP_HeLa_Interphase_Ctrl) = rownames(RDeeP_HeLa_Interphase)
+
+# Analoges Vorgehen für RNase wie Control, nur, dass sich die Startposition zum Auswählen verändert
+RDeeP_HeLa_Interphase_RNase = as.data.frame(matrix(unlist(sapply(seq(0,144,6), function(n) {RDeeP_HeLa_Interphase[,c(4,5,6)+c(n,n,n)]})), nrow=7086, ncol=75))
+
+colnames(RDeeP_HeLa_Interphase_RNase) = as.vector(unlist(sapply(seq(0,144,6), function(n) {colnames(RDeeP_HeLa_Interphase[,c(4,5,6)+c(n,n,n)])})))
+
+rownames(RDeeP_HeLa_Interphase_RNase) = rownames(RDeeP_HeLa_Interphase)
 ```
 
 #### 1.2 NA Values and Zero Rows
@@ -59,28 +82,27 @@ RDeeP_HeLa_Interphase_RNase <- RDeeP_HeLa_Interphase_RNase[!(rownames(RDeeP_HeLa
 #### 1.4 Mean of Replicates
 
 ```{r}
-
-# Shorter Code that should do the same thing
-Mean_RNase_Test = as.data.frame(
+Mean_Ctrl = as.data.frame(
+            # Abspeichern als Dataframe
+  
   sapply(seq(0,72,3), function(i) {
-    apply(RDeeP_HeLa_Interphase_RNase[,c(1,2,3)+c(i,i,i)], 1, function(x) {
-      mean(x)})
+  # Äußere Schleife, die zum Auswählen der drei Replikate pro Fraktion da ist (Startvektor c(1,2,3) wird jeweils um c(3,3,3) erhöht) 
+    
+    apply(RDeeP_HeLa_Interphase_Ctrl[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x)})
+    # Innere Schleife, die nachdem die drei Replikate für eine Fraktion ausgewählt wurden, über alle Zeilen dieser       Replikate den Mittelwert berechnet
+    
     }))
-colnames(Mean_RNase_Test) = paste("Fraction",seq(1,25,1),"_RNase_Mean",sep="")
 
-# Test if both data sets are identical
-length(which(Mean_RNase == Mean_RNase_Test)) - 7081*25
+# Erstellen neuer Spaltennamen für den Mean_Ctrl Dataframe. Der Befehl "paste" erlaubt es, sowohl Text als auch Befehle als ein String zu haben (sep="", bedeutet, dass die Elemente durch kein Leerzeichen voneinander getrennt werden sollen)
+colnames(Mean_Ctrl) = paste("Fraction",seq(1,25,1),"_Ctrl_Mean",sep="")
 
-# Same thing for the Control Samples:
-Mean_Ctrl_Test = as.data.frame(
+# Analoges Vorgehen für den RNase Dataframe
+Mean_RNase = as.data.frame(
   sapply(seq(0,72,3), function(i) {
-    apply(RDeeP_HeLa_Interphase_Ctrl[,c(1,2,3)+c(i,i,i)], 1, function(x) {
-      mean(x)})
+    apply(RDeeP_HeLa_Interphase_RNase[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x)})
     }))
-colnames(Mean_Ctrl_Test) = paste("Fraction",seq(1,25,1),"_Ctrl_Mean",sep="")
 
-length(which(Mean_Ctrl == Mean_Ctrl_Test)) - 7081*25
-
+colnames(Mean_RNase) = paste("Fraction",seq(1,25,1),"_RNase_Mean",sep="")
 ```
 
 
