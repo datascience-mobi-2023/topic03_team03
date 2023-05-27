@@ -106,81 +106,6 @@ colnames(Mean_RNase) = paste("Fraction",seq(1,25,1),"_RNase_Mean",sep="")
 ```
 
 
-```{r}
-
-# calculate mean of triplicates for each fraction split into seperate datasets
-
-M_RNase_01 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,1:3], 1, function(x) {mean(x)}))
-M_RNase_02 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,4:6], 1, function(x) {mean(x)}))
-M_RNase_03 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,7:9], 1, function(x) {mean(x)}))
-M_RNase_04 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,10:12], 1, function(x) {mean(x)}))
-M_RNase_05 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,13:15], 1, function(x) {mean(x)}))
-M_RNase_06 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,16:18], 1, function(x) {mean(x)}))
-M_RNase_07 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,19:21], 1, function(x) {mean(x)}))
-M_RNase_08 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,22:24], 1, function(x) {mean(x)}))
-M_RNase_09 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,25:27], 1, function(x) {mean(x)}))
-M_RNase_10 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,28:30], 1, function(x) {mean(x)}))
-M_RNase_11 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,31:33], 1, function(x) {mean(x)}))
-M_RNase_12 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,34:36], 1, function(x) {mean(x)}))
-M_RNase_13 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,37:39], 1, function(x) {mean(x)}))
-M_RNase_14 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,40:42], 1, function(x) {mean(x)}))
-M_RNase_15 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,43:45], 1, function(x) {mean(x)}))
-M_RNase_16 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,46:48], 1, function(x) {mean(x)}))
-M_RNase_17 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,49:51], 1, function(x) {mean(x)}))
-M_RNase_18 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,52:54], 1, function(x) {mean(x)}))
-M_RNase_19 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,55:57], 1, function(x) {mean(x)}))
-M_RNase_20 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,58:60], 1, function(x) {mean(x)}))
-M_RNase_21 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,61:63], 1, function(x) {mean(x)}))
-M_RNase_22 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,64:66], 1, function(x) {mean(x)}))
-M_RNase_23 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,67:69], 1, function(x) {mean(x)}))
-M_RNase_24 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,70:72], 1, function(x) {mean(x)}))
-M_RNase_25 = as.data.frame(apply(RDeeP_HeLa_Interphase_RNase[,73:75], 1, function(x) {mean(x)}))
-
-#create new dataset combining the means for all 25 fractions
-Mean_RNase = cbind(M_RNase_01, M_RNase_02, M_RNase_03, M_RNase_04, M_RNase_05, M_RNase_06, M_RNase_07, M_RNase_08, M_RNase_09, M_RNase_10, M_RNase_11, M_RNase_12, M_RNase_13, M_RNase_14, M_RNase_15, M_RNase_16, M_RNase_17, M_RNase_18, M_RNase_19, M_RNase_20, M_RNase_21, M_RNase_22, M_RNase_23, M_RNase_24, M_RNase_25)
-
-colnames(Mean_RNase) <- c('Fraction1_RNase_Mean','Fraction2_RNase_Mean','Fraction3_RNase_Mean','Fraction4_RNase_Mean','Fraction5_RNase_Mean','Fraction6_RNase_Mean','Fraction7_RNase_Mean','Fraction8_RNase_Mean','Fraction9_RNase_Mean','Fraction10_RNase_Mean','Fraction11_RNase_Mean','Fraction12_RNase_Mean','Fraction13_RNase_Mean','Fraction14_RNase_Mean','Fraction15_RNase_Mean','Fraction16_RNase_Mean','Fraction17_RNase_Mean','Fraction18_RNase_Mean','Fraction19_RNase_Mean','Fraction20_RNase_Mean','Fraction21_RNase_Mean','Fraction22_RNase_Mean','Fraction23_RNase_Mean','Fraction24_RNase_Mean','Fraction25_RNase_Mean')
-
-#####repeat for Control dataset
-
-# calculate mean of triplicates for each fraction split into seperate datasets
-M_Ctrl_01 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,1:3], 1, function(x) {mean(x)}))
-M_Ctrl_02 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,4:6], 1, function(x) {mean(x)}))
-M_Ctrl_03 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,7:9], 1, function(x) {mean(x)}))
-M_Ctrl_04 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,10:12], 1, function(x) {mean(x)}))
-M_Ctrl_05 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,13:15], 1, function(x) {mean(x)}))
-M_Ctrl_06 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,16:18], 1, function(x) {mean(x)}))
-M_Ctrl_07 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,19:21], 1, function(x) {mean(x)}))
-M_Ctrl_08 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,22:24], 1, function(x) {mean(x)}))
-M_Ctrl_09 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,25:27], 1, function(x) {mean(x)}))
-M_Ctrl_10 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,28:30], 1, function(x) {mean(x)}))
-M_Ctrl_11 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,31:33], 1, function(x) {mean(x)}))
-M_Ctrl_12 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,34:36], 1, function(x) {mean(x)}))
-M_Ctrl_13 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,37:39], 1, function(x) {mean(x)}))
-M_Ctrl_14 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,40:42], 1, function(x) {mean(x)}))
-M_Ctrl_15 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,43:45], 1, function(x) {mean(x)}))
-M_Ctrl_16 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,46:48], 1, function(x) {mean(x)}))
-M_Ctrl_17 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,49:51], 1, function(x) {mean(x)}))
-M_Ctrl_18 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,52:54], 1, function(x) {mean(x)}))
-M_Ctrl_19 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,55:57], 1, function(x) {mean(x)}))
-M_Ctrl_20 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,58:60], 1, function(x) {mean(x)}))
-M_Ctrl_21 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,61:63], 1, function(x) {mean(x)}))
-M_Ctrl_22 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,64:66], 1, function(x) {mean(x)}))
-M_Ctrl_23 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,67:69], 1, function(x) {mean(x)}))
-M_Ctrl_24 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,70:72], 1, function(x) {mean(x)}))
-M_Ctrl_25 = as.data.frame(apply(RDeeP_HeLa_Interphase_Ctrl[,73:75], 1, function(x) {mean(x)}))
-
-#create new dataset combining the means for all 25 fractions
-Mean_Ctrl = cbind(M_Ctrl_01, M_Ctrl_02, M_Ctrl_03, M_Ctrl_04, M_Ctrl_05, M_Ctrl_06, M_Ctrl_07, M_Ctrl_08, M_Ctrl_09, M_Ctrl_10, M_Ctrl_11, M_Ctrl_12, M_Ctrl_13, M_Ctrl_14, M_Ctrl_15, M_Ctrl_16, M_Ctrl_17, M_Ctrl_18, M_Ctrl_19, M_Ctrl_20, M_Ctrl_21, M_Ctrl_22, M_Ctrl_23, M_Ctrl_24, M_Ctrl_25)
-
-colnames(Mean_Ctrl) <- c('Fraction1_Ctrl_Mean','Fraction2_Ctrl_Mean','Fraction3_Ctrl_Mean','Fraction4_Ctrl_Mean','Fraction5_Ctrl_Mean','Fraction6_Ctrl_Mean','Fraction7_Ctrl_Mean','Fraction8_Ctrl_Mean','Fraction9_Ctrl_Mean','Fraction10_Ctrl_Mean','Fraction11_Ctrl_Mean','Fraction12_Ctrl_Mean','Fraction13_Ctrl_Mean','Fraction14_Ctrl_Mean','Fraction15_Ctrl_Mean','Fraction16_Ctrl_Mean','Fraction17_Ctrl_Mean','Fraction18_Ctrl_Mean','Fraction19_Ctrl_Mean','Fraction20_Ctrl_Mean','Fraction21_Ctrl_Mean','Fraction22_Ctrl_Mean','Fraction23_Ctrl_Mean','Fraction24_Ctrl_Mean','Fraction25_Ctrl_Mean')
-
-#clearing the Environment of unnecessary data
-remove(M_Ctrl_01, M_Ctrl_02, M_Ctrl_03, M_Ctrl_04, M_Ctrl_05, M_Ctrl_06, M_Ctrl_07, M_Ctrl_08, M_Ctrl_09, M_Ctrl_10, M_Ctrl_11, M_Ctrl_12, M_Ctrl_13, M_Ctrl_14, M_Ctrl_15, M_Ctrl_16, M_Ctrl_17, M_Ctrl_18, M_Ctrl_19, M_Ctrl_20, M_Ctrl_21, M_Ctrl_22, M_Ctrl_23, M_Ctrl_24, M_Ctrl_25,
-M_RNase_01, M_RNase_02, M_RNase_03, M_RNase_04, M_RNase_05, M_RNase_06, M_RNase_07, M_RNase_08, M_RNase_09, M_RNase_10, M_RNase_11, M_RNase_12, M_RNase_13, M_RNase_14, M_RNase_15, M_RNase_16, M_RNase_17, M_RNase_18, M_RNase_19, M_RNase_20, M_RNase_21, M_RNase_22, M_RNase_23, M_RNase_24, M_RNase_25)
-
-```
-
 #### 1.5 Normalize Rows to 100
 
 This will be done for the Control and RNase Datasets separately:
@@ -226,5 +151,152 @@ plot(1:25, Mean_Ctrl_Norm_100[which(rownames(RDeeP_HeLa_Interphase)==c("CY24A_HU
 lines(1:25, Mean_RNase_Norm_100[which(rownames(RDeeP_HeLa_Interphase)==c("CY24A_HUMAN")),], type="l",lwd=3,col="red")
 grid()
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
+```
+
+### Determination of Maxima
+
+#### 2.1 Smoothing the Data
+
+We will smooth out the Data by calculating the mean value for each fraction within a defined neighborhood (n):
+```{r}
+# n = 1 (left and right neighbor)
+Mean_Ctrl_Norm_100_Smooth = 
+  as.data.frame(
+cbind(Mean_Ctrl_Norm_100[,1],
+      sapply(seq(0,22,1), function(i) {apply(Mean_Ctrl_Norm_100[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x)})}), 
+      Mean_Ctrl_Norm_100[,25])
+)
+
+colnames(Mean_Ctrl_Norm_100_Smooth) = colnames(Mean_Ctrl_Norm_100)
+
+
+Mean_RNase_Norm_100_Smooth = 
+  as.data.frame(
+cbind(Mean_RNase_Norm_100[,1],
+      sapply(seq(0,22,1), function(i) {apply(Mean_RNase_Norm_100[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x)})}), 
+      Mean_RNase_Norm_100[,25])
+)
+
+colnames(Mean_RNase_Norm_100_Smooth) = colnames(Mean_RNase_Norm_100)
+```
+
+Now let us explore how this smoothing effects the data distribution:
+```{r}
+plot(1:25, Mean_Ctrl_Norm_100[which(rownames(RDeeP_HeLa_Interphase)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN Normalized", ylim=c(0,25))
+lines(1:25, Mean_RNase_Norm_100[which(rownames(RDeeP_HeLa_Interphase)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
+grid()
+legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
+
+plot(1:25, Mean_Ctrl_Norm_100_Smooth[which(rownames(RDeeP_HeLa_Interphase)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN Normalized and Smoothed", ylim=c(0,25))
+lines(1:25, Mean_RNase_Norm_100_Smooth[which(rownames(RDeeP_HeLa_Interphase)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
+grid()
+legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
+```
+
+```{r}
+plot(1:25, Mean_Ctrl_Norm_100[which(rownames(RDeeP_HeLa_Interphase)==c("CY24A_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CY24A_HUMAN Normailzed", ylim=c(0,18))
+lines(1:25, Mean_RNase_Norm_100[which(rownames(RDeeP_HeLa_Interphase)==c("CY24A_HUMAN")),], type="l",lwd=3,col="red")
+grid()
+legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
+
+plot(1:25, Mean_Ctrl_Norm_100_Smooth[which(rownames(RDeeP_HeLa_Interphase)==c("CY24A_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CY24A_HUMAN Normailzed and Smoothed", ylim=c(0,18))
+lines(1:25, Mean_RNase_Norm_100_Smooth[which(rownames(RDeeP_HeLa_Interphase)==c("CY24A_HUMAN")),], type="l",lwd=3,col="red")
+grid()
+legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
+```
+
+#### 2.2 Determination of Global and Local Maxima
+
+Let us first start with the global maxima: we want a code that tells us the global maximum fraction position for each gene and condition (Control and RNase)
+```{r}
+Mean_Ctrl_Gbl_Max = as.matrix(sapply(seq(1,7081,1),function(i) {which(Mean_Ctrl_Norm_100_Smooth[i,] == max(Mean_Ctrl_Norm_100_Smooth[i,]))}))
+
+# If 2 fraction positions contain the maximum protein amount, we determine the mean of these 2 fraction positions
+Mean_Ctrl_Gbl_Max[which(sapply(seq(1,7081,1),function(i) {length(which(Mean_Ctrl_Norm_100_Smooth[i,] == max(Mean_Ctrl_Norm_100_Smooth[i,]) ))}) == 2),1] = apply(matrix(unlist(Mean_Ctrl_Gbl_Max[which(sapply(seq(1,7081,1),function(i) {length(which(Mean_Ctrl_Norm_100_Smooth[i,] == max(Mean_Ctrl_Norm_100_Smooth[i,]) ))}) == 2),1]), ncol=2, byrow=T), 1, function(x) {mean(x)})
+
+# If 3 fraction positions contain the maximum protein amount, we determine the mean of these 3 fraction positions
+Mean_Ctrl_Gbl_Max[which(sapply(seq(1,7081,1),function(i) {length(which(Mean_Ctrl_Norm_100_Smooth[i,] == max(Mean_Ctrl_Norm_100_Smooth[i,]) ))}) == 3),1] = apply(matrix(unlist(Mean_Ctrl_Gbl_Max[which(sapply(seq(1,7081,1),function(i) {length(which(Mean_Ctrl_Norm_100_Smooth[i,] == max(Mean_Ctrl_Norm_100_Smooth[i,]) ))}) == 3),1]), ncol=3, byrow=T), 1, function(x) {mean(x)})
+
+colnames(Mean_Ctrl_Gbl_Max) = c("Gbl_Max")
+rownames(Mean_Ctrl_Gbl_Max) = rownames(Mean_Ctrl_Norm_100_Smooth)
+
+
+
+Mean_RNase_Gbl_Max = as.matrix(sapply(seq(1,7081,1),function(i) {which(Mean_RNase_Norm_100_Smooth[i,] == max(Mean_RNase_Norm_100_Smooth[i,]))}))
+
+Mean_RNase_Gbl_Max[which(sapply(seq(1,7081,1),function(i) {length(which(Mean_RNase_Norm_100_Smooth[i,] == max(Mean_RNase_Norm_100_Smooth[i,]) ))}) == 2),1] = apply(matrix(unlist(Mean_RNase_Gbl_Max[which(sapply(seq(1,7081,1),function(i) {length(which(Mean_RNase_Norm_100_Smooth[i,] == max(Mean_RNase_Norm_100_Smooth[i,]) ))}) == 2),1]), ncol=2, byrow=T), 1, function(x) {mean(x)})
+
+Mean_RNase_Gbl_Max[which(sapply(seq(1,7081,1),function(i) {length(which(Mean_RNase_Norm_100_Smooth[i,] == max(Mean_RNase_Norm_100_Smooth[i,]) ))}) == 3),1] = apply(matrix(unlist(Mean_RNase_Gbl_Max[which(sapply(seq(1,7081,1),function(i) {length(which(Mean_RNase_Norm_100_Smooth[i,] == max(Mean_RNase_Norm_100_Smooth[i,]) ))}) == 3),1]), ncol=3, byrow=T), 1, function(x) {mean(x)})
+
+colnames(Mean_RNase_Gbl_Max) = c("Gbl_Max")
+rownames(Mean_RNase_Gbl_Max) = rownames(Mean_RNase_Norm_100_Smooth)
+```
+
+Lets see if it worked!
+
+
+```{r}
+gene.name=c("CTCF_HUMAN")
+
+plot(1:25, Mean_Ctrl_Norm_100_Smooth[which(rownames(RDeeP_HeLa_Interphase)==gene.name),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name, "(Normalized and Smoothed)")), ylim=c(0,25))
+
+abline(v=Mean_Ctrl_Gbl_Max[which(rownames(RDeeP_HeLa_Interphase)==gene.name),],lwd=3,col="green",lty=3)
+
+lines(1:25, Mean_RNase_Norm_100_Smooth[which(rownames(RDeeP_HeLa_Interphase)==gene.name),], type="l",lwd=3,col="red")
+
+abline(v=Mean_RNase_Gbl_Max[which(rownames(RDeeP_HeLa_Interphase)==gene.name),],lwd=3,col="red",lty=3)
+
+grid()
+
+legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
+rm(gene.name)
+```
+
+
+```{r}
+gene.name=c("CY24A_HUMAN")
+
+plot(1:25, Mean_Ctrl_Norm_100_Smooth[which(rownames(RDeeP_HeLa_Interphase)==gene.name),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name, "(Normalized and Smoothed)")), ylim=c(0,25))
+
+abline(v=Mean_Ctrl_Gbl_Max[which(rownames(RDeeP_HeLa_Interphase)==gene.name),],lwd=3,col="green",lty=3)
+
+lines(1:25, Mean_RNase_Norm_100_Smooth[which(rownames(RDeeP_HeLa_Interphase)==gene.name),], type="l",lwd=3,col="red")
+
+abline(v=Mean_RNase_Gbl_Max[which(rownames(RDeeP_HeLa_Interphase)==gene.name),],lwd=3,col="red",lty=3)
+
+grid()
+
+legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
+rm(gene.name)
+```
+
+```{r}
+gene.name=c("RS29_HUMAN")
+
+plot(1:25, Mean_Ctrl_Norm_100_Smooth[which(rownames(RDeeP_HeLa_Interphase)==gene.name),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name, "(Normalized and Smoothed)")), ylim=c(0,25))
+
+abline(v=Mean_Ctrl_Gbl_Max[which(rownames(RDeeP_HeLa_Interphase)==gene.name),],lwd=3,col="green",lty=3)
+
+lines(1:25, Mean_RNase_Norm_100_Smooth[which(rownames(RDeeP_HeLa_Interphase)==gene.name),], type="l",lwd=3,col="red")
+
+abline(v=Mean_RNase_Gbl_Max[which(rownames(RDeeP_HeLa_Interphase)==gene.name),],lwd=3,col="red",lty=3)
+
+grid()
+
+legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
+
+
+plot(1:25, Mean_Ctrl_Norm_100[which(rownames(RDeeP_HeLa_Interphase)==gene.name),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name, "(Normalized and Smoothed)")), ylim=c(0,25))
+
+abline(v=Mean_Ctrl_Gbl_Max[which(rownames(RDeeP_HeLa_Interphase)==gene.name),],lwd=3,col="green",lty=3)
+
+lines(1:25, Mean_RNase_Norm_100[which(rownames(RDeeP_HeLa_Interphase)==gene.name),], type="l",lwd=3,col="red")
+
+abline(v=Mean_RNase_Gbl_Max[which(rownames(RDeeP_HeLa_Interphase)==gene.name),],lwd=3,col="red",lty=3)
+
+grid()
+
+legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
+rm(gene.name)
 ```
 
