@@ -161,15 +161,25 @@ We will smooth out the Data by calculating the mean value for each fraction with
 ```{r}
 # n = 1 (left and right neighbor)
 Mean_Ctrl_Smooth = 
+  # 5: Abspeichern der Matrix als Data.Frame
   as.data.frame(
-cbind((Mean_Ctrl[,1]+Mean_Ctrl[,2])/2,
+# 4: Spaltenweises Verbinden der zwei Vektoren und der Matrix | Output: Matrix mit 25 Spalten und 7081 Zeilen 
+cbind(
+  
+  # 2: Mittelwert-Berechnung für die Fraktion 1 (Mittelwert aus der Fraktion 1 und 2) | Output: Vektor mit 7081        Einträgen
+  (Mean_Ctrl[,1]+Mean_Ctrl[,2])/2,
+      
+      # 1: Schleife, die jeweils ein Fenster aus 3 Fraktionen auswählt (startet bei 1,2,3 und endet bei 23,24,25) und       dann mit einer zweiten Schleife den Mittelwert dieser 3 Fraktione über alle Reihen berechnet | Output: Matrix        mit 23 Spalten und 7081 Zeilen, die die Mittelwerte für die Fraktionen 2 bis 24 enthält
       sapply(seq(0,22,1), function(i) {apply(Mean_Ctrl[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x)})}), 
-      (Mean_Ctrl[,24]+Mean_Ctrl[,25])/2)
+  
+  # 3: Mittelwert-Berechnung für die Fraktion 25 (Mittelwert aus der Fraktion 24 und 25) | Output: Vektor mit 7081     Einträgen
+  (Mean_Ctrl[,24]+Mean_Ctrl[,25])/2)
 )
 
 colnames(Mean_Ctrl_Smooth) = colnames(Mean_Ctrl)
 
 
+# Gleicher Code für RNase
 Mean_RNase_Smooth = 
   as.data.frame(
 cbind(Mean_RNase[,1],
@@ -246,24 +256,41 @@ legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lw
 Let us first start with the global maxima: we want a code that tells us the global maximum fraction position for each gene and condition (Control and RNase).
 We can calculate the global maxima by asking the question: "Which Protein Fractions contains the maximum protein amount?"
 ```{r}
-Mean_Ctrl_Gbl_Max = as.matrix(sapply(seq(1,7081,1),function(i) {which(Mean_Ctrl_Smooth_Norm_100[i,] == max(Mean_Ctrl_Smooth_Norm_100[i,]))}))
+Mean_Ctrl_Gbl_Max = 
+  
+  # 2: Abspeichern als Matrix (besser für weiter Berechnungen (siehe unten))
+  as.matrix(
+    
+    # 1: Schleife, die für jedes Gen des Datensatzes "Mean_Ctrl_Smooth_Norm_100" bestimmt, welche Fraktion den           größten Protein-Anteil enthält | Output: Liste mit allen Fraktionen mit größtem Protein-Anteil pro Gen             (Problem: manchmal mehrere Einträge für ein Gen (siehe Plot von Gen ABCA1_HUMAN oben))
+    sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(i) {which(Mean_Ctrl_Smooth_Norm_100[i,] == max(Mean_Ctrl_Smooth_Norm_100[i,]))}))
 
-# If 2 fraction positions contain the maximum protein amount, we determine the mean of these 2 fraction positions
-Mean_Ctrl_Gbl_Max[which(sapply(seq(1,7081,1),function(i) {length(which(Mean_Ctrl_Smooth_Norm_100[i,] == max(Mean_Ctrl_Smooth_Norm_100[i,]) ))}) == 2),1] = apply(matrix(unlist(Mean_Ctrl_Gbl_Max[which(sapply(seq(1,7081,1),function(i) {length(which(Mean_Ctrl_Smooth_Norm_100[i,] == max(Mean_Ctrl_Smooth_Norm_100[i,]) ))}) == 2),1]), ncol=2, byrow=T), 1, function(x) {mean(x)})
 
-# If 3 fraction positions contain the maximum protein amount, we determine the mean of these 3 fraction positions
-Mean_Ctrl_Gbl_Max[which(sapply(seq(1,7081,1),function(i) {length(which(Mean_Ctrl_Smooth_Norm_100[i,] == max(Mean_Ctrl_Smooth_Norm_100[i,]) ))}) == 3),1] = apply(matrix(unlist(Mean_Ctrl_Gbl_Max[which(sapply(seq(1,7081,1),function(i) {length(which(Mean_Ctrl_Smooth_Norm_100[i,] == max(Mean_Ctrl_Smooth_Norm_100[i,]) ))}) == 3),1]), ncol=3, byrow=T), 1, function(x) {mean(x)})
+## If 2 fraction positions contain the maximum protein amount, we determine the mean of these 2 fraction positions
+
+# 2: Wir rufen die Fraction Positions für die Zeilen ab, die genau zwei globale Maxima enthalten | Output: Liste mit den globalen Maxima für alle Gene
+Mean_Ctrl_Gbl_Max[
+  
+  # 1: Für jedes Gen wird geschaut, wie viele Einträge es für die globalen Maxima gibt und verglichen, ob es genau 2   Einträge gibt. "which()" gibt dann die Gene aus, für die diese Bedingung TRUE ist. | Output: vektor aller Zeilen,    für die Bedingung stimmt.
+  which(
+    sapply(seq(1,nrow(RDeeP_HeLa_Interphase_Ctrl),1),function(i) {
+      length(which(Mean_Ctrl_Smooth_Norm_100[i,] == max(Mean_Ctrl_Smooth_Norm_100[i,])))}) == 2), 
+     
+     # 3: Wir ersetzen jede Zeile, die 2 Einträge besitzt, mit dem Mittelwert aus diesen 2 Einträgen
+  1] = 
+  apply(matrix(unlist(Mean_Ctrl_Gbl_Max[which(sapply(seq(1,nrow(RDeeP_HeLa_Interphase_Ctrl),1),function(i) {length(which(Mean_Ctrl_Smooth_Norm_100[i,] == max(Mean_Ctrl_Smooth_Norm_100[i,]) ))}) == 2),1]), ncol=2, byrow=T), 1, function(x) {mean(x)})
+
+## If 3 fraction positions contain the maximum protein amount, we determine the mean of these 3 fraction positions
+Mean_Ctrl_Gbl_Max[which(sapply(seq(1,nrow(RDeeP_HeLa_Interphase_Ctrl),1),function(i) {length(which(Mean_Ctrl_Smooth_Norm_100[i,] == max(Mean_Ctrl_Smooth_Norm_100[i,]) ))}) == 3),1] = apply(matrix(unlist(Mean_Ctrl_Gbl_Max[which(sapply(seq(1,nrow(RDeeP_HeLa_Interphase_Ctrl),1),function(i) {length(which(Mean_Ctrl_Smooth_Norm_100[i,] == max(Mean_Ctrl_Smooth_Norm_100[i,]) ))}) == 3),1]), ncol=3, byrow=T), 1, function(x) {mean(x)})
 
 colnames(Mean_Ctrl_Gbl_Max) = c("Ctrl_Gbl_Max")
 rownames(Mean_Ctrl_Gbl_Max) = rownames(Mean_Ctrl_Smooth_Norm_100)
 
 
+Mean_RNase_Gbl_Max = as.matrix(sapply(seq(1,nrow(RDeeP_HeLa_Interphase_RNase),1),function(i) {which(Mean_RNase_Smooth_Norm_100[i,] == max(Mean_RNase_Smooth_Norm_100[i,]))}))
 
-Mean_RNase_Gbl_Max = as.matrix(sapply(seq(1,7081,1),function(i) {which(Mean_RNase_Smooth_Norm_100[i,] == max(Mean_RNase_Smooth_Norm_100[i,]))}))
+Mean_RNase_Gbl_Max[which(sapply(seq(1,nrow(RDeeP_HeLa_Interphase_RNase),1),function(i) {length(which(Mean_RNase_Smooth_Norm_100[i,] == max(Mean_RNase_Smooth_Norm_100[i,]) ))}) == 2),1] = apply(matrix(unlist(Mean_RNase_Gbl_Max[which(sapply(seq(1,nrow(RDeeP_HeLa_Interphase_RNase),1),function(i) {length(which(Mean_RNase_Smooth_Norm_100[i,] == max(Mean_RNase_Smooth_Norm_100[i,]) ))}) == 2),1]), ncol=2, byrow=T), 1, function(x) {mean(x)})
 
-Mean_RNase_Gbl_Max[which(sapply(seq(1,7081,1),function(i) {length(which(Mean_RNase_Smooth_Norm_100[i,] == max(Mean_RNase_Smooth_Norm_100[i,]) ))}) == 2),1] = apply(matrix(unlist(Mean_RNase_Gbl_Max[which(sapply(seq(1,7081,1),function(i) {length(which(Mean_RNase_Smooth_Norm_100[i,] == max(Mean_RNase_Smooth_Norm_100[i,]) ))}) == 2),1]), ncol=2, byrow=T), 1, function(x) {mean(x)})
-
-Mean_RNase_Gbl_Max[which(sapply(seq(1,7081,1),function(i) {length(which(Mean_RNase_Smooth_Norm_100[i,] == max(Mean_RNase_Smooth_Norm_100[i,]) ))}) == 3),1] = apply(matrix(unlist(Mean_RNase_Gbl_Max[which(sapply(seq(1,7081,1),function(i) {length(which(Mean_RNase_Smooth_Norm_100[i,] == max(Mean_RNase_Smooth_Norm_100[i,]) ))}) == 3),1]), ncol=3, byrow=T), 1, function(x) {mean(x)})
+Mean_RNase_Gbl_Max[which(sapply(seq(1,nrow(RDeeP_HeLa_Interphase_RNase),1),function(i) {length(which(Mean_RNase_Smooth_Norm_100[i,] == max(Mean_RNase_Smooth_Norm_100[i,]) ))}) == 3),1] = apply(matrix(unlist(Mean_RNase_Gbl_Max[which(sapply(seq(1,nrow(RDeeP_HeLa_Interphase_RNase),1),function(i) {length(which(Mean_RNase_Smooth_Norm_100[i,] == max(Mean_RNase_Smooth_Norm_100[i,]) ))}) == 3),1]), ncol=3, byrow=T), 1, function(x) {mean(x)})
 
 colnames(Mean_RNase_Gbl_Max) = c("RNase_Gbl_Max")
 rownames(Mean_RNase_Gbl_Max) = rownames(Mean_RNase_Smooth_Norm_100)
@@ -385,27 +412,11 @@ Mean_Ctrl_Loc_Max = as.data.frame(matrix(NA, nrow = nrow(RDeeP_HeLa_Interphase_C
 
 Fra.Pos = sapply(seq(0,20,1), function(i) {which(seq(2*nrow(RDeeP_HeLa_Interphase_Ctrl)+1,3*nrow(RDeeP_HeLa_Interphase_Ctrl),1) %in% which(apply(Mean_Ctrl_Smooth_Norm_100[,c(1:5)+c(i,i,i,i,i)], 1, function(x) {max(x)}) == Mean_Ctrl_Smooth_Norm_100[,c(1:5)+c(i,i,i,i,i)] & apply(Mean_Ctrl_Smooth_Norm_100[,c(1:5)+c(i,i,i,i,i)], 1, function(x) {max(x)}) != 0))})
 
-Mean_Ctrl_Loc_Max[Fra.Pos[[1]],3]=3
-Mean_Ctrl_Loc_Max[Fra.Pos[[2]],4]=4
-Mean_Ctrl_Loc_Max[Fra.Pos[[3]],5]=5
-Mean_Ctrl_Loc_Max[Fra.Pos[[4]],6]=6
-Mean_Ctrl_Loc_Max[Fra.Pos[[5]],7]=7
-Mean_Ctrl_Loc_Max[Fra.Pos[[6]],8]=8
-Mean_Ctrl_Loc_Max[Fra.Pos[[7]],9]=9
-Mean_Ctrl_Loc_Max[Fra.Pos[[8]],10]=10
-Mean_Ctrl_Loc_Max[Fra.Pos[[9]],11]=11
-Mean_Ctrl_Loc_Max[Fra.Pos[[10]],12]=12
-Mean_Ctrl_Loc_Max[Fra.Pos[[11]],13]=13
-Mean_Ctrl_Loc_Max[Fra.Pos[[12]],14]=14
-Mean_Ctrl_Loc_Max[Fra.Pos[[13]],15]=15
-Mean_Ctrl_Loc_Max[Fra.Pos[[14]],16]=16
-Mean_Ctrl_Loc_Max[Fra.Pos[[15]],17]=17
-Mean_Ctrl_Loc_Max[Fra.Pos[[16]],18]=18
-Mean_Ctrl_Loc_Max[Fra.Pos[[17]],19]=19
-Mean_Ctrl_Loc_Max[Fra.Pos[[18]],20]=20
-Mean_Ctrl_Loc_Max[Fra.Pos[[19]],21]=21
-Mean_Ctrl_Loc_Max[Fra.Pos[[20]],22]=22
-Mean_Ctrl_Loc_Max[Fra.Pos[[21]],23]=23
+Mean_Ctrl_Loc_Max[, 3:23] = as.data.frame(sapply(seq(1,21,1), function(n) {
+  replace(
+        Mean_Ctrl_Loc_Max[, n+2], 
+        Fra.Pos[[n]], 
+        n+2)}))
 
 rownames(Mean_Ctrl_Loc_Max) = rownames(Mean_Ctrl)
 colnames(Mean_Ctrl_Loc_Max) = colnames(Mean_Ctrl)
@@ -416,27 +427,11 @@ Mean_RNase_Loc_Max = as.data.frame(matrix(NA, nrow = nrow(RDeeP_HeLa_Interphase_
 
 Fra.Pos = sapply(seq(0,20,1), function(i) {which(seq(2*nrow(RDeeP_HeLa_Interphase_RNase)+1,3*nrow(RDeeP_HeLa_Interphase_RNase),1) %in% which(apply(Mean_RNase_Smooth_Norm_100[,c(1:5)+c(i,i,i,i,i)], 1, function(x) {max(x)}) == Mean_RNase_Smooth_Norm_100[,c(1:5)+c(i,i,i,i,i)] & apply(Mean_RNase_Smooth_Norm_100[,c(1:5)+c(i,i,i,i,i)], 1, function(x) {max(x)}) != 0))})
 
-Mean_RNase_Loc_Max[Fra.Pos[[1]],3]=3
-Mean_RNase_Loc_Max[Fra.Pos[[2]],4]=4
-Mean_RNase_Loc_Max[Fra.Pos[[3]],5]=5
-Mean_RNase_Loc_Max[Fra.Pos[[4]],6]=6
-Mean_RNase_Loc_Max[Fra.Pos[[5]],7]=7
-Mean_RNase_Loc_Max[Fra.Pos[[6]],8]=8
-Mean_RNase_Loc_Max[Fra.Pos[[7]],9]=9
-Mean_RNase_Loc_Max[Fra.Pos[[8]],10]=10
-Mean_RNase_Loc_Max[Fra.Pos[[9]],11]=11
-Mean_RNase_Loc_Max[Fra.Pos[[10]],12]=12
-Mean_RNase_Loc_Max[Fra.Pos[[11]],13]=13
-Mean_RNase_Loc_Max[Fra.Pos[[12]],14]=14
-Mean_RNase_Loc_Max[Fra.Pos[[13]],15]=15
-Mean_RNase_Loc_Max[Fra.Pos[[14]],16]=16
-Mean_RNase_Loc_Max[Fra.Pos[[15]],17]=17
-Mean_RNase_Loc_Max[Fra.Pos[[16]],18]=18
-Mean_RNase_Loc_Max[Fra.Pos[[17]],19]=19
-Mean_RNase_Loc_Max[Fra.Pos[[18]],20]=20
-Mean_RNase_Loc_Max[Fra.Pos[[19]],21]=21
-Mean_RNase_Loc_Max[Fra.Pos[[20]],22]=22
-Mean_RNase_Loc_Max[Fra.Pos[[21]],23]=23
+Mean_RNase_Loc_Max[, 3:23] = as.data.frame(sapply(seq(1,21,1), function(n) {
+  replace(
+        Mean_RNase_Loc_Max[, n+2], 
+        Fra.Pos[[n]], 
+        n+2)}))
 
 rownames(Mean_RNase_Loc_Max) = rownames(Mean_RNase)
 colnames(Mean_RNase_Loc_Max) = colnames(Mean_RNase)
@@ -489,57 +484,24 @@ Mean_RNase_Loc_Max = Mean_RNase_Loc_Max * RNase_Mask
 rm(RNase_Mask)
 
 
-## Combine double and triple peaks into single peaks
+### Combine double and triple peaks into single peaks
 
-# Double peaks
-Fra.Pos = sapply(seq(0,21,1), function(i) {which(!(is.na(Mean_Ctrl_Loc_Max[,c(2)+c(i)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(3)+c(i)])) & !(!(is.na(Mean_Ctrl_Loc_Max[,c(2)+c(i)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(3)+c(i)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(4)+c(i)]))) & !(!(is.na(Mean_Ctrl_Loc_Max[,c(1)+c(i)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(2)+c(i)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(3)+c(i)]))))})
+## Double peaks
+Fra.Pos = sapply(seq(0,21,1), function(i) {which(!(is.na(Mean_Ctrl_Loc_Max[,c(2)+c(i)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(3)+c(i)])) & is.na(Mean_Ctrl_Loc_Max[,c(1)+c(i)]) & is.na(Mean_Ctrl_Loc_Max[,c(4)+c(i)]))})
 
-Mean_Ctrl_Loc_Max[Fra.Pos[[1]],2]=2.5
-Mean_Ctrl_Loc_Max[Fra.Pos[[1]],3]=NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[2]],3]=3.5
-Mean_Ctrl_Loc_Max[Fra.Pos[[2]],4]=NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[3]],4]=4.5
-Mean_Ctrl_Loc_Max[Fra.Pos[[3]],4]=NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[4]],5]=5.5
-Mean_Ctrl_Loc_Max[Fra.Pos[[4]],6]=NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[5]],6]=6.5
-Mean_Ctrl_Loc_Max[Fra.Pos[[5]],7]=NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[6]],7]=7.5
-Mean_Ctrl_Loc_Max[Fra.Pos[[6]],8]=NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[7]],8]=8.5
-Mean_Ctrl_Loc_Max[Fra.Pos[[7]],9]=NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[8]],9]=9.5
-Mean_Ctrl_Loc_Max[Fra.Pos[[8]],10]=NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[9]],10]=10.5
-Mean_Ctrl_Loc_Max[Fra.Pos[[9]],11]=NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[10]],11]=11.5
-Mean_Ctrl_Loc_Max[Fra.Pos[[10]],12]=NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[11]],12]=12.5
-Mean_Ctrl_Loc_Max[Fra.Pos[[11]],13]=NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[12]],13]=13.5
-Mean_Ctrl_Loc_Max[Fra.Pos[[12]],14]=NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[13]],14]=14.5
-Mean_Ctrl_Loc_Max[Fra.Pos[[13]],15]=NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[14]],15]=15.5
-Mean_Ctrl_Loc_Max[Fra.Pos[[14]],16]=NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[15]],16]=16.5
-Mean_Ctrl_Loc_Max[Fra.Pos[[15]],17]=NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[16]],17]=17.5
-Mean_Ctrl_Loc_Max[Fra.Pos[[16]],18]=NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[17]],18]=18.5
-Mean_Ctrl_Loc_Max[Fra.Pos[[17]],19]=NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[18]],19]=19.5
-Mean_Ctrl_Loc_Max[Fra.Pos[[18]],20]=NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[19]],20]=20.5
-Mean_Ctrl_Loc_Max[Fra.Pos[[19]],21]=NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[20]],21]=21.5
-Mean_Ctrl_Loc_Max[Fra.Pos[[20]],22]=NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[21]],22]=22.5
-Mean_Ctrl_Loc_Max[Fra.Pos[[21]],23]=NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[22]],23]=23.5
-Mean_Ctrl_Loc_Max[Fra.Pos[[22]],24]=NA
+Mean_Ctrl_Loc_Max[, 2:23] = as.data.frame(sapply(seq(1,22,1), function(n) {
+  replace(
+        Mean_Ctrl_Loc_Max[, n+1], 
+        Fra.Pos[[n]], 
+        n+1.5)}))
 
-# Edge Cases (not necessary in this case)
+Mean_Ctrl_Loc_Max[, 3:24] = as.data.frame(sapply(seq(1,22,1), function(n) {
+  replace(
+        Mean_Ctrl_Loc_Max[, n+2], 
+        Fra.Pos[[n]], 
+        NA)}))
+
+## Edge Cases (not necessary in this case)
 
 # Fra.Pos = which(!(is.na(Mean_Ctrl_Loc_Max[,c(1)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(2)])) & !(!(is.na(Mean_Ctrl_Loc_Max[,c(1)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(2)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(3)]))))
 
@@ -552,52 +514,19 @@ Mean_Ctrl_Loc_Max[Fra.Pos[[22]],24]=NA
 # Mean_Ctrl_Loc_Max[Fra.Pos[[1]],25]=NA
 
 
-Fra.Pos = sapply(seq(0,21,1), function(i) {which(!(is.na(Mean_RNase_Loc_Max[,c(2)+c(i)])) & !(is.na(Mean_RNase_Loc_Max[,c(3)+c(i)])) & !(!(is.na(Mean_RNase_Loc_Max[,c(2)+c(i)])) & !(is.na(Mean_RNase_Loc_Max[,c(3)+c(i)])) & !(is.na(Mean_RNase_Loc_Max[,c(4)+c(i)]))) & !(!(is.na(Mean_RNase_Loc_Max[,c(1)+c(i)])) & !(is.na(Mean_RNase_Loc_Max[,c(2)+c(i)])) & !(is.na(Mean_RNase_Loc_Max[,c(3)+c(i)]))))})
+Fra.Pos = sapply(seq(0,21,1), function(i) {which(!(is.na(Mean_RNase_Loc_Max[,c(2)+c(i)])) & !(is.na(Mean_RNase_Loc_Max[,c(3)+c(i)])) & is.na(Mean_RNase_Loc_Max[,c(1)+c(i)]) & is.na(Mean_RNase_Loc_Max[,c(4)+c(i)]))})
 
-Mean_RNase_Loc_Max[Fra.Pos[[1]],2]=2.5
-Mean_RNase_Loc_Max[Fra.Pos[[1]],3]=NA
-Mean_RNase_Loc_Max[Fra.Pos[[2]],3]=3.5
-Mean_RNase_Loc_Max[Fra.Pos[[2]],4]=NA
-Mean_RNase_Loc_Max[Fra.Pos[[3]],4]=4.5
-Mean_RNase_Loc_Max[Fra.Pos[[3]],4]=NA
-Mean_RNase_Loc_Max[Fra.Pos[[4]],5]=5.5
-Mean_RNase_Loc_Max[Fra.Pos[[4]],6]=NA
-Mean_RNase_Loc_Max[Fra.Pos[[5]],6]=6.5
-Mean_RNase_Loc_Max[Fra.Pos[[5]],7]=NA
-Mean_RNase_Loc_Max[Fra.Pos[[6]],7]=7.5
-Mean_RNase_Loc_Max[Fra.Pos[[6]],8]=NA
-Mean_RNase_Loc_Max[Fra.Pos[[7]],8]=8.5
-Mean_RNase_Loc_Max[Fra.Pos[[7]],9]=NA
-Mean_RNase_Loc_Max[Fra.Pos[[8]],9]=9.5
-Mean_RNase_Loc_Max[Fra.Pos[[8]],10]=NA
-Mean_RNase_Loc_Max[Fra.Pos[[9]],10]=10.5
-Mean_RNase_Loc_Max[Fra.Pos[[9]],11]=NA
-Mean_RNase_Loc_Max[Fra.Pos[[10]],11]=11.5
-Mean_RNase_Loc_Max[Fra.Pos[[10]],12]=NA
-Mean_RNase_Loc_Max[Fra.Pos[[11]],12]=12.5
-Mean_RNase_Loc_Max[Fra.Pos[[11]],13]=NA
-Mean_RNase_Loc_Max[Fra.Pos[[12]],13]=13.5
-Mean_RNase_Loc_Max[Fra.Pos[[12]],14]=NA
-Mean_RNase_Loc_Max[Fra.Pos[[13]],14]=14.5
-Mean_RNase_Loc_Max[Fra.Pos[[13]],15]=NA
-Mean_RNase_Loc_Max[Fra.Pos[[14]],15]=15.5
-Mean_RNase_Loc_Max[Fra.Pos[[14]],16]=NA
-Mean_RNase_Loc_Max[Fra.Pos[[15]],16]=16.5
-Mean_RNase_Loc_Max[Fra.Pos[[15]],17]=NA
-Mean_RNase_Loc_Max[Fra.Pos[[16]],17]=17.5
-Mean_RNase_Loc_Max[Fra.Pos[[16]],18]=NA
-Mean_RNase_Loc_Max[Fra.Pos[[17]],18]=18.5
-Mean_RNase_Loc_Max[Fra.Pos[[17]],19]=NA
-Mean_RNase_Loc_Max[Fra.Pos[[18]],19]=19.5
-Mean_RNase_Loc_Max[Fra.Pos[[18]],20]=NA
-Mean_RNase_Loc_Max[Fra.Pos[[19]],20]=20.5
-Mean_RNase_Loc_Max[Fra.Pos[[19]],21]=NA
-Mean_RNase_Loc_Max[Fra.Pos[[20]],21]=21.5
-Mean_RNase_Loc_Max[Fra.Pos[[20]],22]=NA
-Mean_RNase_Loc_Max[Fra.Pos[[21]],22]=22.5
-Mean_RNase_Loc_Max[Fra.Pos[[21]],23]=NA
-Mean_RNase_Loc_Max[Fra.Pos[[22]],23]=23.5
-Mean_RNase_Loc_Max[Fra.Pos[[22]],24]=NA
+Mean_RNase_Loc_Max[, 2:23] = as.data.frame(sapply(seq(1,22,1), function(n) {
+  replace(
+        Mean_RNase_Loc_Max[, n+1], 
+        Fra.Pos[[n]], 
+        n+1.5)}))
+
+Mean_RNase_Loc_Max[, 3:24] = as.data.frame(sapply(seq(1,22,1), function(n) {
+  replace(
+        Mean_RNase_Loc_Max[, n+2], 
+        Fra.Pos[[n]], 
+        NA)}))
 
 # Edge Cases (not necessary in this case)
 
@@ -616,195 +545,37 @@ Mean_RNase_Loc_Max[Fra.Pos[[22]],24]=NA
 # Triple peaks
 Fra.Pos = sapply(seq(0,22,1), function(i) {which(!(is.na(Mean_Ctrl_Loc_Max[,c(1)+c(i)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(2)+c(i)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(3)+c(i)])))})
 
-Mean_Ctrl_Loc_Max[Fra.Pos[[1]],1] = NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[1]],2] = 2
-Mean_Ctrl_Loc_Max[Fra.Pos[[1]],3] = NA
+Mean_Ctrl_Loc_Max[, 1:23] = as.data.frame(sapply(seq(1,23,1), function(n) {
+  replace(
+        Mean_Ctrl_Loc_Max[, n], 
+        Fra.Pos[[n]], 
+        NA)}))
 
-Mean_Ctrl_Loc_Max[Fra.Pos[[2]],2] = NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[2]],3] = 3
-Mean_Ctrl_Loc_Max[Fra.Pos[[2]],4] = NA
-
-Mean_Ctrl_Loc_Max[Fra.Pos[[3]],3] = NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[3]],4] = 4
-Mean_Ctrl_Loc_Max[Fra.Pos[[3]],5] = NA
-
-Mean_Ctrl_Loc_Max[Fra.Pos[[4]],4] = NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[4]],5] = 5
-Mean_Ctrl_Loc_Max[Fra.Pos[[4]],6] = NA
-
-Mean_Ctrl_Loc_Max[Fra.Pos[[5]],5] = NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[5]],6] = 6
-Mean_Ctrl_Loc_Max[Fra.Pos[[5]],7] = NA
-
-Mean_Ctrl_Loc_Max[Fra.Pos[[6]],6] = NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[6]],7] = 7
-Mean_Ctrl_Loc_Max[Fra.Pos[[6]],8] = NA
-
-Mean_Ctrl_Loc_Max[Fra.Pos[[7]],7] = NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[7]],8] = 8
-Mean_Ctrl_Loc_Max[Fra.Pos[[7]],9] = NA
-
-Mean_Ctrl_Loc_Max[Fra.Pos[[8]],8] = NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[8]],9] = 9
-Mean_Ctrl_Loc_Max[Fra.Pos[[8]],10] = NA
-
-Mean_Ctrl_Loc_Max[Fra.Pos[[9]],9] = NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[9]],10] = 10
-Mean_Ctrl_Loc_Max[Fra.Pos[[9]],11] = NA
-
-Mean_Ctrl_Loc_Max[Fra.Pos[[10]],10] = NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[10]],11] = 11
-Mean_Ctrl_Loc_Max[Fra.Pos[[10]],12] = NA
-
-Mean_Ctrl_Loc_Max[Fra.Pos[[11]],11] = NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[11]],12] = 12
-Mean_Ctrl_Loc_Max[Fra.Pos[[11]],13] = NA
-
-Mean_Ctrl_Loc_Max[Fra.Pos[[12]],12] = NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[12]],13] = 13
-Mean_Ctrl_Loc_Max[Fra.Pos[[12]],14] = NA
-
-Mean_Ctrl_Loc_Max[Fra.Pos[[13]],13] = NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[13]],14] = 14
-Mean_Ctrl_Loc_Max[Fra.Pos[[13]],15] = NA
-
-Mean_Ctrl_Loc_Max[Fra.Pos[[14]],14] = NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[14]],15] = 15
-Mean_Ctrl_Loc_Max[Fra.Pos[[14]],15] = NA
-
-Mean_Ctrl_Loc_Max[Fra.Pos[[15]],15] = NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[15]],16] = 16
-Mean_Ctrl_Loc_Max[Fra.Pos[[15]],17] = NA
-
-Mean_Ctrl_Loc_Max[Fra.Pos[[16]],16] = NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[16]],17] = 17
-Mean_Ctrl_Loc_Max[Fra.Pos[[16]],18] = NA
-
-Mean_Ctrl_Loc_Max[Fra.Pos[[17]],17] = NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[17]],18] = 18
-Mean_Ctrl_Loc_Max[Fra.Pos[[17]],19] = NA
-
-Mean_Ctrl_Loc_Max[Fra.Pos[[18]],18] = NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[18]],19] = 19
-Mean_Ctrl_Loc_Max[Fra.Pos[[18]],20] = NA
-
-Mean_Ctrl_Loc_Max[Fra.Pos[[19]],19] = NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[19]],20] = 20
-Mean_Ctrl_Loc_Max[Fra.Pos[[19]],21] = NA
-
-Mean_Ctrl_Loc_Max[Fra.Pos[[20]],20] = NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[20]],21] = 21
-Mean_Ctrl_Loc_Max[Fra.Pos[[20]],22] = NA
-
-Mean_Ctrl_Loc_Max[Fra.Pos[[21]],21] = NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[21]],22] = 22
-Mean_Ctrl_Loc_Max[Fra.Pos[[21]],23] = NA
-
-Mean_Ctrl_Loc_Max[Fra.Pos[[22]],22] = NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[22]],23] = 23
-Mean_Ctrl_Loc_Max[Fra.Pos[[22]],24] = NA
-
-Mean_Ctrl_Loc_Max[Fra.Pos[[23]],23] = NA
-Mean_Ctrl_Loc_Max[Fra.Pos[[23]],24] = 24
-Mean_Ctrl_Loc_Max[Fra.Pos[[23]],25] = NA
+Mean_Ctrl_Loc_Max[, 3:25] = as.data.frame(sapply(seq(1,23,1), function(n) {
+  replace(
+        Mean_Ctrl_Loc_Max[, n+2], 
+        Fra.Pos[[n]], 
+        NA)}))
 
 
 Fra.Pos = sapply(seq(0,22,1), function(i) {which(!(is.na(Mean_RNase_Loc_Max[,c(1)+c(i)])) & !(is.na(Mean_RNase_Loc_Max[,c(2)+c(i)])) & !(is.na(Mean_RNase_Loc_Max[,c(3)+c(i)])))})
 
-Mean_RNase_Loc_Max[Fra.Pos[[1]],1] = NA
-Mean_RNase_Loc_Max[Fra.Pos[[1]],2] = 2
-Mean_RNase_Loc_Max[Fra.Pos[[1]],3] = NA
+Mean_RNase_Loc_Max[, 1:23] = as.data.frame(sapply(seq(1,23,1), function(n) {
+  replace(
+        Mean_RNase_Loc_Max[, n], 
+        Fra.Pos[[n]], 
+        NA)}))
 
-Mean_RNase_Loc_Max[Fra.Pos[[2]],2] = NA
-Mean_RNase_Loc_Max[Fra.Pos[[2]],3] = 3
-Mean_RNase_Loc_Max[Fra.Pos[[2]],4] = NA
+Mean_RNase_Loc_Max[, 3:25] = as.data.frame(sapply(seq(1,23,1), function(n) {
+  replace(
+        Mean_RNase_Loc_Max[, n+2], 
+        Fra.Pos[[n]], 
+        NA)}))
 
-Mean_RNase_Loc_Max[Fra.Pos[[3]],3] = NA
-Mean_RNase_Loc_Max[Fra.Pos[[3]],4] = 4
-Mean_RNase_Loc_Max[Fra.Pos[[3]],5] = NA
-
-Mean_RNase_Loc_Max[Fra.Pos[[4]],4] = NA
-Mean_RNase_Loc_Max[Fra.Pos[[4]],5] = 5
-Mean_RNase_Loc_Max[Fra.Pos[[4]],6] = NA
-
-Mean_RNase_Loc_Max[Fra.Pos[[5]],5] = NA
-Mean_RNase_Loc_Max[Fra.Pos[[5]],6] = 6
-Mean_RNase_Loc_Max[Fra.Pos[[5]],7] = NA
-
-Mean_RNase_Loc_Max[Fra.Pos[[6]],6] = NA
-Mean_RNase_Loc_Max[Fra.Pos[[6]],7] = 7
-Mean_RNase_Loc_Max[Fra.Pos[[6]],8] = NA
-
-Mean_RNase_Loc_Max[Fra.Pos[[7]],7] = NA
-Mean_RNase_Loc_Max[Fra.Pos[[7]],8] = 8
-Mean_RNase_Loc_Max[Fra.Pos[[7]],9] = NA
-
-Mean_RNase_Loc_Max[Fra.Pos[[8]],8] = NA
-Mean_RNase_Loc_Max[Fra.Pos[[8]],9] = 9
-Mean_RNase_Loc_Max[Fra.Pos[[8]],10] = NA
-
-Mean_RNase_Loc_Max[Fra.Pos[[9]],9] = NA
-Mean_RNase_Loc_Max[Fra.Pos[[9]],10] = 10
-Mean_RNase_Loc_Max[Fra.Pos[[9]],11] = NA
-
-Mean_RNase_Loc_Max[Fra.Pos[[10]],10] = NA
-Mean_RNase_Loc_Max[Fra.Pos[[10]],11] = 11
-Mean_RNase_Loc_Max[Fra.Pos[[10]],12] = NA
-
-Mean_RNase_Loc_Max[Fra.Pos[[11]],11] = NA
-Mean_RNase_Loc_Max[Fra.Pos[[11]],12] = 12
-Mean_RNase_Loc_Max[Fra.Pos[[11]],13] = NA
-
-Mean_RNase_Loc_Max[Fra.Pos[[12]],12] = NA
-Mean_RNase_Loc_Max[Fra.Pos[[12]],13] = 13
-Mean_RNase_Loc_Max[Fra.Pos[[12]],14] = NA
-
-Mean_RNase_Loc_Max[Fra.Pos[[13]],13] = NA
-Mean_RNase_Loc_Max[Fra.Pos[[13]],14] = 14
-Mean_RNase_Loc_Max[Fra.Pos[[13]],15] = NA
-
-Mean_RNase_Loc_Max[Fra.Pos[[14]],14] = NA
-Mean_RNase_Loc_Max[Fra.Pos[[14]],15] = 15
-Mean_RNase_Loc_Max[Fra.Pos[[14]],16] = NA
-
-Mean_RNase_Loc_Max[Fra.Pos[[15]],15] = NA
-Mean_RNase_Loc_Max[Fra.Pos[[15]],16] = 16
-Mean_RNase_Loc_Max[Fra.Pos[[15]],17] = NA
-
-Mean_RNase_Loc_Max[Fra.Pos[[16]],16] = NA
-Mean_RNase_Loc_Max[Fra.Pos[[16]],17] = 17
-Mean_RNase_Loc_Max[Fra.Pos[[16]],18] = NA
-
-Mean_RNase_Loc_Max[Fra.Pos[[17]],17] = NA
-Mean_RNase_Loc_Max[Fra.Pos[[17]],18] = 18
-Mean_RNase_Loc_Max[Fra.Pos[[17]],19] = NA
-
-Mean_RNase_Loc_Max[Fra.Pos[[18]],18] = NA
-Mean_RNase_Loc_Max[Fra.Pos[[18]],19] = 19
-Mean_RNase_Loc_Max[Fra.Pos[[18]],20] = NA
-
-Mean_RNase_Loc_Max[Fra.Pos[[19]],19] = NA
-Mean_RNase_Loc_Max[Fra.Pos[[19]],20] = 20
-Mean_RNase_Loc_Max[Fra.Pos[[19]],21] = NA
-
-Mean_RNase_Loc_Max[Fra.Pos[[20]],20] = NA
-Mean_RNase_Loc_Max[Fra.Pos[[20]],21] = 21
-Mean_RNase_Loc_Max[Fra.Pos[[20]],22] = NA
-
-Mean_RNase_Loc_Max[Fra.Pos[[21]],21] = NA
-Mean_RNase_Loc_Max[Fra.Pos[[21]],22] = 22
-Mean_RNase_Loc_Max[Fra.Pos[[21]],23] = NA
-
-Mean_RNase_Loc_Max[Fra.Pos[[22]],22] = NA
-Mean_RNase_Loc_Max[Fra.Pos[[22]],23] = 23
-Mean_RNase_Loc_Max[Fra.Pos[[22]],24] = NA
-
-Mean_RNase_Loc_Max[Fra.Pos[[23]],23] = NA
-Mean_RNase_Loc_Max[Fra.Pos[[23]],24] = 24
-Mean_RNase_Loc_Max[Fra.Pos[[23]],25] = NA
 
 rm(Fra.Pos)
 ```
+
 
 Did it work? Let us look at the examples from before!
 ```{r}
@@ -920,6 +691,7 @@ rm(gene.name)
 ```{r}
 # RL32_HUMAN
 # ABCA1_HUMAN (gut für triple peaks to single peak)
+# NAT10_HUMAN (gut für verschiedene lokale Peaks)
 gene.name="NAT10_HUMAN"
 
 par(mar=c(5, 4, 4, 7), xpd=F)
