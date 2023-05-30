@@ -780,7 +780,7 @@ rm(Fra.Pos)
 ```{r}
 # RL32_HUMAN
 # ABCA1_HUMAN (gut für triple peaks to single peak)
-gene.name="RL32_HUMAN"
+gene.name="ABCA1_HUMAN"
 
 par(mar=c(5, 4, 4, 7), xpd=F)
 
@@ -792,7 +792,7 @@ segments(unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name),]),
          -1, 
          unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name),]), 
          Mean_Ctrl_Norm_100_Smooth[which(rownames(Mean_Ctrl)==gene.name), unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name),])], 
-         lwd=3,col="green",lty=1)
+         lwd=3,col="green",lty=2)
 
 if(!is.null(unlist(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name),]))]))) {
 
@@ -800,7 +800,7 @@ segments(unlist(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name),which(!i
          -1, 
          unlist(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name),]))]), 
          unlist(Mean_Ctrl_Norm_100_Smooth[which(rownames(Mean_Ctrl)==gene.name), which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name),]))]), 
-         lwd=3,col="green",lty=1)}
+         lwd=3,col="green",lty=2)}
 
 lines(1:25, Mean_RNase_Norm_100_Smooth[which(rownames(Mean_RNase)==gene.name),], type="l",lwd=3,col="red")
 
