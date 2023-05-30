@@ -412,11 +412,11 @@ Mean_Ctrl_Loc_Max = as.data.frame(matrix(NA, nrow = nrow(RDeeP_HeLa_Interphase_C
 
 Fra.Pos = sapply(seq(0,20,1), function(i) {which(seq(2*nrow(RDeeP_HeLa_Interphase_Ctrl)+1,3*nrow(RDeeP_HeLa_Interphase_Ctrl),1) %in% which(apply(Mean_Ctrl_Smooth_Norm_100[,c(1:5)+c(i,i,i,i,i)], 1, function(x) {max(x)}) == Mean_Ctrl_Smooth_Norm_100[,c(1:5)+c(i,i,i,i,i)] & apply(Mean_Ctrl_Smooth_Norm_100[,c(1:5)+c(i,i,i,i,i)], 1, function(x) {max(x)}) != 0))})
 
-Mean_Ctrl_Loc_Max[, 3:23] = as.data.frame(sapply(seq(1,21,1), function(n) {
+Mean_Ctrl_Loc_Max[, 3:23] = sapply(seq(1,21,1), function(n) {
   replace(
         Mean_Ctrl_Loc_Max[, n+2], 
         Fra.Pos[[n]], 
-        n+2)}))
+        n+2)})
 
 rownames(Mean_Ctrl_Loc_Max) = rownames(Mean_Ctrl)
 colnames(Mean_Ctrl_Loc_Max) = colnames(Mean_Ctrl)
@@ -427,11 +427,11 @@ Mean_RNase_Loc_Max = as.data.frame(matrix(NA, nrow = nrow(RDeeP_HeLa_Interphase_
 
 Fra.Pos = sapply(seq(0,20,1), function(i) {which(seq(2*nrow(RDeeP_HeLa_Interphase_RNase)+1,3*nrow(RDeeP_HeLa_Interphase_RNase),1) %in% which(apply(Mean_RNase_Smooth_Norm_100[,c(1:5)+c(i,i,i,i,i)], 1, function(x) {max(x)}) == Mean_RNase_Smooth_Norm_100[,c(1:5)+c(i,i,i,i,i)] & apply(Mean_RNase_Smooth_Norm_100[,c(1:5)+c(i,i,i,i,i)], 1, function(x) {max(x)}) != 0))})
 
-Mean_RNase_Loc_Max[, 3:23] = as.data.frame(sapply(seq(1,21,1), function(n) {
+Mean_RNase_Loc_Max[, 3:23] = sapply(seq(1,21,1), function(n) {
   replace(
         Mean_RNase_Loc_Max[, n+2], 
         Fra.Pos[[n]], 
-        n+2)}))
+        n+2)})
 
 rownames(Mean_RNase_Loc_Max) = rownames(Mean_RNase)
 colnames(Mean_RNase_Loc_Max) = colnames(Mean_RNase)
@@ -489,17 +489,17 @@ rm(RNase_Mask)
 ## Double peaks
 Fra.Pos = sapply(seq(0,21,1), function(i) {which(!(is.na(Mean_Ctrl_Loc_Max[,c(2)+c(i)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(3)+c(i)])) & is.na(Mean_Ctrl_Loc_Max[,c(1)+c(i)]) & is.na(Mean_Ctrl_Loc_Max[,c(4)+c(i)]))})
 
-Mean_Ctrl_Loc_Max[, 2:23] = as.data.frame(sapply(seq(1,22,1), function(n) {
+Mean_Ctrl_Loc_Max[, 2:23] = sapply(seq(1,22,1), function(n) {
   replace(
         Mean_Ctrl_Loc_Max[, n+1], 
         Fra.Pos[[n]], 
-        n+1.5)}))
+        n+1.5)})
 
-Mean_Ctrl_Loc_Max[, 3:24] = as.data.frame(sapply(seq(1,22,1), function(n) {
+Mean_Ctrl_Loc_Max[, 3:24] = sapply(seq(1,22,1), function(n) {
   replace(
         Mean_Ctrl_Loc_Max[, n+2], 
         Fra.Pos[[n]], 
-        NA)}))
+        NA)})
 
 ## Edge Cases (not necessary in this case)
 
@@ -516,17 +516,17 @@ Mean_Ctrl_Loc_Max[, 3:24] = as.data.frame(sapply(seq(1,22,1), function(n) {
 
 Fra.Pos = sapply(seq(0,21,1), function(i) {which(!(is.na(Mean_RNase_Loc_Max[,c(2)+c(i)])) & !(is.na(Mean_RNase_Loc_Max[,c(3)+c(i)])) & is.na(Mean_RNase_Loc_Max[,c(1)+c(i)]) & is.na(Mean_RNase_Loc_Max[,c(4)+c(i)]))})
 
-Mean_RNase_Loc_Max[, 2:23] = as.data.frame(sapply(seq(1,22,1), function(n) {
+Mean_RNase_Loc_Max[, 2:23] = sapply(seq(1,22,1), function(n) {
   replace(
         Mean_RNase_Loc_Max[, n+1], 
         Fra.Pos[[n]], 
-        n+1.5)}))
+        n+1.5)})
 
-Mean_RNase_Loc_Max[, 3:24] = as.data.frame(sapply(seq(1,22,1), function(n) {
+Mean_RNase_Loc_Max[, 3:24] = sapply(seq(1,22,1), function(n) {
   replace(
         Mean_RNase_Loc_Max[, n+2], 
         Fra.Pos[[n]], 
-        NA)}))
+        NA)})
 
 # Edge Cases (not necessary in this case)
 
@@ -545,32 +545,32 @@ Mean_RNase_Loc_Max[, 3:24] = as.data.frame(sapply(seq(1,22,1), function(n) {
 # Triple peaks
 Fra.Pos = sapply(seq(0,22,1), function(i) {which(!(is.na(Mean_Ctrl_Loc_Max[,c(1)+c(i)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(2)+c(i)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(3)+c(i)])))})
 
-Mean_Ctrl_Loc_Max[, 1:23] = as.data.frame(sapply(seq(1,23,1), function(n) {
+Mean_Ctrl_Loc_Max[, 1:23] = sapply(seq(1,23,1), function(n) {
   replace(
         Mean_Ctrl_Loc_Max[, n], 
         Fra.Pos[[n]], 
-        NA)}))
+        NA)})
 
-Mean_Ctrl_Loc_Max[, 3:25] = as.data.frame(sapply(seq(1,23,1), function(n) {
+Mean_Ctrl_Loc_Max[, 3:25] = sapply(seq(1,23,1), function(n) {
   replace(
         Mean_Ctrl_Loc_Max[, n+2], 
         Fra.Pos[[n]], 
-        NA)}))
+        NA)})
 
 
 Fra.Pos = sapply(seq(0,22,1), function(i) {which(!(is.na(Mean_RNase_Loc_Max[,c(1)+c(i)])) & !(is.na(Mean_RNase_Loc_Max[,c(2)+c(i)])) & !(is.na(Mean_RNase_Loc_Max[,c(3)+c(i)])))})
 
-Mean_RNase_Loc_Max[, 1:23] = as.data.frame(sapply(seq(1,23,1), function(n) {
+Mean_RNase_Loc_Max[, 1:23] = sapply(seq(1,23,1), function(n) {
   replace(
         Mean_RNase_Loc_Max[, n], 
         Fra.Pos[[n]], 
-        NA)}))
+        NA)})
 
-Mean_RNase_Loc_Max[, 3:25] = as.data.frame(sapply(seq(1,23,1), function(n) {
+Mean_RNase_Loc_Max[, 3:25] = sapply(seq(1,23,1), function(n) {
   replace(
         Mean_RNase_Loc_Max[, n+2], 
         Fra.Pos[[n]], 
-        NA)}))
+        NA)})
 
 
 rm(Fra.Pos)
