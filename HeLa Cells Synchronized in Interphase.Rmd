@@ -586,10 +586,10 @@ rm(Fra.Pos)
 Graph_Plotter <- function(gene.name, col.RNase = "red", col.Ctrl = "green", grid = T, Gbl.Max = T, Loc.Max = T, Type = "Smooth and Norm" #, "Norm", "Smooth", "Raw", "Compare"
                           ) {
 
-par(mar=c(5, 4, 4, 7), xpd=F)
-
 # Smoothed and Normalized
-if(Type == "Smooth and Norm") {
+if(length(which(Type == "Smooth and Norm")) == 1) {
+par(mar=c(5, 4, 4, 7), xpd=F)
+  
 plot(1:25, rep(NA, 25),xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(gene.name, "(Smoothed and Normalized)"), ylim=c(0,max(max(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))+0.1*max(max(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))))
 
 if(grid == T) {grid()}
@@ -644,7 +644,9 @@ legend("topright",inset = c(-0.23,0), legend=c("Control","RNase", "Global", "Loc
 }
 
 # Normalized
-if(Type == "Norm") {
+if(length(which(Type == "Norm")) == 1) {
+par(mar=c(5, 4, 4, 7), xpd=F)
+
 plot(1:25, rep(NA, 25),xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(gene.name, "(Normalized)"), ylim=c(0,max(max(Mean_Ctrl_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))+0.1*max(max(Mean_Ctrl_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))))
 
 if(grid == T) {grid()}
@@ -659,7 +661,9 @@ legend("topright",inset = c(-0.25,0), legend=c("Control","RNase"), lty=c(1,1), c
 }
 
 # Smoothed  
-if(Type == "Smooth") {
+if(length(which(Type == "Smooth")) == 1) {
+par(mar=c(5, 4, 4, 7), xpd=F)
+  
 plot(1:25, rep(NA, 25),xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(gene.name, "(Smoothed)"), ylim=c(0,max(max(Mean_Ctrl_Smooth[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Smooth[which(rownames(Mean_Ctrl)==gene.name),]))+0.1*max(max(Mean_Ctrl_Smooth[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Smooth[which(rownames(Mean_Ctrl)==gene.name),]))))
 
 if(grid == T) {grid()}
@@ -674,7 +678,9 @@ legend("topright",inset = c(-0.25,0), legend=c("Control","RNase"), lty=c(1,1), c
 }
 
 # Raw   
-if(Type == "Raw") {
+if(length(which(Type == "Raw")) == 1) {
+par(mar=c(5, 4, 4, 7), xpd=F)
+  
 plot(1:25, rep(NA, 25),xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(gene.name), ylim=c(0,max(max(Mean_Ctrl[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase[which(rownames(Mean_Ctrl)==gene.name),]))+0.1*max(max(Mean_Ctrl[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase[which(rownames(Mean_Ctrl)==gene.name),]))))
 
 if(grid == T) {grid()}
@@ -689,7 +695,9 @@ legend("topright",inset = c(-0.25,0), legend=c("Control","RNase"), lty=c(1,1), c
 }
   
 # Compare
-if(Type == "Compare") {
+if(length(which(Type == "Compare")) == 1) {
+par(mar=c(5, 4, 4, 7), xpd=F)
+  
 plot(1:25, rep(NA, 25),xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(gene.name), ylim=c(0,max(max(Mean_Ctrl_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))+0.1*max(max(Mean_Ctrl_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))))
 
 if(grid == T) {grid()}
@@ -712,5 +720,5 @@ legend("topright",inset = c(-0.25,0), legend=c("Control","RNase"), lty=c(1,1), c
 
 Did it work? Let us look at the examples from before!
 ```{r}
-Graph_Plotter("CTCF_HUMAN")
+Graph_Plotter("CTCF_HUMAN", Type = c("Smooth and Norm", "Norm", "Raw", "Smooth", "Compare"))
 ```
