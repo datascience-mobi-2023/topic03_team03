@@ -10,27 +10,29 @@
   7. Was wäre sinnvoll beim Gaussian Fit? (Jeden Peak mit eigener Kurve?)
 
 * Antworten
-  1. Das smoothen kann man so machen
+  1. Das Smoothen kann man so machen
+  „Kann man so machen, joa …“
   
-  2. T-Test auf Gaußfunktion => Welche Shifts Signifikant sind => Die Verschiebung um eine Fraktion wird dann wahrscheinlich nicht signifikant sein
+  2. T-Test auf Gaußfunktion => Welche Shifts signifikant sind => Die Verschiebung um eine Fraktion wird dann wahrscheinlich nicht signifikant sein
   - Der Abstand der Peaks? der Gaußkurven => Überprüfung der Überlappung
   
   3. Threshhold setzen => alles unter 2 oder 3 wird nicht mitreingenommen
-  - andere Möglichkeit: Auf Signifikanz testen (nicht gesmate Varianz herausfinden) Werte insgesamt vergleichen
+  - andere Möglichkeit: Auf Signifikanz testen (nicht gesamte Varianz herausfinden) Werte insgesamt vergleichen
+  „Kann man schon so machen.“
   
   4. geht das so? - ja
   
   5. 
   - Herausfinden der Restbeträge/Bestände, Testen ob globaler Peak der einzig richtige ist => gibt Rückschlüsse über die Fehlerhaftigkeit der Experimentdurchführung
-  - lineare Regression: Nachvollziehen, welche Proteine RNA bindend sind (in RNAse Gruppe zwar verschobener Peak, aber auch sehr großer Peak bei Kontrollgruppe => Stärke der Abhängigkeit der PRoteine)
+  - lineare Regression: Nachvollziehen, welche Proteine RNA-bindend sind (in RNAse Gruppe zwar verschobener Peak, aber auch sehr großer Peak bei Kontrollgruppe => Stärke der Abhängigkeit der Proteine)
   
-  6. ja while SCchleifen gibt es - Effizienz? - anders als for-Schleifen, kann effizient sein
-  - Wenn nach Normalizing 2 oder 3 Peaks hintereinander sind: Jedesmal, wenn mehere Werte hintereinander gleich sind, überprüft man wie viele Werte hintereinander sind
+  6. ja while Schleifen gibt es - Effizienz? - anders als for-Schleifen für data frames (“gigaineffizient”)
+  - Wenn nach Normalizing 2 oder 3 Peaks hintereinander sind: Jedesmal, wenn mehrere Werte hintereinander gleich sind überprüft man wie viele Werte hintereinander sind
   => kann effizienter sein, müsste man mal überprüfen
   
-  7. Keine Gaußkurve auf die lokalen Peaks => bringt nix => nur Fraktion mit globalen Peak 
+  7. Keine Gaußkurve auf die lokalen Peaks => bringt nix => nur Fraktion mit globalen Peak („Was soll euch das bringen?“)
   - Varianz bestimmen? 
-  - Beim Vergleich mit dem T-Test müssen wir von ausgehen, dass Varianz immer gleich ist => Varianz ist "egal"
-  - basic Gaußkurve auf die Graphen legen - Halbwertsbreite erst wenn wir den Rest haben => Nicht notwendig für Signifikant eines Shifts
+  - Beim Vergleich mit dem T-Test müssen wir davon ausgehen, dass Varianz immer gleich ist => Varianz ist "egal"
+  - basic Gaußkurve auf die Graphen legen - Halbwertsbreite erst, wenn wir den Rest haben => Nicht notwendig für Signifikant eines Shifts
   - Höhe bei Gaußfunktion immer die gleiche => Nur Überlappungen werden mit dem T-test überprüft
-  - keine Gaußkurve -> andere Methoden - welche???
+  - keine Gaußkurve -> andere Methoden - welche??? „feel free!“
