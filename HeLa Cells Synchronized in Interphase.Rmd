@@ -182,9 +182,9 @@ colnames(Mean_Ctrl_Smooth) = colnames(Mean_Ctrl)
 # Gleicher Code für RNase
 Mean_RNase_Smooth = 
   as.data.frame(
-cbind(Mean_RNase[,1],
+cbind((Mean_RNase[,1]+Mean_RNase[,2])/2,
       sapply(seq(0,22,1), function(i) {apply(Mean_RNase[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x)})}), 
-      Mean_RNase[,25])
+      (Mean_RNase[,24]+Mean_RNase[,25])/2)
 )
 
 colnames(Mean_RNase_Smooth) = colnames(Mean_RNase)
@@ -648,6 +648,7 @@ Did it work? Let us look at the examples from before!
 ```{r}
 Graph_Plotter("CTCF_HUMAN")
 ```
+
 ```{r}
 Graph_Plotter("CY24A_HUMAN")
 ```
