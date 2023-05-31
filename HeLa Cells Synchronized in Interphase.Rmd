@@ -583,12 +583,13 @@ rm(Fra.Pos)
 # ABCA1_HUMAN (gut für triple peaks to single peak)
 # NAT10_HUMAN (gut für verschiedene lokale Peaks)
 
-Graph_Plotter <- function(gene.name, col.RNase = "red", col.Ctrl = "green", grid = T, Gbl.Max = T, Loc.Max = T, Norm = F, Smooth = F, Raw = F, Compare = F) {
+Graph_Plotter <- function(gene.name, col.RNase = "red", col.Ctrl = "green", grid = T, Gbl.Max = T, Loc.Max = T, Type = "Smooth and Norm" #, "Norm", "Smooth", "Raw", "Compare"
+                          ) {
 
 par(mar=c(5, 4, 4, 7), xpd=F)
 
 # Smoothed and Normalized
-if(Norm == F & Smooth == F & Raw == F & Compare == F) {
+if(Type == "Smooth and Norm") {
 plot(1:25, rep(NA, 25),xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(gene.name, "(Smoothed and Normalized)"), ylim=c(0,max(max(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))+0.1*max(max(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))))
 
 if(grid == T) {grid()}
@@ -643,7 +644,7 @@ legend("topright",inset = c(-0.23,0), legend=c("Control","RNase", "Global", "Loc
 }
 
 # Normalized
-if(Norm == T & Smooth == F & Raw == F & Compare == F) {
+if(Type == "Norm") {
 plot(1:25, rep(NA, 25),xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(gene.name, "(Normalized)"), ylim=c(0,max(max(Mean_Ctrl_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))+0.1*max(max(Mean_Ctrl_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))))
 
 if(grid == T) {grid()}
@@ -658,7 +659,7 @@ legend("topright",inset = c(-0.25,0), legend=c("Control","RNase"), lty=c(1,1), c
 }
 
 # Smoothed  
-if(Norm == F & Smooth == T & Raw == F & Compare == F) {
+if(Type == "Smooth") {
 plot(1:25, rep(NA, 25),xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(gene.name, "(Smoothed)"), ylim=c(0,max(max(Mean_Ctrl_Smooth[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Smooth[which(rownames(Mean_Ctrl)==gene.name),]))+0.1*max(max(Mean_Ctrl_Smooth[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Smooth[which(rownames(Mean_Ctrl)==gene.name),]))))
 
 if(grid == T) {grid()}
@@ -673,7 +674,7 @@ legend("topright",inset = c(-0.25,0), legend=c("Control","RNase"), lty=c(1,1), c
 }
 
 # Raw   
-if(Norm == F & Smooth == F & Raw == T & Compare == F) {
+if(Type == "Raw") {
 plot(1:25, rep(NA, 25),xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(gene.name), ylim=c(0,max(max(Mean_Ctrl[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase[which(rownames(Mean_Ctrl)==gene.name),]))+0.1*max(max(Mean_Ctrl[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase[which(rownames(Mean_Ctrl)==gene.name),]))))
 
 if(grid == T) {grid()}
@@ -688,7 +689,7 @@ legend("topright",inset = c(-0.25,0), legend=c("Control","RNase"), lty=c(1,1), c
 }
   
 # Compare
-if(Norm == F & Smooth == F & Raw == F & Compare == T) {
+if(Type == "Compare") {
 plot(1:25, rep(NA, 25),xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(gene.name), ylim=c(0,max(max(Mean_Ctrl_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))+0.1*max(max(Mean_Ctrl_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))))
 
 if(grid == T) {grid()}
@@ -711,9 +712,5 @@ legend("topright",inset = c(-0.25,0), legend=c("Control","RNase"), lty=c(1,1), c
 
 Did it work? Let us look at the examples from before!
 ```{r}
-Graph_Plotter("CTCF_HUMAN", Norm = T, Smooth = F, Raw = F)
-Graph_Plotter("CTCF_HUMAN", Norm = F, Smooth = T, Raw = F)
-Graph_Plotter("CTCF_HUMAN", Norm = F, Smooth = F, Raw = T)
-Graph_Plotter("CTCF_HUMAN", Norm = F, Smooth = F, Raw = F)
-Graph_Plotter("CTCF_HUMAN", Norm = F, Smooth = F, Raw = F, Compare = T)
+Graph_Plotter("CTCF_HUMAN")
 ```
