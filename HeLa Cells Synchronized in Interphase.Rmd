@@ -583,23 +583,39 @@ rm(Fra.Pos)
 # ABCA1_HUMAN (gut für triple peaks to single peak)
 # NAT10_HUMAN (gut für verschiedene lokale Peaks)
 
-Graph_Plotter <- function(gene.name, col.RNase = "red", col.Ctrl = "green", grid = T, Gbl.Max = T, Loc.Max = T) {
+Graph_Plotter <- function(gene.name, col.RNase = "red", col.Ctrl = "green", grid = T, Gbl.Max = T, Loc.Max = T, Norm = F, Smooth = F, Raw = F) {
 
 par(mar=c(5, 4, 4, 7), xpd=F)
 
-plot(1:25, Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),],type="l",lwd=3,col=col.Ctrl,xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name, "(Smoothed and Normalized)")), ylim=c(0,max(max(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))+3))
+if(Norm == F & Smooth == F & Raw == F) {
+plot(1:25, Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),],type="l",lwd=3,col=col.Ctrl,xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name, "(Smoothed and Normalized)")), ylim=c(0,max(max(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))+0.1*max(max(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))))}
+  
+if(Norm == T & Smooth == F & Raw == F) {
+plot(1:25, Mean_Ctrl_Norm_100[which(rownames(Mean_Ctrl)==gene.name),],type="l",lwd=3,col=col.Ctrl,xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name, "(Normalized)")), ylim=c(0,max(max(Mean_Ctrl_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))+0.1*max(max(Mean_Ctrl_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))))
+  
+lines(1:25, Mean_RNase_Norm_100[which(rownames(Mean_RNase)==gene.name),], type="l",lwd=3,col=col.RNase)}
+  
+if(Norm == F & Smooth == T & Raw == F) {
+plot(1:25, Mean_Ctrl_Smooth[which(rownames(Mean_Ctrl)==gene.name),],type="l",lwd=3,col=col.Ctrl,xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name, "(Smoothed)")), ylim=c(0,max(max(Mean_Ctrl_Smooth[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Smooth[which(rownames(Mean_Ctrl)==gene.name),]))+0.1*max(max(Mean_Ctrl_Smooth[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Smooth[which(rownames(Mean_Ctrl)==gene.name),]))))
+  
+lines(1:25, Mean_RNase_Smooth[which(rownames(Mean_RNase)==gene.name),], type="l",lwd=3,col=col.RNase)}
+  
+if(Norm == F & Smooth == F & Raw == T) {
+plot(1:25, Mean_Ctrl[which(rownames(Mean_Ctrl)==gene.name),],type="l",lwd=3,col=col.Ctrl,xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name)), ylim=c(0,max(max(Mean_Ctrl[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase[which(rownames(Mean_Ctrl)==gene.name),]))+0.1*max(max(Mean_Ctrl[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase[which(rownames(Mean_Ctrl)==gene.name),]))))
+  
+lines(1:25, Mean_RNase[which(rownames(Mean_RNase)==gene.name),], type="l",lwd=3,col=col.RNase)}
 
 if(grid == T) {
 grid()}
 
-if(Gbl.Max == T) {
+if(Gbl.Max == T & Norm == F & Smooth == F & Raw == F) {
 segments(unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name),]), 
          -1, 
          unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name),]), 
          Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name), unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name),])], 
          lwd=3,col=col.Ctrl,lty=2)}
 
-if(Loc.Max == T) {
+if(Loc.Max == T & Norm == F & Smooth == F & Raw == F) {
 if(!is.null(unlist(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name),]))]))) {
 
 segments(unlist(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name),]))]), 
@@ -608,16 +624,17 @@ segments(unlist(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name),which(!i
          unlist(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name), which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name),]))]), 
          lwd=3,col=col.Ctrl,lty=2)}}
 
-lines(1:25, Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name),], type="l",lwd=3,col=col.RNase)
+if(Norm == F & Smooth == F & Raw == F) {
+lines(1:25, Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name),], type="l",lwd=3,col=col.RNase)}
 
-if(Gbl.Max == T) {
+if(Gbl.Max == T & Norm == F & Smooth == F & Raw == F) {
 segments(unlist(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name),]), 
          -1, 
          unlist(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name),]), 
          Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name), unlist(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name),])], 
          lwd=3,col=col.RNase,lty=3)}
 
-if(Loc.Max == T) {
+if(Loc.Max == T & Norm == F & Smooth == F & Raw == F) {
 if(!is.null(unlist(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name),which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name),]))]))) {
 
 segments(unlist(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name),which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name),]))]), 
@@ -626,13 +643,13 @@ segments(unlist(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name),which(
          unlist(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name), which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name),]))]), 
          lwd=3,col=col.RNase,lty=3)}}
 
-if(Gbl.Max == T) {
+if(Gbl.Max == T & Norm == F & Smooth == F & Raw == F) {
 points(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name), ], Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name),])], pch=21, col="black", bg=col.Ctrl, cex=1.5)
   
 points(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name), ], Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name),unlist(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name),])], pch=21, col="black", bg=col.RNase, cex=1.5)  
   }
 
-if(Loc.Max == T) {
+if(Loc.Max == T & Norm == F & Smooth == F & Raw == F) {
 points(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name),]))], Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name), which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name),]))], pch=24, col="black", bg=col.Ctrl, cex=1.2)
 
 points(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name),which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name),]))], Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name), which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name),]))], pch=24, col="black", bg=col.RNase, cex=1.2)
@@ -650,5 +667,8 @@ Graph_Plotter("CTCF_HUMAN")
 ```
 
 ```{r}
-Graph_Plotter("CY24A_HUMAN")
+Graph_Plotter("NAT10_HUMAN", Raw = T)
+Graph_Plotter("NAT10_HUMAN", Norm = T)
+Graph_Plotter("NAT10_HUMAN", Smooth = T)
+Graph_Plotter("NAT10_HUMAN")
 ```
