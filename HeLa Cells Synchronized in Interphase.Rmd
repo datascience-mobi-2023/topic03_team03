@@ -815,6 +815,18 @@ optimise(h_finder, interval = c(Gaussian_Fit_RNase[k,3]-5, Gaussian_Fit_RNase[k,
 Gaussian_Fit_RNase[,4] <- sapply(seq(1, nrow(RDeeP_HeLa_Interphase_RNase),1), function(k) {Gaussian_Fit_RNase[k,3] * (pnorm(25, mean = Gaussian_Fit_RNase[k,1], sd = Gaussian_Fit_RNase[k,2]) - pnorm(0, mean = Gaussian_Fit_RNase[k,1], sd = Gaussian_Fit_RNase[k,2]))})
 
 ### bessere Ergebnisse wenn Fit an ungesmoothe Data?
+
+a = (1/(Gaussian_Fit_Ctrl[,2])^2 - 1/(Gaussian_Fit_RNase[,2])^2)
+b = 2 * ((Gaussian_Fit_RNase[,1])/(Gaussian_Fit_RNase[,2])^2 - (Gaussian_Fit_Ctrl[,1])/(Gaussian_Fit_Ctrl[,2])^2)
+c = (Gaussian_Fit_Ctrl[,1]/Gaussian_Fit_Ctrl[,2])^2 - (Gaussian_Fit_RNase[,1]/Gaussian_Fit_RNase[,2])^2 - 2 * log((Gaussian_Fit_Ctrl[,3] * Gaussian_Fit_RNase[,2])/(Gaussian_Fit_RNase[,3] * Gaussian_Fit_Ctrl[,2]))
+
+x1 = (- b + sqrt(b^(2) - 4 * a * c))/(2 * a)
+x2 = (- b - sqrt(b^(2) - 4 * a * c))/(2 * a)
+
+x1[which(rownames(RDeeP_HeLa_Interphase_Ctrl) == "RL32_HUMAN")]
+x2[which(rownames(RDeeP_HeLa_Interphase_Ctrl) == "RL32_HUMAN")]
+
+Gene_Plotter("RL32_HUMAN")
 ```
 
 
