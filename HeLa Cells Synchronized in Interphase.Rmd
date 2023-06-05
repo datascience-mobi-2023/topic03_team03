@@ -814,8 +814,6 @@ optimise(h_finder, interval = c(Gaussian_Fit_RNase[k,3]-5, Gaussian_Fit_RNase[k,
 
 Gaussian_Fit_RNase[,4] <- sapply(seq(1, nrow(RDeeP_HeLa_Interphase_RNase),1), function(k) {Gaussian_Fit_RNase[k,3] * (pnorm(25, mean = Gaussian_Fit_RNase[k,1], sd = Gaussian_Fit_RNase[k,2]) - pnorm(0, mean = Gaussian_Fit_RNase[k,1], sd = Gaussian_Fit_RNase[k,2]))})
 
-### bessere Ergebnisse wenn Fit an ungesmoothe Data?
-
 
 #### Berechnung der prozentualen Schnittmenge
 
@@ -842,34 +840,46 @@ if(Gaussian_Fit_Ctrl[k,2] < Gaussian_Fit_RNase[k,2]) {
   + Gaussian_Fit_Ctrl[k,3] * (pnorm(25, mean = Gaussian_Fit_Ctrl[k,1], sd = Gaussian_Fit_Ctrl[k,2]) - pnorm(x2[k], mean = Gaussian_Fit_Ctrl[k,1], sd = Gaussian_Fit_Ctrl[k,2])))/((Gaussian_Fit_Ctrl[k,4] + Gaussian_Fit_RNase[k,4])/2)
 }}))
 
+# --> es gibt 4 edge cases!!!! (position der globalen peaks auch wichtig)
+
 rm(a,b,c,x1,x2)
 
-Gene_Plotter(c("RL32_HUMAN", "ACL6B_HUMAN"))
-
-overlap[which(rownames(RDeeP_HeLa_Interphase_Ctrl) == "RL32_HUMAN")]
-overlap[which(rownames(RDeeP_HeLa_Interphase_Ctrl) == "ACL6B_HUMAN")]
-overlap
-
 # every NA represents a gene for which the sd for Control and RNase are identical -> this DOES NOT mean that mu and h are also identical!
+# ----> there is only one point of intersection! 
 
-length(Gaussian_Fit_Ctrl[which(is.na(overlap) & !is.nan(overlap)),2]) - length(which(Gaussian_Fit_Ctrl[which(is.na(overlap) & !is.nan(overlap)),2] == Gaussian_Fit_RNase[which(is.na(overlap) & !is.nan(overlap)),2]))
+x = ((Gaussian_Fit_Ctrl[which(is.na(overlap) & !is.nan(overlap)), 2])^(2) * log(Gaussian_Fit_Ctrl[which(is.na(overlap) & !is.nan(overlap)), 3]/Gaussian_Fit_RNase[which(is.na(overlap) & !is.nan(overlap)), 3]))/(Gaussian_Fit_RNase[which(is.na(overlap) & !is.nan(overlap)), 1] -  Gaussian_Fit_Ctrl[which(is.na(overlap) & !is.nan(overlap)), 1]) + (Gaussian_Fit_RNase[which(is.na(overlap) & !is.nan(overlap)), 1] + Gaussian_Fit_Ctrl[which(is.na(overlap) & !is.nan(overlap)), 1])/2
 
-length(Gaussian_Fit_Ctrl[which(is.na(overlap) & !is.nan(overlap)),1]) - length(which(Gaussian_Fit_Ctrl[which(is.na(overlap) & !is.nan(overlap)),1] == Gaussian_Fit_RNase[which(is.na(overlap) & !is.nan(overlap)),1]))
+## ---> if x is an NaN value the distributions are IDENTICAL ("Division by 0") (i checked, theoretically there could also be genes where mu and sd but not h are identical)
+### ---> these values have an intersection of 1
 
-length(Gaussian_Fit_Ctrl[which(is.na(overlap) & !is.nan(overlap)),3]) - length(which(Gaussian_Fit_Ctrl[which(is.na(overlap) & !is.nan(overlap)),3] == Gaussian_Fit_RNase[which(is.na(overlap) & !is.nan(overlap)),3]))
+Pos1 = which(is.na(overlap) & !is.nan(overlap))[which(is.nan(x))]
+Pos2 = which(is.na(overlap) & !is.nan(overlap))[which(!is.nan(x))]
+Pos3 = which(!is.nan(x))
 
-# every NaN value represents a gene for which the mu for Control and RNase are identical (maybe different sd and h, but one distribution "hides" from the other) <- not true (?!)
+overlap[Pos1] = 1
 
-length(Gaussian_Fit_Ctrl[which(is.nan(overlap)),1]) - length(which(Gaussian_Fit_Ctrl[which(is.nan(overlap)),1] == Gaussian_Fit_RNase[which(is.nan(overlap)),1]))
+overlap[Pos2] = sapply(Pos2, function(k) {
+  
+if(Gaussian_Fit_Ctrl[k, 1] > Gaussian_Fit_RNase[k, 1]) {
+(Gaussian_Fit_Ctrl[k,3] * (pnorm(x[Pos3[which(Pos2 == k)]], mean = Gaussian_Fit_Ctrl[k,1], sd = Gaussian_Fit_Ctrl[k,2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[k,1], sd = Gaussian_Fit_Ctrl[k,2])) + Gaussian_Fit_RNase[k,3] * (pnorm(25, mean = Gaussian_Fit_RNase[k,1], sd = Gaussian_Fit_RNase[k,2]) - pnorm(x[Pos3[which(Pos2 == k)]], mean = Gaussian_Fit_RNase[k,1], sd = Gaussian_Fit_RNase[k,2])))/((Gaussian_Fit_Ctrl[k,4] + Gaussian_Fit_RNase[k,4])/2)} 
+  
+  else {
+  (Gaussian_Fit_RNase[k,3] * (pnorm(x[Pos3[which(Pos2 == k)]], mean = Gaussian_Fit_RNase[k,1], sd = Gaussian_Fit_RNase[k,2]) - pnorm(0, mean = Gaussian_Fit_RNase[k,1], sd = Gaussian_Fit_RNase[k,2])) + Gaussian_Fit_Ctrl[k,3] * (pnorm(25, mean = Gaussian_Fit_RNase[k,1], sd = Gaussian_Fit_RNase[k,2]) - pnorm(x[Pos3[which(Pos2 == k)]], mean = Gaussian_Fit_Ctrl[k,1], sd = Gaussian_Fit_Ctrl[k,2])))/((Gaussian_Fit_Ctrl[k,4] + Gaussian_Fit_RNase[k,4])/2)
+}})
 
-length(Gaussian_Fit_Ctrl[which(is.nan(overlap)),2]) - length(which(Gaussian_Fit_Ctrl[which(is.nan(overlap)),2] == Gaussian_Fit_RNase[which(is.nan(overlap)),2]))
+rm(Pos1, Pos2, Pos3, x)
 
-length(Gaussian_Fit_Ctrl[which(is.nan(overlap)),3]) - length(which(Gaussian_Fit_Ctrl[which(is.nan(overlap)),3] == Gaussian_Fit_RNase[which(is.nan(overlap)),3]))
+# every NaN value represents a gene for which the gaussian curves intersect outside the interval [0,25] -> both x1 and x2 are NaN -> could not be calculated because so far away?
+# ----> we can calculate the proportion of the common area by calculating the area of the smaller curve and deviding it by the mean!
 
-Gaussian_Fit_Ctrl[13,]
-Gaussian_Fit_RNase[13,]
+overlap[which(is.nan(overlap))] = sapply(which(is.nan(overlap)), function(k) {
 
-Gene_Plotter("2AAB_HUMAN")
+if(Gaussian_Fit_Ctrl[k, 3] > Gaussian_Fit_RNase[k, 3]) {
+  Gaussian_Fit_RNase[k, 3]/((Gaussian_Fit_Ctrl[k, 3] + Gaussian_Fit_RNase[k, 3])/2)} else {Gaussian_Fit_Ctrl[k, 3]/((Gaussian_Fit_Ctrl[k, 3] + Gaussian_Fit_RNase[k, 3])/2)}
+  })
+
+# 3 Examples of genes with NaN values (last one most extreme: NaN value and only 0.35 overlap)
+# Gene_Plotter(c("GBG12_HUMAN", "IMPA3_HUMAN", "YJU2_HUMAN", "RBM3_HUMAN", "PK3CA_HUMAN", "NOP16_HUMAN", "2A5A_HUMAN"))
 ```
 
 
