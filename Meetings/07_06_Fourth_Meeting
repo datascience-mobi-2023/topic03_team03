@@ -1,4 +1,5 @@
 Können wir die Proteine rauswerfen, die Null-Replikate enthalten? (16 Stück)
 Gibt es einen Befehl, der statt optimize funktioniert? (soll schneller sein, da optimize echt zota-ineffizient ist)
 Wie sollen wir outlier-samples identifizieren? Batch-Effekt wird ja z.B. schwierig, da wir die Batches nicht kennen und es gibt keine Leerlauf-Kontrolle für das Rauschen.
+Welchen Threshhold sollen wir bei der Correlation nehmen? 
 Wie soll das Markdown am Ende aussehen? Also welche Aufräumarbeiten können wir jetzt schon leisten?
