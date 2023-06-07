@@ -131,8 +131,8 @@ RDeeP_HeLa_Interphase_RNase <- RDeeP_HeLa_Interphase_RNase[!(rownames(RDeeP_HeLa
 
 #
 
-length(which(Cor_Ctrl <= 0.9))
-length(which(Cor_RNase <= 0.9))
+length(which(Cor_Ctrl <= 0.95))/(3 * 7069)
+length(which(Cor_RNase <= 0.95))/(3* 7069)
 ```
 
 
@@ -736,6 +736,8 @@ curve(h_Ctrl*(1/(sd_Ctrl*(sqrt(2*pi))))*exp(1)^(-(1/2)*((x-mu_Ctrl)/sd_Ctrl)^2),
 curve(h_RNase*(1/(sd_RNase*(sqrt(2*pi))))*exp(1)^(-(1/2)*((x-mu_RNase)/sd_RNase)^2), add = T, lwd = 3, col = scales::alpha("orange", 0.65))
 
 rm(mu_Ctrl, sd_Ctrl, h_Ctrl, mu_RNase, sd_RNase, h_RNase, gene.name, mu_finder, sd_finder, h_finder)
+
+Gene_Plotter("RL32_HUMAN", Gauss = F)
 ```
 
 
@@ -747,8 +749,8 @@ Note, that we will also calculate the protein amount under each peak (area under
 **Note:** *This chunk can take up to several minutes to run.*
 
 ```{r}
-Gaussian_Fit_Ctrl = as.data.frame(matrix(rep(NA, nrow(RDeeP_HeLa_Interphase_Ctrl)*4), ncol =4))
-colnames(Gaussian_Fit_Ctrl) = c("mu", "sd", "h", "prt_amount")
+Gaussian_Fit_Ctrl = as.data.frame(matrix(rep(NA, nrow(RDeeP_HeLa_Interphase_Ctrl)*5), ncol = 5))
+colnames(Gaussian_Fit_Ctrl) = c("mu", "sd", "h", "prt_amount", "overlap")
 rownames(Gaussian_Fit_Ctrl) = rownames(RDeeP_HeLa_Interphase_Ctrl)
 
 Gaussian_Fit_Ctrl[,1] <- unlist(Mean_Ctrl_Gbl_Max)
@@ -782,8 +784,8 @@ Gaussian_Fit_Ctrl[,4] <- sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl),1), func
 
 
 
-Gaussian_Fit_RNase = as.data.frame(matrix(rep(NA, nrow(RDeeP_HeLa_Interphase_RNase)*4), ncol =4))
-colnames(Gaussian_Fit_RNase) = c("mu", "sd", "h", "prt_amount")
+Gaussian_Fit_RNase = as.data.frame(matrix(rep(NA, nrow(RDeeP_HeLa_Interphase_RNase)*5), ncol = 5))
+colnames(Gaussian_Fit_RNase) = c("mu", "sd", "h", "prt_amount", "overlap")
 rownames(Gaussian_Fit_RNase) = rownames(RDeeP_HeLa_Interphase_RNase)
 
 Gaussian_Fit_RNase[,1] <- unlist(Mean_RNase_Gbl_Max)
@@ -813,73 +815,199 @@ optimise(h_finder, interval = c(Gaussian_Fit_RNase[k,3]-5, Gaussian_Fit_RNase[k,
 
 
 Gaussian_Fit_RNase[,4] <- sapply(seq(1, nrow(RDeeP_HeLa_Interphase_RNase),1), function(k) {Gaussian_Fit_RNase[k,3] * (pnorm(25, mean = Gaussian_Fit_RNase[k,1], sd = Gaussian_Fit_RNase[k,2]) - pnorm(0, mean = Gaussian_Fit_RNase[k,1], sd = Gaussian_Fit_RNase[k,2]))})
+```
 
 
-#### Berechnung der prozentualen Schnittmenge
+##### Calculation of Gaussian Overlap 
 
-a = (1/(Gaussian_Fit_Ctrl[,2])^2 - 1/(Gaussian_Fit_RNase[,2])^2)
-b = 2 * ((Gaussian_Fit_RNase[,1])/(Gaussian_Fit_RNase[,2])^2 - (Gaussian_Fit_Ctrl[,1])/(Gaussian_Fit_Ctrl[,2])^2)
-c = (Gaussian_Fit_Ctrl[,1]/Gaussian_Fit_Ctrl[,2])^2 - (Gaussian_Fit_RNase[,1]/Gaussian_Fit_RNase[,2])^2 - 2 * log((Gaussian_Fit_Ctrl[,3] * Gaussian_Fit_RNase[,2])/(Gaussian_Fit_RNase[,3] * Gaussian_Fit_Ctrl[,2]))
+``` {r}
+overlap = rep(NA, nrow(RDeeP_HeLa_Interphase_Ctrl))
+
+# sd1 = sd2, mu1 = mu2, h1 = h2
+g1 = which(rownames(Gaussian_Fit_Ctrl) %in% unlist(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
+if(Gaussian_Fit_Ctrl[k, 2] == Gaussian_Fit_RNase[k,2] & Gaussian_Fit_Ctrl[k,1] == Gaussian_Fit_RNase[k,1] & Gaussian_Fit_Ctrl[k,3] == Gaussian_Fit_RNase[k,3]) {rownames(Gaussian_Fit_Ctrl[k,])}
+  })))
+
+overlap[g1] = 1
+
+# sd1 = sd2, mu1 > mu2, h1 = h2 | h1 < h2 | h1 > h2
+g2 = which(rownames(Gaussian_Fit_Ctrl) %in% unlist(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
+if(Gaussian_Fit_Ctrl[k, 2] == Gaussian_Fit_RNase[k,2] & Gaussian_Fit_Ctrl[k,1] > Gaussian_Fit_RNase[k,1]) {rownames(Gaussian_Fit_Ctrl[k,])}
+  })))
+
+x = ((Gaussian_Fit_Ctrl[g2, 2])^(2) * log(Gaussian_Fit_Ctrl[g2, 3]/Gaussian_Fit_RNase[g2, 3]))/(Gaussian_Fit_RNase[g2, 1] -  Gaussian_Fit_Ctrl[g2, 1]) + (Gaussian_Fit_RNase[g2, 1] + Gaussian_Fit_Ctrl[g2, 1])/2
+
+overlap[g2] = sapply(seq(1,length(g2),1), function(k) {
+  (Gaussian_Fit_Ctrl[g2[k], 3] * (pnorm(x[k], mean = Gaussian_Fit_Ctrl[g2[k], 1], sd = Gaussian_Fit_Ctrl[g2[k], 2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[g2[k], 1], sd = Gaussian_Fit_Ctrl[g2[k], 2])) + Gaussian_Fit_RNase[g2[k], 3] * (pnorm(25, mean = Gaussian_Fit_RNase[g2[k], 1], sd = Gaussian_Fit_RNase[g2[k], 2]) - pnorm(x[k], mean = Gaussian_Fit_RNase[g2[k], 1], sd = Gaussian_Fit_RNase[g2[k], 2])))/((Gaussian_Fit_Ctrl[g2[k], 4] + Gaussian_Fit_RNase[g2[k], 4])/2)
+})
+
+# sd1 = sd2, mu1 < mu2, h1 = h2 | h1 < h2 | h1 > h2
+g3 = which(rownames(Gaussian_Fit_Ctrl) %in% unlist(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
+if(Gaussian_Fit_Ctrl[k, 2] == Gaussian_Fit_RNase[k,2] & Gaussian_Fit_Ctrl[k,1] < Gaussian_Fit_RNase[k,1]) {rownames(Gaussian_Fit_Ctrl[k,])}
+  })))
+
+x = ((Gaussian_Fit_Ctrl[g3, 2])^(2) * log(Gaussian_Fit_Ctrl[g3, 3]/Gaussian_Fit_RNase[g3, 3]))/(Gaussian_Fit_RNase[g3, 1] -  Gaussian_Fit_Ctrl[g3, 1]) + (Gaussian_Fit_RNase[g3, 1] + Gaussian_Fit_Ctrl[g3, 1])/2
+
+overlap[g3] = sapply(seq(1,length(g3),1), function(k) {
+  (Gaussian_Fit_RNase[g3[k], 3] * (pnorm(x[k], mean = Gaussian_Fit_RNase[g3[k], 1], sd = Gaussian_Fit_RNase[g3[k], 2]) - pnorm(0, mean = Gaussian_Fit_RNase[g3[k], 1], sd = Gaussian_Fit_RNase[g3[k], 2])) + Gaussian_Fit_Ctrl[g3[k], 3] * (pnorm(25, mean = Gaussian_Fit_Ctrl[g3[k], 1], sd = Gaussian_Fit_Ctrl[g3[k], 2]) - pnorm(x[k], mean = Gaussian_Fit_Ctrl[g3[k], 1], sd = Gaussian_Fit_Ctrl[g3[k], 2])))/((Gaussian_Fit_Ctrl[g3[k], 4] + Gaussian_Fit_RNase[g3[k], 4])/2)
+})
+
+# sd1 = sd2, mu1 = mu2, h1 > h2
+g4 = which(rownames(Gaussian_Fit_Ctrl) %in% unlist(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
+if(Gaussian_Fit_Ctrl[k, 2] == Gaussian_Fit_RNase[k,2] & Gaussian_Fit_Ctrl[k,1] == Gaussian_Fit_RNase[k,1] & Gaussian_Fit_Ctrl[k,3] > Gaussian_Fit_RNase[k,3]) {rownames(Gaussian_Fit_Ctrl[k,])}
+  })))
+
+overlap[g4] = sapply(seq(1, length(g4), 1), function(k) {
+  (Gaussian_Fit_RNase[g4[k], 4])/((Gaussian_Fit_Ctrl[g4[k], 4] + Gaussian_Fit_RNase[g4[k], 4])/2)
+})
+
+# sd1 = sd2, mu1 = mu2, h1 < h2
+g5 = which(rownames(Gaussian_Fit_Ctrl) %in% unlist(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
+if(Gaussian_Fit_Ctrl[k, 2] == Gaussian_Fit_RNase[k,2] & Gaussian_Fit_Ctrl[k,1] == Gaussian_Fit_RNase[k,1] & Gaussian_Fit_Ctrl[k,3] < Gaussian_Fit_RNase[k,3]) {rownames(Gaussian_Fit_Ctrl[k,])}
+  })))
+
+overlap[g5] = sapply(seq(1, length(g5), 1), function(k) {
+  (Gaussian_Fit_Ctrl[g5[k], 4])/((Gaussian_Fit_Ctrl[g5[k], 4] + Gaussian_Fit_RNase[g5[k], 4])/2)
+})
+
+
+# sd1 > sd2, mu1 = mu2 | mu1 > mu2 | mu1 < mu2, h1 = h2 | h1 < h2
+g6 = which(rownames(Gaussian_Fit_Ctrl) %in% unlist(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
+if(Gaussian_Fit_Ctrl[k, 2] > Gaussian_Fit_RNase[k,2] & Gaussian_Fit_Ctrl[k,3] <= Gaussian_Fit_RNase[k,3]) {rownames(Gaussian_Fit_Ctrl[k,])}
+  })))
+
+a = (1/(Gaussian_Fit_Ctrl[g6,2])^2 - 1/(Gaussian_Fit_RNase[g6,2])^2)
+b = 2 * ((Gaussian_Fit_RNase[g6,1])/(Gaussian_Fit_RNase[g6,2])^2 - (Gaussian_Fit_Ctrl[g6,1])/(Gaussian_Fit_Ctrl[g6,2])^2)
+c = (Gaussian_Fit_Ctrl[g6,1]/Gaussian_Fit_Ctrl[g6,2])^2 - (Gaussian_Fit_RNase[g6,1]/Gaussian_Fit_RNase[g6,2])^2 - 2 * log((Gaussian_Fit_Ctrl[g6,3] * Gaussian_Fit_RNase[g6,2])/(Gaussian_Fit_RNase[g6,3] * Gaussian_Fit_Ctrl[g6,2]))
 
 x1 = (- b - sqrt(b^(2) - 4 * a * c))/(2 * a)
 x2 = (- b + sqrt(b^(2) - 4 * a * c))/(2 * a)
 
-overlap = rep(NA, nrow(RDeeP_HeLa_Interphase_Ctrl))
+u1 = g6[which(x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)]
+u2 = which(x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gaussian_Fit_RNase[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) + pnorm(25, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])) + Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+})
 
-overlap[which(is.na(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {if(Gaussian_Fit_Ctrl[k,2] > Gaussian_Fit_RNase[k,2]) {overlap[k]}})))] = unlist(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
-if(Gaussian_Fit_Ctrl[k,2] > Gaussian_Fit_RNase[k,2]) {
-  (Gaussian_Fit_RNase[k,3] * (pnorm(x2[k], mean = Gaussian_Fit_RNase[k,1], sd = Gaussian_Fit_RNase[k,2]) - pnorm(0, mean = Gaussian_Fit_RNase[k,1], sd = Gaussian_Fit_RNase[k,2])) 
-  + Gaussian_Fit_Ctrl[k,3] * (pnorm(x1[k], mean = Gaussian_Fit_Ctrl[k,1], sd = Gaussian_Fit_Ctrl[k,2]) - pnorm(x2[k], mean = Gaussian_Fit_Ctrl[k,1], sd = Gaussian_Fit_Ctrl[k,2])) 
-  + Gaussian_Fit_RNase[k,3] * (pnorm(25, mean = Gaussian_Fit_RNase[k,1], sd = Gaussian_Fit_RNase[k,2]) - pnorm(x1[k], mean = Gaussian_Fit_RNase[k,1], sd = Gaussian_Fit_RNase[k,2])))/((Gaussian_Fit_Ctrl[k,4] + Gaussian_Fit_RNase[k,4])/2)
-}}))
+u1 = g6[which(x1 > 25)]
+u2 = which(x1 > 25)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gaussian_Fit_RNase[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])) + Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(25, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+})
 
-overlap[which(is.na(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {if(Gaussian_Fit_Ctrl[k,2] < Gaussian_Fit_RNase[k,2]) {overlap[k]}})))] =unlist(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
-if(Gaussian_Fit_Ctrl[k,2] < Gaussian_Fit_RNase[k,2]) {
-  overlap[k] = (Gaussian_Fit_Ctrl[k,3] * (pnorm(x1[k], mean = Gaussian_Fit_Ctrl[k,1], sd = Gaussian_Fit_Ctrl[k,2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[k,1], sd = Gaussian_Fit_Ctrl[k,2])) 
-  + Gaussian_Fit_RNase[k,3] * (pnorm(x2[k], mean = Gaussian_Fit_RNase[k,1], sd = Gaussian_Fit_RNase[k,2]) - pnorm(x1[k], mean = Gaussian_Fit_RNase[k,1], sd = Gaussian_Fit_RNase[k,2])) 
-  + Gaussian_Fit_Ctrl[k,3] * (pnorm(25, mean = Gaussian_Fit_Ctrl[k,1], sd = Gaussian_Fit_Ctrl[k,2]) - pnorm(x2[k], mean = Gaussian_Fit_Ctrl[k,1], sd = Gaussian_Fit_Ctrl[k,2])))/((Gaussian_Fit_Ctrl[k,4] + Gaussian_Fit_RNase[k,4])/2)
-}}))
+u1 = g6[which(x2 < 0)]
+u2 = which(x2 < 0)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gaussian_Fit_RNase[u1[k], 3] * (pnorm(25, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])) + Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+})
 
-# --> es gibt 4 edge cases!!!! (position der globalen peaks auch wichtig)
+# sd1 < sd2, mu1 = mu2 | mu1 > mu2 | mu1 < mu2, h1 = h2 | h1 > h2
+g7 = which(rownames(Gaussian_Fit_Ctrl) %in% unlist(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
+if(Gaussian_Fit_Ctrl[k, 2] < Gaussian_Fit_RNase[k,2] & Gaussian_Fit_Ctrl[k,3] >= Gaussian_Fit_RNase[k,3]) {rownames(Gaussian_Fit_Ctrl[k,])}
+  })))
 
-rm(a,b,c,x1,x2)
+a = (1/(Gaussian_Fit_Ctrl[g7,2])^2 - 1/(Gaussian_Fit_RNase[g7,2])^2)
+b = 2 * ((Gaussian_Fit_RNase[g7,1])/(Gaussian_Fit_RNase[g7,2])^2 - (Gaussian_Fit_Ctrl[g7,1])/(Gaussian_Fit_Ctrl[g7,2])^2)
+c = (Gaussian_Fit_Ctrl[g7,1]/Gaussian_Fit_Ctrl[g7,2])^2 - (Gaussian_Fit_RNase[g7,1]/Gaussian_Fit_RNase[g7,2])^2 - 2 * log((Gaussian_Fit_Ctrl[g7,3] * Gaussian_Fit_RNase[g7,2])/(Gaussian_Fit_RNase[g7,3] * Gaussian_Fit_Ctrl[g7,2]))
 
-# every NA represents a gene for which the sd for Control and RNase are identical -> this DOES NOT mean that mu and h are also identical!
-# ----> there is only one point of intersection! 
+x2 = (- b - sqrt(b^(2) - 4 * a * c))/(2 * a)
+x1 = (- b + sqrt(b^(2) - 4 * a * c))/(2 * a)
 
-x = ((Gaussian_Fit_Ctrl[which(is.na(overlap) & !is.nan(overlap)), 2])^(2) * log(Gaussian_Fit_Ctrl[which(is.na(overlap) & !is.nan(overlap)), 3]/Gaussian_Fit_RNase[which(is.na(overlap) & !is.nan(overlap)), 3]))/(Gaussian_Fit_RNase[which(is.na(overlap) & !is.nan(overlap)), 1] -  Gaussian_Fit_Ctrl[which(is.na(overlap) & !is.nan(overlap)), 1]) + (Gaussian_Fit_RNase[which(is.na(overlap) & !is.nan(overlap)), 1] + Gaussian_Fit_Ctrl[which(is.na(overlap) & !is.nan(overlap)), 1])/2
+u1 = g7[which(x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)]
+u2 = which(x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) + pnorm(25, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])) + Gaussian_Fit_RNase[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+})
 
-## ---> if x is an NaN value the distributions are IDENTICAL ("Division by 0") (i checked, theoretically there could also be genes where mu and sd but not h are identical)
-### ---> these values have an intersection of 1
+u1 = g7[which(x1 > 25)]
+u2 = which(x1 > 25)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])) + Gaussian_Fit_RNase[u1[k], 3] * (pnorm(25, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+})
 
-Pos1 = which(is.na(overlap) & !is.nan(overlap))[which(is.nan(x))]
-Pos2 = which(is.na(overlap) & !is.nan(overlap))[which(!is.nan(x))]
-Pos3 = which(!is.nan(x))
+u1 = g7[which(x2 < 0)]
+u2 = which(x2 < 0)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(25, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])) + Gaussian_Fit_RNase[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+})
 
-overlap[Pos1] = 1
 
-overlap[Pos2] = sapply(Pos2, function(k) {
-  
-if(Gaussian_Fit_Ctrl[k, 1] > Gaussian_Fit_RNase[k, 1]) {
-(Gaussian_Fit_Ctrl[k,3] * (pnorm(x[Pos3[which(Pos2 == k)]], mean = Gaussian_Fit_Ctrl[k,1], sd = Gaussian_Fit_Ctrl[k,2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[k,1], sd = Gaussian_Fit_Ctrl[k,2])) + Gaussian_Fit_RNase[k,3] * (pnorm(25, mean = Gaussian_Fit_RNase[k,1], sd = Gaussian_Fit_RNase[k,2]) - pnorm(x[Pos3[which(Pos2 == k)]], mean = Gaussian_Fit_RNase[k,1], sd = Gaussian_Fit_RNase[k,2])))/((Gaussian_Fit_Ctrl[k,4] + Gaussian_Fit_RNase[k,4])/2)} 
-  
-  else {
-  (Gaussian_Fit_RNase[k,3] * (pnorm(x[Pos3[which(Pos2 == k)]], mean = Gaussian_Fit_RNase[k,1], sd = Gaussian_Fit_RNase[k,2]) - pnorm(0, mean = Gaussian_Fit_RNase[k,1], sd = Gaussian_Fit_RNase[k,2])) + Gaussian_Fit_Ctrl[k,3] * (pnorm(25, mean = Gaussian_Fit_RNase[k,1], sd = Gaussian_Fit_RNase[k,2]) - pnorm(x[Pos3[which(Pos2 == k)]], mean = Gaussian_Fit_Ctrl[k,1], sd = Gaussian_Fit_Ctrl[k,2])))/((Gaussian_Fit_Ctrl[k,4] + Gaussian_Fit_RNase[k,4])/2)
-}})
+# sd1 > sd2, mu1 = mu2 | mu1 > mu2 | mu1 < mu2, h1 > h2
+g8 = which(rownames(Gaussian_Fit_Ctrl) %in% unlist(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
+if(Gaussian_Fit_Ctrl[k, 2] > Gaussian_Fit_RNase[k,2] & Gaussian_Fit_Ctrl[k,3] > Gaussian_Fit_RNase[k,3]) {rownames(Gaussian_Fit_Ctrl[k,])}
+  })))
 
-rm(Pos1, Pos2, Pos3, x)
+a = (1/(Gaussian_Fit_Ctrl[g8,2])^2 - 1/(Gaussian_Fit_RNase[g8,2])^2)
+b = 2 * ((Gaussian_Fit_RNase[g8,1])/(Gaussian_Fit_RNase[g8,2])^2 - (Gaussian_Fit_Ctrl[g8,1])/(Gaussian_Fit_Ctrl[g8,2])^2)
+c = (Gaussian_Fit_Ctrl[g8,1]/Gaussian_Fit_Ctrl[g8,2])^2 - (Gaussian_Fit_RNase[g8,1]/Gaussian_Fit_RNase[g8,2])^2 - 2 * log((Gaussian_Fit_Ctrl[g8,3] * Gaussian_Fit_RNase[g8,2])/(Gaussian_Fit_RNase[g8,3] * Gaussian_Fit_Ctrl[g8,2]))
 
-# every NaN value represents a gene for which the gaussian curves intersect outside the interval [0,25] -> both x1 and x2 are NaN -> could not be calculated because so far away?
-# ----> we can calculate the proportion of the common area by calculating the area of the smaller curve and deviding it by the mean!
+x1 = (- b - sqrt(b^(2) - 4 * a * c))/(2 * a)
+x2 = (- b + sqrt(b^(2) - 4 * a * c))/(2 * a)
 
-overlap[which(is.nan(overlap))] = sapply(which(is.nan(overlap)), function(k) {
+u1 = g8[which(!is.nan(x1) & x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)]
+u2 = which(!is.nan(x1) & x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gaussian_Fit_RNase[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) + pnorm(25, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])) + Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+})
 
-if(Gaussian_Fit_Ctrl[k, 3] > Gaussian_Fit_RNase[k, 3]) {
-  Gaussian_Fit_RNase[k, 3]/((Gaussian_Fit_Ctrl[k, 3] + Gaussian_Fit_RNase[k, 3])/2)} else {Gaussian_Fit_Ctrl[k, 3]/((Gaussian_Fit_Ctrl[k, 3] + Gaussian_Fit_RNase[k, 3])/2)}
-  })
+u1 = g8[which(!is.nan(x1) & x1 > 25)]
+u2 = which(!is.nan(x1) & x1 > 25)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gaussian_Fit_RNase[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])) + Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(25, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+})
 
-# 3 Examples of genes with NaN values (last one most extreme: NaN value and only 0.35 overlap)
-# Gene_Plotter(c("GBG12_HUMAN", "IMPA3_HUMAN", "YJU2_HUMAN", "RBM3_HUMAN", "PK3CA_HUMAN", "NOP16_HUMAN", "2A5A_HUMAN"))
+u1 = g8[which(!is.nan(x1) & x2 < 0)]
+u2 = which(!is.nan(x1) & x2 < 0)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gaussian_Fit_RNase[u1[k], 3] * (pnorm(25, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])) + Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+})
+
+u1 = g8[which(is.nan(x1))]
+u2 = which(is.nan(x1))
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gaussian_Fit_RNase[u1[k], 4])/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+})
+
+# sd1 < sd2, mu1 = mu2 | mu1 > mu2 | mu1 < mu2, h1 < h2
+g9 = which(rownames(Gaussian_Fit_Ctrl) %in% unlist(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
+if(Gaussian_Fit_Ctrl[k, 2] < Gaussian_Fit_RNase[k,2] & Gaussian_Fit_Ctrl[k,3] < Gaussian_Fit_RNase[k,3]) {rownames(Gaussian_Fit_Ctrl[k,])}
+  })))
+
+a = (1/(Gaussian_Fit_Ctrl[g9,2])^2 - 1/(Gaussian_Fit_RNase[g9,2])^2)
+b = 2 * ((Gaussian_Fit_RNase[g9,1])/(Gaussian_Fit_RNase[g9,2])^2 - (Gaussian_Fit_Ctrl[g9,1])/(Gaussian_Fit_Ctrl[g9,2])^2)
+c = (Gaussian_Fit_Ctrl[g9,1]/Gaussian_Fit_Ctrl[g9,2])^2 - (Gaussian_Fit_RNase[g9,1]/Gaussian_Fit_RNase[g9,2])^2 - 2 * log((Gaussian_Fit_Ctrl[g9,3] * Gaussian_Fit_RNase[g9,2])/(Gaussian_Fit_RNase[g9,3] * Gaussian_Fit_Ctrl[g9,2]))
+
+x2 = (- b - sqrt(b^(2) - 4 * a * c))/(2 * a)
+x1 = (- b + sqrt(b^(2) - 4 * a * c))/(2 * a)
+
+u1 = g9[which(!is.nan(x1) & x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)]
+u2 = which(!is.nan(x1) & x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) + pnorm(25, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])) + Gaussian_Fit_RNase[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])))/((Gaussian_Fit_RNase[u1[k], 4] + Gaussian_Fit_Ctrl[u1[k], 4])/2)
+})
+
+u1 = g9[which(!is.nan(x1) & x1 > 25)]
+u2 = which(!is.nan(x1) & x1 > 25)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])) + Gaussian_Fit_RNase[u1[k], 3] * (pnorm(25, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])))/((Gaussian_Fit_RNase[u1[k], 4] + Gaussian_Fit_Ctrl[u1[k], 4])/2)
+})
+
+u1 = g9[which(!is.nan(x1) & x2 < 0)]
+u2 = which(!is.nan(x1) & x2 < 0)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(25, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])) + Gaussian_Fit_RNase[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])))/((Gaussian_Fit_RNase[u1[k], 4] + Gaussian_Fit_Ctrl[u1[k], 4])/2)
+})
+
+u1 = g9[which(is.nan(x1))]
+u2 = which(is.nan(x1))
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gaussian_Fit_Ctrl[u1[k], 4])/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+})
+
+Gaussian_Fit_Ctrl[, 5] = overlap 
+Gaussian_Fit_RNase[, 5] = overlap
+
+rm(g1, g2, g3, g4, g5, g6, g7, g8, g9, u1, u2, a, b, c, x, x1, x2, overlap)
 ```
 
 
