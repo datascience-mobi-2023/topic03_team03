@@ -5,7 +5,7 @@ Fragen:
 4. Wie soll die Berechnung der Überlappung der Gaußkurven funktionieren? Reicht die mathematische Herangehensweise oder gibt es dafür Funktionen in R? Packages ...
 5. Wie soll das Markdown am Ende aussehen? Also welche Aufräumarbeiten können wir jetzt schon leisten?
 6. Wie sollen wir damit umgehen, wenn wir einen sehr großen Overlap der Gaußkurven am globalen Maximum haben, aber die Proteinkurve an einer anderen Stelle ein sehr großes lokales Maximum hat? Kann es dennoch ein RDP sein?
-7. Er hatte gasagt, dass wir mit ihm über p-values reden sollen, bevor wir mit dem t-Test anfangen. Was meinte er da?
+7. Er hatte gesagt, dass wir mit ihm über p-values reden sollen, bevor wir mit dem t-Test anfangen. Was meinte er da?
 
 Antworten:
 1. 
