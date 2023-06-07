@@ -35,7 +35,7 @@ which(rowSums(RDeeP_HeLa_Interphase)==0)
 ```
 
 
-##### 1.1. Split Dataset into Control and RNase
+##### 1.1 Split Dataset into Control and RNase
 
 We can also split the dataset into two separate datasets that contain the Control and RNase values:
 
@@ -67,7 +67,7 @@ rownames(RDeeP_HeLa_Interphase_RNase) = rownames(RDeeP_HeLa_Interphase)
 ```
 
 
-##### 1.2. NA Values and Zero Rows
+##### 1.2 NA Values and Zero Rows
 
 ```{r}
 ## Überprüfen welche Reihen in den Datasets nur Nullen enthalten
@@ -85,7 +85,7 @@ RDeeP_HeLa_Interphase_RNase <- RDeeP_HeLa_Interphase_RNase[!(rownames(RDeeP_HeLa
 ```
 
 
-##### 1.3. Pearson Correlation (Reproducibility)
+##### 1.3 Pearson Correlation (Reproducibility)
 
 ```{r}
 Rep1 = t(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {sapply(seq(0,73,3), function(i) {RDeeP_HeLa_Interphase_Ctrl[k, c(1)+c(i)]})}))
@@ -136,7 +136,7 @@ length(which(Cor_RNase <= 0.95))/(3* 7069)
 ```
 
 
-##### 1.4. Mean of Replicates
+##### 1.4 Mean of Replicates
 
 ```{r}
 Mean_Ctrl = as.data.frame(
@@ -176,7 +176,7 @@ RNase_Norm_100 = as.data.frame(sapply(RDeeP_HeLa_Interphase_RNase, function(i){(
 
 ##### 1.6 Data Exploration, First Graphical Representations
 
-###### Without Normalization
+###### 1.6.1 Without Normalization
 ```{r}
 plot(1:25, Mean_Ctrl[which(rownames(RDeeP_HeLa_Interphase)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN")
 lines(1:25, Mean_RNase[which(rownames(RDeeP_HeLa_Interphase)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
@@ -190,7 +190,7 @@ grid()
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
 ```
 
-###### With Normailzation 
+###### 1.6.2 With Normailzation 
 ```{r}
 Mean_Ctrl_Norm_100 = as.data.frame(sapply(Mean_Ctrl, function(i){(i/apply(Mean_Ctrl,1,sum))*100}))
 
@@ -311,7 +311,7 @@ legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lw
 
 ##### 2.2 Determination of Global and Local Maxima
 
-###### Global Maxima
+###### 2.2.1 Global Maxima
 
 Let us first start with the global maxima: we want a code that tells us the global maximum fraction position for each gene and condition (Control and RNase).
 We can calculate the global maxima by asking the question: "Which Protein Fractions contains the maximum protein amount?"
@@ -460,7 +460,7 @@ legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lw
 rm(gene.name)
 ```
 
-###### Local Maxima
+###### 2.2.2 Local Maxima
 
 We will now calculate the fraction positions of all local maxima for every gene and condition. But what defines a local maximum? 
 We will look at the protein amount for a neighborhood of n = 2 for each fraction positions (for local maxima at the edges we will use slightly different criteria):
@@ -469,21 +469,25 @@ X X [X] X X
 
 We will then compare the protein amount in that fraction position to the protein amount for the 4 fraction positions around that fraction position and ask the question: Is the protein amount in that fraction greater or equal to its neighborhood? If TRUE then we define that fraction position as a local maximum.
 ```{r}
+# ---> Erstellen eines Data.Frames mit 25 Spalten und so vielen Zeilen, wie es Gene gibt (nur NA-values)
 Mean_Ctrl_Loc_Max = as.data.frame(matrix(NA, nrow = nrow(RDeeP_HeLa_Interphase_Ctrl), ncol = 25))
 
+# ---> Bestimmung der Fraction Positions für alle lokalen Maxima (in den Control Samples), indem jeweils in einem 5 Fraktion-Window berechnet wird, welche Position den größten Protein Anteil beinhaltet und ob diese Position der mittleren Position entspricht
 Fra.Pos = sapply(seq(0,20,1), function(i) {which(seq(2*nrow(RDeeP_HeLa_Interphase_Ctrl)+1,3*nrow(RDeeP_HeLa_Interphase_Ctrl),1) %in% which(apply(Mean_Ctrl_Smooth_Norm_100[,c(1:5)+c(i,i,i,i,i)], 1, function(x) {max(x)}) == Mean_Ctrl_Smooth_Norm_100[,c(1:5)+c(i,i,i,i,i)] & apply(Mean_Ctrl_Smooth_Norm_100[,c(1:5)+c(i,i,i,i,i)], 1, function(x) {max(x)}) != 0))})
 
+# ---> Einspeichern der lokalen Maxima im Data.Frame "Mean_Ctrl_Loc_Max" (erstellt in erster Zeile des Chunks), indem pro Gen der NA-value jeder Fraktion, die ein lokales Maximum ist, durch den Wert der Fraktion ersetzt wird (also, wenn in Gen 1 Fraktion 5 ein lokales Maximum ist, wird der Wert für Fraktion 5 in Gen 1 (NA) mit "5" ersetzt) 
 Mean_Ctrl_Loc_Max[, 3:23] = sapply(seq(1,21,1), function(n) {
   replace(
         Mean_Ctrl_Loc_Max[, n+2], 
         Fra.Pos[[n]], 
         n+2)})
 
+# ---> Benennung der Zeilen (Gennamen) und Spalten (Fraktionen)
 rownames(Mean_Ctrl_Loc_Max) = rownames(Mean_Ctrl)
 colnames(Mean_Ctrl_Loc_Max) = colnames(Mean_Ctrl)
 
 
-
+# ---> Gleicher Code für die RNase Samples
 Mean_RNase_Loc_Max = as.data.frame(matrix(NA, nrow = nrow(RDeeP_HeLa_Interphase_RNase), ncol = 25))
 
 Fra.Pos = sapply(seq(0,20,1), function(i) {which(seq(2*nrow(RDeeP_HeLa_Interphase_RNase)+1,3*nrow(RDeeP_HeLa_Interphase_RNase),1) %in% which(apply(Mean_RNase_Smooth_Norm_100[,c(1:5)+c(i,i,i,i,i)], 1, function(x) {max(x)}) == Mean_RNase_Smooth_Norm_100[,c(1:5)+c(i,i,i,i,i)] & apply(Mean_RNase_Smooth_Norm_100[,c(1:5)+c(i,i,i,i,i)], 1, function(x) {max(x)}) != 0))})
@@ -499,6 +503,8 @@ colnames(Mean_RNase_Loc_Max) = colnames(Mean_RNase)
 
 
 ## Edge Cases:
+
+# ---> Da wir eine Maske mit n = 2 anwenden, können wir mit dieser Methode nur die Fraktionen 3 bis 23 auf lokale Maxima überprüfen. Damit Fraktion 1 bzw. 25 ein lokales Maximum sind, müssen sie größer sein, als die Fraktionen 2 und 3 bzw. 24 und 23. Damit Fraktion 2 bzw. 24 ein lokales Maximum sind, müssen sie größer sein, als die Fraktionen 1, 3 und 4 bzw. 25, 23 und 22.  
 
 # Fraction 1
 Mean_Ctrl_Loc_Max[which(Mean_Ctrl_Smooth_Norm_100[,1] >= Mean_Ctrl_Smooth_Norm_100[,2] & Mean_Ctrl_Smooth_Norm_100[,1] >= Mean_Ctrl_Smooth_Norm_100[,3] & Mean_Ctrl_Smooth_Norm_100[,1] != 0),1] = 1
@@ -522,6 +528,8 @@ Mean_RNase_Loc_Max[which(Mean_RNase_Smooth_Norm_100[,24] >= Mean_RNase_Smooth_No
 
 
 ## Removal of Global Maxima in Local Maxima Datasets (also removes all double and triple global maxima!!!)
+
+# ---> Die Methode, die wir zum Finden der lokalen Maxima bisher angewendet haben, gibt uns als Output natürlich auch die Positionen der globalen Maxima. Diese wollen wir nun mit der Hilfe einer Maske (Ctrl_Mask bzw. RNase_Mask) entfernen: diese hat die gleiche Größe, wie der Data.frame Mean_Ctrl_Loc_Max bzw. Mean_RNase_Loc_Max (# Gene x 25) enthält aber nur den Wert "1", außer an den Stellen, an denen es globale Maxima gibt (dort ist der Wert NA vermerkt). Multiplizieren wir nun die Maske mit dem Data.frame, werden alle globalen Peaks gelöscht (durch NA ersetzt), während die lokalen Peaks erhalten bleiben (NA * any value = NA, 1 * any value = any value). 
 
 Crtl_Mask = matrix(1, nrow = nrow(RDeeP_HeLa_Interphase_Ctrl)*25, ncol = 1)
 
@@ -547,6 +555,8 @@ rm(RNase_Mask)
 
 ### Combine double and triple peaks into single peaks
 
+# ---> Wie bei der Bestimmung der globalen Peaks auch, gibt es auch bei den lokalen Peaks manchmal Fälle, in denen 2 oder 3 peaks direkt nebeneinander vorkommen. Diese wollen wir nun jeweils durch den Mittelwert der Positionen der peaks ersetzen (bei einem double peak wird der Mittelwert in die linke der beiden Fraktionen notiert und der rechte peak durch NA ersetzt; und bei einem triple peak werden die Fraction-positions links und rechts von mittleren peak durch NA ersetzt).
+
 ## Double peaks
 Fra.Pos = sapply(seq(0,21,1), function(i) {which(!(is.na(Mean_Ctrl_Loc_Max[,c(2)+c(i)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(3)+c(i)])) & is.na(Mean_Ctrl_Loc_Max[,c(1)+c(i)]) & is.na(Mean_Ctrl_Loc_Max[,c(4)+c(i)]))})
 
@@ -562,7 +572,10 @@ Mean_Ctrl_Loc_Max[, 3:24] = sapply(seq(1,22,1), function(n) {
         Fra.Pos[[n]], 
         NA)})
 
+
 ## Edge Cases (not necessary in this case)
+
+# ---> Bei den double peaks müssten wir noch Fraktion 1 & 2 und 24 & 25 gesondert betrachen, da wir diese vorher nicht überprüfen können (der Code überprüft jeweils, ob in der aktuell ausgewählten Position und der Position rechts davon ein Wert vorhanden ist; um die Erkennung von triple peaks zu vermeiden, muss aber auch überprüft werden, ob in der Fraktion links und zweifach rechts von der aktuellen Position keine Werte (also NA-values) vorhanden sind). Diese Edge cases treten aber nicht auf und somit ist der Code redundant.
 
 # Fra.Pos = which(!(is.na(Mean_Ctrl_Loc_Max[,c(1)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(2)])) & !(!(is.na(Mean_Ctrl_Loc_Max[,c(1)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(2)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(3)]))))
 
@@ -640,7 +653,7 @@ rm(Fra.Pos)
 
 #### 3. Gaussian Fitting
 
-##### Introduction
+##### 3.1 Introduction
 
 A Normal Distribution can be described as:
 
@@ -665,26 +678,34 @@ We define these intervals as:
   * mu: [mu - 0.5, mu + 0.5]
   * sd: [sd - 0.2 * sd, sd + 0.2 * sd]
   * h:  [h - 5, h + 5]
+  
+Lastly, we calculate the protein amount under each gaussian curve (**prt_amount**) in the interval [0, 25]. 
 
 
-##### Proof-of-Concept
+##### 3.2 Proof-of-Concept
 
 To test if this method works, we will try to fit Gaussian curves to the global peaks of the Control and RNase distributions of the *RL32_HUMAN* gene:
 
 ```{r}
+# ---> Wir wählen ein beliebiges Gen aus
 gene.name=c("RL32_HUMAN")
 
+# ---> Schätzung der Werte für mu, sd und h anhand der oben beschriebenen Berechnungen
 mu_Ctrl <- unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name),])
 sd_Ctrl <- min(abs(which(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),] == max(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),])) - which(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),] <= max(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),])/2)))/sqrt(2*log(2))
 h_Ctrl <- max(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),])*sqrt(2*pi)*sd_Ctrl
 
 
+# ---> Aufstellen einer Funktion, die die Summe der quadratischen Differenzen zwischen Gaussian Fit und Protein Verteilung in Abhängigkeit von mu berechnet
 mu_finder <- function(mu_Ctrl) {
   sum((sapply(seq(1,25,1), function(n) {h_Ctrl*(1/(sd_Ctrl*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-mu_Ctrl)/sd_Ctrl)^2)}) - unlist(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))^2)
 }
 
+# --> Optimieren der Funktion im Bezug auf den Parameter mu (innerhalb des oben beschriebenen Intervalls), sodass der Output der Funktion minimal wird (also die Summe der quadratischen Abstände). "$minimum" gibt den optimierten Wert für mu aus und dieser wird genutzt, um den alten Schätzwert zu überschreiben. 
 mu_Ctrl <- optimise(mu_finder, interval = c(mu_Ctrl-0.5, mu_Ctrl+0.5))$minimum
 
+
+# --> selbes Spiel bezogen auf die Parameter sd und h
 
 sd_finder <- function(sd_Ctrl) {
   sum((sapply(seq(1,25,1), function(n) {h_Ctrl*(1/(sd_Ctrl*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-mu_Ctrl)/sd_Ctrl)^2)}) - unlist(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))^2)
@@ -700,7 +721,7 @@ h_finder <- function(h_Ctrl) {
 h_Ctrl <- optimise(h_finder, interval = c(h_Ctrl-5, h_Ctrl+5))$minimum
 
 
-
+# ---> Gleiches Spiel für die RNase Samples von dem Gen
 mu_RNase <- unlist(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name),])
 sd_RNase <- min(abs(which(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name),] == max(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name),])) - which(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name),] <= max(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name),])/2)))/sqrt(2*log(2))
 h_RNase <- max(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name),])*sqrt(2*pi)*sd_RNase
@@ -726,7 +747,7 @@ h_finder <- function(h_RNase) {
 
 h_RNase <- optimise(h_finder, interval = c(h_RNase-5, h_RNase+5))$minimum
 
-
+# ---> Plotten der Protein-Verteilungen und gefitteten Gauß-Kurven.
 plot(1:25, Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name, "(Smoothed and Normalized)")), ylim=c(0,27))
 
 lines(1:25, Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name),], type="l", lwd=3, col = "red")
@@ -739,7 +760,7 @@ rm(mu_Ctrl, sd_Ctrl, h_Ctrl, mu_RNase, sd_RNase, h_RNase, gene.name, mu_finder, 
 ```
 
 
-##### Gaussian Fitting of the Entire Data Set
+##### 3.3 Gaussian Fitting of the Entire Data Set
 
 We will now do the same calculations we did for the *RL32_HUMAN* gene for each gene in our data set. The results will be stored in the data frames **Gaussian_Fit_Ctrl** and **Gaussian_Fit_RNase**. 
 Note, that we will also calculate the protein amount under each peak (area under the curve of fitted Gaussian curve) by using the `pnorm` function and scaling the results with **h**. 
@@ -747,21 +768,25 @@ Note, that we will also calculate the protein amount under each peak (area under
 **Note:** *This chunk can take up to several minutes to run.*
 
 ```{r}
+# ---> Erstellen eines Data.Frames (Gaussian_Fit_Ctrl) mit 5 Spalten ("mu", "sd", "h", "prt_amount" und "overlap") und so vielen zeilen, wie es Gene gibt. Füllen des Data.Frames mit NA-values. 
 Gaussian_Fit_Ctrl = as.data.frame(matrix(rep(NA, nrow(RDeeP_HeLa_Interphase_Ctrl)*5), ncol = 5))
 colnames(Gaussian_Fit_Ctrl) = c("mu", "sd", "h", "prt_amount", "overlap")
 rownames(Gaussian_Fit_Ctrl) = rownames(RDeeP_HeLa_Interphase_Ctrl)
 
+# --> Schätzung der Werte für mu (Gaussian_Fit_Ctrl[,1]), sd (Gaussian_Fit_Ctrl[,2]) und h (Gaussian_Fit_Ctrl[,3]) mit den oben beschriebenen Berechnungen (bei "3.1 Introduction") für alle Gene 
 Gaussian_Fit_Ctrl[,1] <- unlist(Mean_Ctrl_Gbl_Max)
 Gaussian_Fit_Ctrl[,2] <- sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl),1), function(k) {min(abs(unlist(Mean_Ctrl_Gbl_Max[k,]) - which(Mean_Ctrl_Smooth_Norm_100[k,] <= max(Mean_Ctrl_Smooth_Norm_100[k,])/2)))/sqrt(2*log(2))})
 Gaussian_Fit_Ctrl[,3] <- apply(Mean_Ctrl_Smooth_Norm_100, 1, function(x) {max(x)})*sqrt(2*pi)*Gaussian_Fit_Ctrl[,2]
 
-
+# ---> Aufstellen und Optimieren der Funktion, die die Summe der quadratischen Abstände in Abhängigkeit von mu berechnet, über alle Gene und Abspeichern des resultierenden Vektors (enthält die jeweils optimierten Werte für mu über alle Gene) als erste Spalte von "Gaussian_Fit_Ctrl". 
 Gaussian_Fit_Ctrl[,1] <- sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
   
 mu_finder <- function(mu = Gaussian_Fit_Ctrl[k,1]) {sum((sapply(seq(1,25,1), function(n) {Gaussian_Fit_Ctrl[k,3]*(1/(Gaussian_Fit_Ctrl[k,2]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-mu)/Gaussian_Fit_Ctrl[k,2])^2)}) - unlist(Mean_Ctrl_Smooth_Norm_100[k,]))^2)}
 
 optimise(mu_finder, interval = c(Gaussian_Fit_Ctrl[k,1]-0.5, Gaussian_Fit_Ctrl[k,1]+0.5))$minimum})
 
+
+# ---> Wieder gleiches Spiel für sd und h
 
 Gaussian_Fit_Ctrl[,2] <- sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
 
@@ -777,11 +802,12 @@ h_finder <- function(h = Gaussian_Fit_Ctrl[k,3]) {sum((sapply(seq(1,25,1), funct
 optimise(h_finder, interval = c(Gaussian_Fit_Ctrl[k,3]-5, Gaussian_Fit_Ctrl[k,3]+5))$minimum})
 
 
+# --> Berechung des Protein-Anteils unterhalb der Gauß-Kurve im Intervall [0, 25] (Berechnung als pnorm(25) - pnorm(0) multipliziert mit h) über alle Gene und Abspeichern des resultierenden Vektors in der Spalte "prt_amount"
 Gaussian_Fit_Ctrl[,4] <- sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl),1), function(k) {Gaussian_Fit_Ctrl[k,3] * (pnorm(25, mean = Gaussian_Fit_Ctrl[k,1], sd = Gaussian_Fit_Ctrl[k,2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[k,1], sd = Gaussian_Fit_Ctrl[k,2]))})
 
 
 
-
+# ---> Gleiches Spiel für die RNase Samples
 Gaussian_Fit_RNase = as.data.frame(matrix(rep(NA, nrow(RDeeP_HeLa_Interphase_RNase)*5), ncol = 5))
 colnames(Gaussian_Fit_RNase) = c("mu", "sd", "h", "prt_amount", "overlap")
 rownames(Gaussian_Fit_RNase) = rownames(RDeeP_HeLa_Interphase_RNase)
@@ -816,33 +842,67 @@ Gaussian_Fit_RNase[,4] <- sapply(seq(1, nrow(RDeeP_HeLa_Interphase_RNase),1), fu
 ```
 
 
-##### Calculation of Gaussian Overlap
+##### 3.4 Calculation of Gaussian Overlap
+
+The overlap will be calculated as the amount of shared area between the area under the curves of the fitted gaussian curves of the Control and RNase samples in the interval [0, 25]. The percental amount can be calculated by dividing the absolute overlap by the mean area under the curves ((protein amount under curve Control + protein amount under curve RNase)/2).
+
+Because there are 3 parameters (**mu**, **sd**, **h**) with each 3 states (**<**, **>**, **=**), there are 3^3 = 27 possible cases how the 2 gaussian curves can be arranged in respect to each other. 
+These 27 cases can be reduced to 9 cases ("**1**" = "**Ctrl**" and "**2**" = "**RNase**"; "|" meaning "or"):
+
+  1. sd1 = sd2, mu1 = mu2, h1 = h2
+  2. sd1 = sd2, mu1 > mu2, h1 = h2 | h1 < h2 | h1 > h2
+  3. sd1 = sd2, mu1 < mu2, h1 = h2 | h1 < h2 | h1 > h2
+  4. sd1 = sd2, mu1 = mu2, h1 > h2
+  5. sd1 = sd2, mu1 = mu2, h1 < h2
+  6. sd1 > sd2, mu1 = mu2 | mu1 > mu2 | mu1 < mu2, h1 = h2 | h1 < h2
+  7. sd1 > sd2, mu1 = mu2 | mu1 > mu2 | mu1 < mu2, h1 > h2
+  8. sd1 < sd2, mu1 = mu2 | mu1 > mu2 | mu1 < mu2, h1 = h2 | h1 > h2
+  9. sd1 < sd2, mu1 = mu2 | mu1 > mu2 | mu1 < mu2, h1 < h2
+  
+These cases differ in their arrangement of the 2 gaussian curves and their number of points of intersection:
+
+  1. endless number of points of intersection 
+  2./3. 1 point of intersection
+  4./5. 0 points of intersection (x)
+  6./8. 2 points of intersection (x1 and x2)
+  7./9. either 2 points of intersection or 0 points of intersection
+  
+Note, that for the cases 6. - 9. it must also be consider whether or not x1 and x2 are inside or outside the interval [0, 25]. 
+
+The resulting overlap will be both stored in the data.frames **Gaussian_Fit_Ctrl** and **Gaussian_Fit_RNase** as the column **overlap**. 
 
 ``` {r}
+# ---> Erstellen eines Vektors der so viele NA-values enthält, wie es Gene gibt
 overlap = rep(NA, nrow(RDeeP_HeLa_Interphase_Ctrl))
 
-# sd1 = sd2, mu1 = mu2, h1 = h2
-g1 = which(rownames(Gaussian_Fit_Ctrl) %in% unlist(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
-if(Gaussian_Fit_Ctrl[k, 2] == Gaussian_Fit_RNase[k,2] & Gaussian_Fit_Ctrl[k,1] == Gaussian_Fit_RNase[k,1] & Gaussian_Fit_Ctrl[k,3] == Gaussian_Fit_RNase[k,3]) {rownames(Gaussian_Fit_Ctrl[k,])}
-  })))
 
+################### 1. sd1 = sd2, mu1 = mu2, h1 = h2
+
+# ---> "gX" ist jeweils ein Vektor, der die Reihen (Genpositionen) enthält, für die die Bedingungen (je nach Fall) wahr sind (überprüft im Data.frame "Gaussian_Fit_Ctrl")
+g1 = which(Gaussian_Fit_Ctrl[, 2] == Gaussian_Fit_RNase[, 2] & Gaussian_Fit_Ctrl[, 1] == Gaussian_Fit_RNase[, 1] & Gaussian_Fit_Ctrl[, 3] == Gaussian_Fit_RNase[, 3])
+
+# ---> Nachdem die Reihen identifiziert wurden, die sich dem entsprechenden Fall zuordnen lassen, werden diese Positionen im Vektor "overlap" durch die entsprechende berechnete prozentuale Überschneidung der Gaußkurven ersetzt (im 1. Fall sehr einfach, da beide Gaußkurven identisch sind und somit overlap = 1 ist)
 overlap[g1] = 1
 
-# sd1 = sd2, mu1 > mu2, h1 = h2 | h1 < h2 | h1 > h2
-g2 = which(rownames(Gaussian_Fit_Ctrl) %in% unlist(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
-if(Gaussian_Fit_Ctrl[k, 2] == Gaussian_Fit_RNase[k,2] & Gaussian_Fit_Ctrl[k,1] > Gaussian_Fit_RNase[k,1]) {rownames(Gaussian_Fit_Ctrl[k,])}
-  })))
 
+################### 2. sd1 = sd2, mu1 > mu2, h1 = h2 | h1 < h2 | h1 > h2
+
+# ---> Gleiches, wie bei g1, nur, dass andere Bedingungen (für 2. Fall) angewendet werden
+g2 = which(Gaussian_Fit_Ctrl[, 2] == Gaussian_Fit_RNase[, 2] & Gaussian_Fit_Ctrl[, 1] > Gaussian_Fit_RNase[, 1])
+
+# ---> Berechnung der Schnittpunkte der Gaußkurven über alle Gene, auf die der 2. Fall zutrifft (mathematische Formel per Hand aufgestellt)
 x = ((Gaussian_Fit_Ctrl[g2, 2])^(2) * log(Gaussian_Fit_Ctrl[g2, 3]/Gaussian_Fit_RNase[g2, 3]))/(Gaussian_Fit_RNase[g2, 1] -  Gaussian_Fit_Ctrl[g2, 1]) + (Gaussian_Fit_RNase[g2, 1] + Gaussian_Fit_Ctrl[g2, 1])/2
 
+# ---> Wieder Ersetzen der Positionen im vektor "overlap" durch die prozentualen Werte für die Überschneidung der Gaußkurven (berechnet mithilfe von pnorm())
 overlap[g2] = sapply(seq(1,length(g2),1), function(k) {
   (Gaussian_Fit_Ctrl[g2[k], 3] * (pnorm(x[k], mean = Gaussian_Fit_Ctrl[g2[k], 1], sd = Gaussian_Fit_Ctrl[g2[k], 2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[g2[k], 1], sd = Gaussian_Fit_Ctrl[g2[k], 2])) + Gaussian_Fit_RNase[g2[k], 3] * (pnorm(25, mean = Gaussian_Fit_RNase[g2[k], 1], sd = Gaussian_Fit_RNase[g2[k], 2]) - pnorm(x[k], mean = Gaussian_Fit_RNase[g2[k], 1], sd = Gaussian_Fit_RNase[g2[k], 2])))/((Gaussian_Fit_Ctrl[g2[k], 4] + Gaussian_Fit_RNase[g2[k], 4])/2)
 })
 
-# sd1 = sd2, mu1 < mu2, h1 = h2 | h1 < h2 | h1 > h2
-g3 = which(rownames(Gaussian_Fit_Ctrl) %in% unlist(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
-if(Gaussian_Fit_Ctrl[k, 2] == Gaussian_Fit_RNase[k,2] & Gaussian_Fit_Ctrl[k,1] < Gaussian_Fit_RNase[k,1]) {rownames(Gaussian_Fit_Ctrl[k,])}
-  })))
+
+# ---> Fast identisches Vorgehen für die Fälle 3 bis 9 (ABER: 1. Wenn die eine Gaußkurve komplett in der anderen liegt (Fälle 4 und 5 und potentiell 7 und 9), wird die prozentuale Überschneidung berechnet, indem die Fläche unter der Gaußkurve, die in der anderen Gaußkurve liegt, dividiert wird durch den Mittelwert beider Flächen unter den Gaußkurven & 2. Sobald sich die Standardabweichungen unterscheiden (Fälle 6 bis 9) gibt es jeweils potentiell 2 Schnittpunkte (diese werden mit der abc-Formel berechnet), zudem muss geschaut werden, ob die Schnittpunkte außerhalb des Intervalls [0, 25] liegen (da sich dann wieder die Berechnung der prozentualen Überschneidung verändert))
+
+################### 3. sd1 = sd2, mu1 < mu2, h1 = h2 | h1 < h2 | h1 > h2
+g3 = which(Gaussian_Fit_Ctrl[, 2] == Gaussian_Fit_RNase[, 2] & Gaussian_Fit_Ctrl[, 1] < Gaussian_Fit_RNase[, 1])
 
 x = ((Gaussian_Fit_Ctrl[g3, 2])^(2) * log(Gaussian_Fit_Ctrl[g3, 3]/Gaussian_Fit_RNase[g3, 3]))/(Gaussian_Fit_RNase[g3, 1] -  Gaussian_Fit_Ctrl[g3, 1]) + (Gaussian_Fit_RNase[g3, 1] + Gaussian_Fit_Ctrl[g3, 1])/2
 
@@ -850,29 +910,25 @@ overlap[g3] = sapply(seq(1,length(g3),1), function(k) {
   (Gaussian_Fit_RNase[g3[k], 3] * (pnorm(x[k], mean = Gaussian_Fit_RNase[g3[k], 1], sd = Gaussian_Fit_RNase[g3[k], 2]) - pnorm(0, mean = Gaussian_Fit_RNase[g3[k], 1], sd = Gaussian_Fit_RNase[g3[k], 2])) + Gaussian_Fit_Ctrl[g3[k], 3] * (pnorm(25, mean = Gaussian_Fit_Ctrl[g3[k], 1], sd = Gaussian_Fit_Ctrl[g3[k], 2]) - pnorm(x[k], mean = Gaussian_Fit_Ctrl[g3[k], 1], sd = Gaussian_Fit_Ctrl[g3[k], 2])))/((Gaussian_Fit_Ctrl[g3[k], 4] + Gaussian_Fit_RNase[g3[k], 4])/2)
 })
 
-# sd1 = sd2, mu1 = mu2, h1 > h2
-g4 = which(rownames(Gaussian_Fit_Ctrl) %in% unlist(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
-if(Gaussian_Fit_Ctrl[k, 2] == Gaussian_Fit_RNase[k,2] & Gaussian_Fit_Ctrl[k,1] == Gaussian_Fit_RNase[k,1] & Gaussian_Fit_Ctrl[k,3] > Gaussian_Fit_RNase[k,3]) {rownames(Gaussian_Fit_Ctrl[k,])}
-  })))
+
+################### 4. sd1 = sd2, mu1 = mu2, h1 > h2
+g4 = which(Gaussian_Fit_Ctrl[, 2] == Gaussian_Fit_RNase[, 2] & Gaussian_Fit_Ctrl[, 1] == Gaussian_Fit_RNase[, 1] & Gaussian_Fit_Ctrl[, 3] > Gaussian_Fit_RNase[, 3])
 
 overlap[g4] = sapply(seq(1, length(g4), 1), function(k) {
   (Gaussian_Fit_RNase[g4[k], 4])/((Gaussian_Fit_Ctrl[g4[k], 4] + Gaussian_Fit_RNase[g4[k], 4])/2)
 })
 
-# sd1 = sd2, mu1 = mu2, h1 < h2
-g5 = which(rownames(Gaussian_Fit_Ctrl) %in% unlist(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
-if(Gaussian_Fit_Ctrl[k, 2] == Gaussian_Fit_RNase[k,2] & Gaussian_Fit_Ctrl[k,1] == Gaussian_Fit_RNase[k,1] & Gaussian_Fit_Ctrl[k,3] < Gaussian_Fit_RNase[k,3]) {rownames(Gaussian_Fit_Ctrl[k,])}
-  })))
+
+################### 5. sd1 = sd2, mu1 = mu2, h1 < h2
+g5 = which(Gaussian_Fit_Ctrl[, 2] == Gaussian_Fit_RNase[, 2] & Gaussian_Fit_Ctrl[, 1] == Gaussian_Fit_RNase[, 1] & Gaussian_Fit_Ctrl[, 3] < Gaussian_Fit_RNase[, 3])
 
 overlap[g5] = sapply(seq(1, length(g5), 1), function(k) {
   (Gaussian_Fit_Ctrl[g5[k], 4])/((Gaussian_Fit_Ctrl[g5[k], 4] + Gaussian_Fit_RNase[g5[k], 4])/2)
 })
 
 
-# sd1 > sd2, mu1 = mu2 | mu1 > mu2 | mu1 < mu2, h1 = h2 | h1 < h2
-g6 = which(rownames(Gaussian_Fit_Ctrl) %in% unlist(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
-if(Gaussian_Fit_Ctrl[k, 2] > Gaussian_Fit_RNase[k,2] & Gaussian_Fit_Ctrl[k,3] <= Gaussian_Fit_RNase[k,3]) {rownames(Gaussian_Fit_Ctrl[k,])}
-  })))
+################### 6. sd1 > sd2, mu1 = mu2 | mu1 > mu2 | mu1 < mu2, h1 = h2 | h1 < h2
+g6 = which(Gaussian_Fit_Ctrl[, 2] > Gaussian_Fit_RNase[, 2] & Gaussian_Fit_Ctrl[, 3] <= Gaussian_Fit_RNase[, 3])
 
 a = (1/(Gaussian_Fit_Ctrl[g6,2])^2 - 1/(Gaussian_Fit_RNase[g6,2])^2)
 b = 2 * ((Gaussian_Fit_RNase[g6,1])/(Gaussian_Fit_RNase[g6,2])^2 - (Gaussian_Fit_Ctrl[g6,1])/(Gaussian_Fit_Ctrl[g6,2])^2)
@@ -899,77 +955,73 @@ overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
   (Gaussian_Fit_RNase[u1[k], 3] * (pnorm(25, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])) + Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
 })
 
-# sd1 < sd2, mu1 = mu2 | mu1 > mu2 | mu1 < mu2, h1 = h2 | h1 > h2
-g7 = which(rownames(Gaussian_Fit_Ctrl) %in% unlist(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
-if(Gaussian_Fit_Ctrl[k, 2] < Gaussian_Fit_RNase[k,2] & Gaussian_Fit_Ctrl[k,3] >= Gaussian_Fit_RNase[k,3]) {rownames(Gaussian_Fit_Ctrl[k,])}
-  })))
+
+################### 7. sd1 > sd2, mu1 = mu2 | mu1 > mu2 | mu1 < mu2, h1 > h2
+g7 = which(Gaussian_Fit_Ctrl[, 2] > Gaussian_Fit_RNase[, 2] & Gaussian_Fit_Ctrl[, 3] > Gaussian_Fit_RNase[, 3])
 
 a = (1/(Gaussian_Fit_Ctrl[g7,2])^2 - 1/(Gaussian_Fit_RNase[g7,2])^2)
 b = 2 * ((Gaussian_Fit_RNase[g7,1])/(Gaussian_Fit_RNase[g7,2])^2 - (Gaussian_Fit_Ctrl[g7,1])/(Gaussian_Fit_Ctrl[g7,2])^2)
 c = (Gaussian_Fit_Ctrl[g7,1]/Gaussian_Fit_Ctrl[g7,2])^2 - (Gaussian_Fit_RNase[g7,1]/Gaussian_Fit_RNase[g7,2])^2 - 2 * log((Gaussian_Fit_Ctrl[g7,3] * Gaussian_Fit_RNase[g7,2])/(Gaussian_Fit_RNase[g7,3] * Gaussian_Fit_Ctrl[g7,2]))
 
+x1 = (- b - sqrt(b^(2) - 4 * a * c))/(2 * a)
+x2 = (- b + sqrt(b^(2) - 4 * a * c))/(2 * a)
+
+u1 = g7[which(!is.nan(x1) & x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)]
+u2 = which(!is.nan(x1) & x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gaussian_Fit_RNase[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) + pnorm(25, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])) + Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+})
+
+u1 = g7[which(!is.nan(x1) & x1 > 25)]
+u2 = which(!is.nan(x1) & x1 > 25)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gaussian_Fit_RNase[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])) + Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(25, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+})
+
+u1 = g7[which(!is.nan(x1) & x2 < 0)]
+u2 = which(!is.nan(x1) & x2 < 0)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gaussian_Fit_RNase[u1[k], 3] * (pnorm(25, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])) + Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+})
+
+u1 = g7[which(is.nan(x1))]
+u2 = which(is.nan(x1))
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gaussian_Fit_RNase[u1[k], 4])/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+})
+
+
+################### 8. sd1 < sd2, mu1 = mu2 | mu1 > mu2 | mu1 < mu2, h1 = h2 | h1 > h2
+g8 = which(Gaussian_Fit_Ctrl[, 2] < Gaussian_Fit_RNase[, 2] & Gaussian_Fit_Ctrl[, 3] >= Gaussian_Fit_RNase[, 3])
+
+a = (1/(Gaussian_Fit_Ctrl[g8,2])^2 - 1/(Gaussian_Fit_RNase[g8,2])^2)
+b = 2 * ((Gaussian_Fit_RNase[g8,1])/(Gaussian_Fit_RNase[g8,2])^2 - (Gaussian_Fit_Ctrl[g8,1])/(Gaussian_Fit_Ctrl[g8,2])^2)
+c = (Gaussian_Fit_Ctrl[g8,1]/Gaussian_Fit_Ctrl[g8,2])^2 - (Gaussian_Fit_RNase[g8,1]/Gaussian_Fit_RNase[g8,2])^2 - 2 * log((Gaussian_Fit_Ctrl[g8,3] * Gaussian_Fit_RNase[g8,2])/(Gaussian_Fit_RNase[g8,3] * Gaussian_Fit_Ctrl[g8,2]))
+
 x2 = (- b - sqrt(b^(2) - 4 * a * c))/(2 * a)
 x1 = (- b + sqrt(b^(2) - 4 * a * c))/(2 * a)
 
-u1 = g7[which(x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)]
+u1 = g8[which(x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)]
 u2 = which(x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)
 overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
   (Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) + pnorm(25, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])) + Gaussian_Fit_RNase[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
 })
 
-u1 = g7[which(x1 > 25)]
+u1 = g8[which(x1 > 25)]
 u2 = which(x1 > 25)
 overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
   (Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])) + Gaussian_Fit_RNase[u1[k], 3] * (pnorm(25, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
 })
 
-u1 = g7[which(x2 < 0)]
+u1 = g8[which(x2 < 0)]
 u2 = which(x2 < 0)
 overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
   (Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(25, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])) + Gaussian_Fit_RNase[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
 })
 
 
-# sd1 > sd2, mu1 = mu2 | mu1 > mu2 | mu1 < mu2, h1 > h2
-g8 = which(rownames(Gaussian_Fit_Ctrl) %in% unlist(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
-if(Gaussian_Fit_Ctrl[k, 2] > Gaussian_Fit_RNase[k,2] & Gaussian_Fit_Ctrl[k,3] > Gaussian_Fit_RNase[k,3]) {rownames(Gaussian_Fit_Ctrl[k,])}
-  })))
-
-a = (1/(Gaussian_Fit_Ctrl[g8,2])^2 - 1/(Gaussian_Fit_RNase[g8,2])^2)
-b = 2 * ((Gaussian_Fit_RNase[g8,1])/(Gaussian_Fit_RNase[g8,2])^2 - (Gaussian_Fit_Ctrl[g8,1])/(Gaussian_Fit_Ctrl[g8,2])^2)
-c = (Gaussian_Fit_Ctrl[g8,1]/Gaussian_Fit_Ctrl[g8,2])^2 - (Gaussian_Fit_RNase[g8,1]/Gaussian_Fit_RNase[g8,2])^2 - 2 * log((Gaussian_Fit_Ctrl[g8,3] * Gaussian_Fit_RNase[g8,2])/(Gaussian_Fit_RNase[g8,3] * Gaussian_Fit_Ctrl[g8,2]))
-
-x1 = (- b - sqrt(b^(2) - 4 * a * c))/(2 * a)
-x2 = (- b + sqrt(b^(2) - 4 * a * c))/(2 * a)
-
-u1 = g8[which(!is.nan(x1) & x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)]
-u2 = which(!is.nan(x1) & x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)
-overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
-  (Gaussian_Fit_RNase[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) + pnorm(25, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])) + Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
-})
-
-u1 = g8[which(!is.nan(x1) & x1 > 25)]
-u2 = which(!is.nan(x1) & x1 > 25)
-overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
-  (Gaussian_Fit_RNase[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])) + Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(25, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
-})
-
-u1 = g8[which(!is.nan(x1) & x2 < 0)]
-u2 = which(!is.nan(x1) & x2 < 0)
-overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
-  (Gaussian_Fit_RNase[u1[k], 3] * (pnorm(25, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])) + Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
-})
-
-u1 = g8[which(is.nan(x1))]
-u2 = which(is.nan(x1))
-overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
-  (Gaussian_Fit_RNase[u1[k], 4])/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
-})
-
-# sd1 < sd2, mu1 = mu2 | mu1 > mu2 | mu1 < mu2, h1 < h2
-g9 = which(rownames(Gaussian_Fit_Ctrl) %in% unlist(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
-if(Gaussian_Fit_Ctrl[k, 2] < Gaussian_Fit_RNase[k,2] & Gaussian_Fit_Ctrl[k,3] < Gaussian_Fit_RNase[k,3]) {rownames(Gaussian_Fit_Ctrl[k,])}
-  })))
+################### 9. sd1 < sd2, mu1 = mu2 | mu1 > mu2 | mu1 < mu2, h1 < h2
+g9 = which(Gaussian_Fit_Ctrl[, 2] < Gaussian_Fit_RNase[, 2] & Gaussian_Fit_Ctrl[, 3] < Gaussian_Fit_RNase[, 3])
 
 a = (1/(Gaussian_Fit_Ctrl[g9,2])^2 - 1/(Gaussian_Fit_RNase[g9,2])^2)
 b = 2 * ((Gaussian_Fit_RNase[g9,1])/(Gaussian_Fit_RNase[g9,2])^2 - (Gaussian_Fit_Ctrl[g9,1])/(Gaussian_Fit_Ctrl[g9,2])^2)
