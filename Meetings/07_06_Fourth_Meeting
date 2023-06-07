@@ -9,17 +9,18 @@ Fragen:
 
 Antworten:  
 1. Berechnung ob shift no shift und alles was wir untersuchen wollen => Endergebnis speichern
+  - er schaut sich aber nochmal an, ob es Alternativen gibt
 2. Outliers sind mit correlation Test rausgefallen
 3. Generell die 5% Hürde, Maiwen bei pearson correlation: von allen Proteinen den Mittelwert der 2 besten Replikate für das dritte Replikat nehmen; findet Fabio nicht so gut
-Gauß: T-Test anwenden, ob es signifikant sein => p-Value muss maximal 0,05 sein (sagt nur an wie vile Prozent falsch positive Werte zugelassen werden => 5% = Fehlerquote) => Überlappungsfläche ist p-Value
+Gauß: T-Test anwenden, ob er signifikant sein => p-Value muss maximal 0,05 sein (sagt nur an wie viele Prozent falsch positive Werte zugelassen werden => 5% = Fehlerquote) => Überlappungsfläche ist p-Value
 4. Er sucht uns den Befehl raus, um eine Schnittmenge zu berechnen
 5.- PDF abgeben, die aus Markdown generiert werden => können entscheiden, welche Chunks angezeigt werden, welche ausgeführt werden sollen; 
-  - Introductin, Methods, Results, Discussion; 
+  - Introduction, Methods, Results, Discussion; 
   - keine Schriftgröße kleiner als 9, nicht mehr als 10 Seiten; wie ein normales Protokoll; 
   - Code ist Maiwen nicht wichtig, ist nicht unbedingt Teil der Bewertung; 
   - Schwerpunkt auf Begründungen und warum was angewendet wird
-  - nicht wie wir das programmiert haben, nicht die ganze Mathematik in Einzelheiten erklären, sondern eher wie die Präsentation
-  - wie ein Paper formulieren => alles was allgemeinwissen ist wird nicht erklärt; alles was wir selber gemacht haben, muss erklärt werden
+  - nicht wie wir das programmiert haben, nicht die ganze Mathematik in Einzelheiten erklären, sondern eher wie beim Project Proposal
+  - wie ein Paper formulieren => Allgemeinwissen nicht erklären; alles, was wir selber gemacht haben, muss erklärt werden
   - Fabio: Formeln, Maiwen: Text
 6. kann sagen, dass es Proteine gibt, bei denen es nicht eindeutig ist, ob es ein RBP ist => further analysis
 7. p-Value von 5% nehmen, gibt Fehlerrate an
