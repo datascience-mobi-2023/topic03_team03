@@ -29,6 +29,3 @@ Gauß: T-Test anwenden, ob er signifikant sein => p-Value muss maximal 0,05 sein
     \-> lokale Peaks können zudem die Aussagekraft für andere Gene abschwächen (eindeutiges RNA-dependent Protein wird durch große Überlappung mit lokalen Peak eher zu einem partial shifter)
         \-> scheint nur mit globalen Peaks klarer, als es eigentlich mit allen Peaks ist
 7. p-Value von 5% nehmen, gibt Fehlerrate an
-
-- mit lokal peaks können Proteine identifiziert werden, bei denen Aussagekraft, ob sie ein RDP sind, nicht eindeutig ist
-\-> bzw. können lokale Peaks die Aussagekraft abschwächen (eindeutiges RNA-dependent Protein wird durch große Überlappung mit lokal peak eher zu einem partial shifter)
