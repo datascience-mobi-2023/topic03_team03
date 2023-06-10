@@ -87,52 +87,153 @@ RDeeP_HeLa_Interphase_RNase <- RDeeP_HeLa_Interphase_RNase[!(rownames(RDeeP_HeLa
 
 ##### 1.3 Pearson Correlation (Reproducibility)
 
+We will now test the reproducibility of the dataset: to do this we will calculate the pearson correlation between the 3 replicates. For each gene and condition this results in 3 correlation coefficients (cor(Rep1, Rep2), cor(Rep2, Rep3), cor(Rep1, Rep3)). The threshold for reproducibility is a correlation coefficient over or equal to 0.95.
+
+If one replicate only consists of zeros, the correlation can not be calculated (sd = 0; 1/sd = NaN). Because these replicates contain very little information, we will replace these replicates with the value NA in our dataframes **RDeep_HeLa_Interphase_Ctrl** and **RDeep_HeLa_Interphase_RNase** (this applies to 7 replicates).
+If two replicates of one gene and condition only contain only zeros, we will remove the entire gene from the dataframes (no proficient analysis with only one replicate for a condition) (this applies to 5 genes).
+
+If all three correlation coefficients for a gene and condition are under 0.95, the entire gene will be removed from the dataframes(this applies to 1335 genes).
+If two correlation coefficients are under 0.95, the associated replicate will be replaced with NA values (e.g. if cor(Rep1, Rep2) and cor(Rep2, Rep3) are under 0.95, Rep2 will be replaced) (this applies to 2594 replicates).
+If only one correlation coefficient is under 0.95, one replicate is replaced (for cor(Rep1, Rep2) replicate 1 is replaced, for cor(Rep2, Rep3) replicate 2 and for cor(Rep1, Rep3) replicate 3) (this applies to 2285 replicates). 
+
 ```{r}
-Rep1 = t(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {sapply(seq(0,73,3), function(i) {RDeeP_HeLa_Interphase_Ctrl[k, c(1)+c(i)]})}))
-Rep2 = t(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {sapply(seq(0,73,3), function(i) {RDeeP_HeLa_Interphase_Ctrl[k, c(2)+c(i)]})}))
-Rep3 = t(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {sapply(seq(0,73,3), function(i) {RDeeP_HeLa_Interphase_Ctrl[k, c(3)+c(i)]})}))
+# ---> Die einzelnen Replikate für jedes Gen in der Ctrl-condition werden separat ausgewählt und abgespeichert
+Rep1_Ctrl = RDeeP_HeLa_Interphase_Ctrl[, c(sapply(seq(0,72,3), function(k) {1 + k}))]
+Rep2_Ctrl = RDeeP_HeLa_Interphase_Ctrl[, c(sapply(seq(0,72,3), function(k) {2 + k}))]
+Rep3_Ctrl = RDeeP_HeLa_Interphase_Ctrl[, c(sapply(seq(0,72,3), function(k) {3 + k}))]
 
-Cor_Ctrl = as.data.frame(cbind(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {cor(Rep1[k,], Rep2[k,], method = "pearson")}),
-      sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {cor(Rep2[k,], Rep3[k,], method = "pearson")}),
-      sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {cor(Rep1[k,], Rep3[k,], method = "pearson")})))
+# ---> es wird die paarweise Korrelation zwischen den einzelnen Replikaten für jedes Gen berechnet und in einem neuen Dataframe (Cor_Ctrl) abgespeichert 
+Cor_Ctrl = as.data.frame(cbind(
+      sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {cor(unlist(Rep1_Ctrl[k,]), unlist(Rep2_Ctrl[k,]), method = "pearson")}),
+      sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {cor(unlist(Rep2_Ctrl[k,]), unlist(Rep3_Ctrl[k,]), method = "pearson")}),
+      sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {cor(unlist(Rep1_Ctrl[k,]), unlist(Rep3_Ctrl[k,]), method = "pearson")})
+      ))
 
+# --> Benennung der Reihen und Spalten von "Cor_Ctrl"
 rownames(Cor_Ctrl) = rownames(RDeeP_HeLa_Interphase_Ctrl)
 colnames(Cor_Ctrl) = c("cor(Rep1, Rep2)", "cor(Rep2, Rep3)", "cor(Rep1, Rep3)")
 
 
-Rep1 = t(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_RNase), 1), function(k) {sapply(seq(0,73,3), function(i) {RDeeP_HeLa_Interphase_RNase[k, c(1)+c(i)]})}))
-Rep2 = t(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_RNase), 1), function(k) {sapply(seq(0,73,3), function(i) {RDeeP_HeLa_Interphase_RNase[k, c(2)+c(i)]})}))
-Rep3 = t(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_RNase), 1), function(k) {sapply(seq(0,73,3), function(i) {RDeeP_HeLa_Interphase_RNase[k, c(3)+c(i)]})}))
+# ---> gleiche Berechnungen für die RNase-condition
+Rep1_RNase = RDeeP_HeLa_Interphase_RNase[, c(sapply(seq(0,72,3), function(k) {1 + k}))]
+Rep2_RNase = RDeeP_HeLa_Interphase_RNase[, c(sapply(seq(0,72,3), function(k) {2 + k}))]
+Rep3_RNase = RDeeP_HeLa_Interphase_RNase[, c(sapply(seq(0,72,3), function(k) {3 + k}))]
 
-Cor_RNase = as.data.frame(cbind(sapply(seq(1, nrow(RDeeP_HeLa_Interphase_RNase), 1), function(k) {cor(Rep1[k,], Rep2[k,], method = "pearson")}),
-      sapply(seq(1, nrow(RDeeP_HeLa_Interphase_RNase), 1), function(k) {cor(Rep2[k,], Rep3[k,], method = "pearson")}),
-      sapply(seq(1, nrow(RDeeP_HeLa_Interphase_RNase), 1), function(k) {cor(Rep1[k,], Rep3[k,], method = "pearson")})))
+Cor_RNase = as.data.frame(cbind(
+      sapply(seq(1, nrow(RDeeP_HeLa_Interphase_RNase), 1), function(k) {cor(unlist(Rep1_RNase[k,]), unlist(Rep2_RNase[k,]), method = "pearson")}),
+      sapply(seq(1, nrow(RDeeP_HeLa_Interphase_RNase), 1), function(k) {cor(unlist(Rep2_RNase[k,]), unlist(Rep3_RNase[k,]), method = "pearson")}),
+      sapply(seq(1, nrow(RDeeP_HeLa_Interphase_RNase), 1), function(k) {cor(unlist(Rep1_RNase[k,]), unlist(Rep3_RNase[k,]), method = "pearson")})
+      ))
 
 rownames(Cor_RNase) = rownames(RDeeP_HeLa_Interphase_RNase)
 colnames(Cor_RNase) = c("cor(Rep1, Rep2)", "cor(Rep2, Rep3)", "cor(Rep1, Rep3)")
 
-rm(Rep1, Rep2, Rep3)
+
+#### Sometimes NA values are produced -> we will test which replicates only contain zeros
+
+#which(rowSums(Rep1_Ctrl)  == 0)
+#which(rowSums(Rep2_Ctrl)  == 0)
+#which(rowSums(Rep3_Ctrl)  == 0)
+
+#which(rowSums(Rep1_RNase)  == 0)
+#which(rowSums(Rep2_RNase)  == 0)
+#which(rowSums(Rep3_RNase)  == 0)
+
+### if two replicates of one condition contain only 0 we will remove the entire gene from both conditions (no sufficient data for analysis); the other replicates will be replaced with the value "NA"
+
+# -> Removal of rows 639 (BHMT2_HUMAN) (Rep2_Ctrl & Rep3_Ctrl), 3297 (MAP9_HUMAN) (Rep1_Ctrl & Rep2_Ctrl) 1771 (ECT2_HUMAN) (Rep2_RNase & Rep3_RNase), 2359 (GP161_HUMAN) (Rep2_RNase & Rep3_RNase) and 4209 (PATZ1_HUMAN) (Rep1_RNase & Rep2_RNase)
+
+RDeeP_HeLa_Interphase_Ctrl <- RDeeP_HeLa_Interphase_Ctrl[!(rownames(RDeeP_HeLa_Interphase_Ctrl) %in% c("BHMT2_HUMAN", "MAP9_HUMAN", "ECT2_HUMAN", "GP161_HUMAN", "PATZ1_HUMAN")),]
+
+RDeeP_HeLa_Interphase_RNase <- RDeeP_HeLa_Interphase_RNase[!(rownames(RDeeP_HeLa_Interphase_RNase) %in% c("BHMT2_HUMAN", "MAP9_HUMAN", "ECT2_HUMAN", "GP161_HUMAN", "PATZ1_HUMAN")),]
+
+# ---> Wenn gesamte Gene gelöscht werden, müssen diese jeweils auch aus den Cor_Ctrl und Cor_RNase Datensätzen entfernt werden, da ansonsten später falsche Replikate überschrieben werden würden
+Cor_Ctrl <- Cor_Ctrl[!(rownames(Cor_Ctrl) %in% c("BHMT2_HUMAN", "MAP9_HUMAN", "ECT2_HUMAN", "GP161_HUMAN", "PATZ1_HUMAN")),]
+
+Cor_RNase <- Cor_RNase[!(rownames(Cor_RNase) %in% c("BHMT2_HUMAN", "MAP9_HUMAN", "ECT2_HUMAN", "GP161_HUMAN", "PATZ1_HUMAN")),]
+
+# -> Replacement of:
+      # Rep1_Ctrl: 664 (BMX_HUMAN), 1470 (DCAF7_HUMAN), 6487 (TSC2_HUMAN)
+      # Rep2_RNase: 904 (CCDC9_HUMAN), 1305 (CQ051_HUMAN)
+      # Rep3_RNase: 2523 (HEM0_HUMAN), 6491 (TSN3_HUMAN)
+
+RDeeP_HeLa_Interphase_Ctrl[which(rownames(RDeeP_HeLa_Interphase_Ctrl) == "BMX_HUMAN"), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+RDeeP_HeLa_Interphase_Ctrl[which(rownames(RDeeP_HeLa_Interphase_Ctrl) == "DCAF7_HUMAN"), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+RDeeP_HeLa_Interphase_Ctrl[which(rownames(RDeeP_HeLa_Interphase_Ctrl) == "TSC2_HUMAN"), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+RDeeP_HeLa_Interphase_RNase[which(rownames(RDeeP_HeLa_Interphase_Ctrl) == "CCDC9_HUMAN"), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+RDeeP_HeLa_Interphase_RNase[which(rownames(RDeeP_HeLa_Interphase_Ctrl) == "CQ051_HUMAN"), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+RDeeP_HeLa_Interphase_RNase[which(rownames(RDeeP_HeLa_Interphase_Ctrl) == "HEM0_HUMAN"), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+RDeeP_HeLa_Interphase_RNase[which(rownames(RDeeP_HeLa_Interphase_Ctrl) == "TSN3_HUMAN"), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
 
 
-# If there are less than 2 values that differ from 0 in a row the correlation can not be calculated (because this means that one of the replicates does not contain any values other than 0 (mu & sd = 0, 1/sd -> n.d.). Because these rows contain so little information, we will remove them from the data set:
+# ---> zur vereinfachten Berechnung erstellen wir zwei Matrices, die genau so groß sind wie die Datenframes "Cor_Ctrl" und "Cor_RNase", aber bei jeder Korrelation über oder gleich 0.95 eine "1" enthalten und bei jeder Korrelation unter 0.95 eine "0" enthalten.
+Rep_Cor_Ctrl = rep(1, nrow(Cor_Ctrl)*3)
+Rep_Cor_Ctrl[which(Cor_Ctrl < 0.95)] = 0
+Rep_Cor_Ctrl = matrix(Rep_Cor_Ctrl, ncol = 3)
 
-rm1 = unlist(sapply(seq(1,3,1), function(k) {which(is.na(Cor_Ctrl[,k]))})[1]) #[[1]] contains all rows
-# Output: [[1]] [1]  639  664 1470 3297 6487
+Rep_Cor_RNase = rep(1, nrow(Cor_RNase)*3)
+Rep_Cor_RNase[which(Cor_RNase < 0.95)] = 0
+Rep_Cor_RNase = matrix(Rep_Cor_RNase, ncol = 3)
 
-rm2 = unlist(sapply(seq(1,3,1), function(k) {which(is.na(Cor_RNase[,k]))})[2]) #[[2]] contains all rows
-# Output: [[1]] [1]  639  904 1305 1771 2359 2523 4209 6491
+# ---> wir wollen zuerst alle Gene löschen, die in einer condition für alle drei Korrelationen unter 0.95 liegen (werden aber auch separat in den Dataframes "Weird_Ctrl" und "Weird_RNase" abgespeichert)
+# ---> Note: only the second row has < 0.95 both in RNase and Control for all 3 replicates (therefore the [-1])
+Gene.Pos = c(which(rowSums(Rep_Cor_Ctrl) == 0)[-1], which(rowSums(Rep_Cor_RNase) == 0))
 
-rm(rm1, rm2)
+Weird_Ctrl <- RDeeP_HeLa_Interphase_Ctrl[which(rowSums(Rep_Cor_Ctrl) == 0), ]
 
-RDeeP_HeLa_Interphase_Ctrl <- RDeeP_HeLa_Interphase_Ctrl[!(rownames(RDeeP_HeLa_Interphase_Ctrl)%in% c("BHMT2_HUMAN", "BMX_HUMAN", "CCDC9_HUMAN", "CQ051_HUMAN", "DCAF7_HUMAN", "ECT2_HUMAN", "GP161_HUMAN", "HEM0_HUMAN", "MAP9_HUMAN", "PATZ1_HUMAN", "TSC2_HUMAN", "TSN3_HUMAN")),]
+Weird_RNase <- RDeeP_HeLa_Interphase_RNase[which(rowSums(Rep_Cor_RNase) == 0), ]
 
-RDeeP_HeLa_Interphase_RNase <- RDeeP_HeLa_Interphase_RNase[!(rownames(RDeeP_HeLa_Interphase_RNase)%in% c("BHMT2_HUMAN", "BMX_HUMAN", "CCDC9_HUMAN", "CQ051_HUMAN", "DCAF7_HUMAN", "ECT2_HUMAN", "GP161_HUMAN", "HEM0_HUMAN", "MAP9_HUMAN", "PATZ1_HUMAN", "TSC2_HUMAN", "TSN3_HUMAN")),]
+RDeeP_HeLa_Interphase_Ctrl <- RDeeP_HeLa_Interphase_Ctrl[- Gene.Pos,]
+
+RDeeP_HeLa_Interphase_RNase <- RDeeP_HeLa_Interphase_RNase[- Gene.Pos,]
+
+# ---> wie oben auch, müssen die Gene auch aus den "Cor_Ctrl" und "Cor_RNase" Dataframes gelöscht werden, zudem aus den "Rep_Cor_Ctrl" und "Rep_Cor_RNase" Dataframes
+Cor_Ctrl <- Cor_Ctrl[- Gene.Pos,]
+
+Cor_RNase <- Cor_RNase[- Gene.Pos,]
+
+Rep_Cor_Ctrl <- Rep_Cor_Ctrl[- Gene.Pos,]
+
+Rep_Cor_RNase <- Rep_Cor_RNase[- Gene.Pos,]
 
 
-#
+# ---> wir ersetzen nun die Replikate mit NA values, für die gilt, dass ihre beiden Korrelationen unter 0.95 liegen
+RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 1] == Rep_Cor_Ctrl[, 3] & rowSums(Rep_Cor_Ctrl) == 1), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
 
-length(which(Cor_Ctrl <= 0.95))/(3 * 7069)
-length(which(Cor_RNase <= 0.95))/(3* 7069)
+RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 1] == Rep_Cor_Ctrl[, 2] & rowSums(Rep_Cor_Ctrl) == 1), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 2] == Rep_Cor_Ctrl[, 3] & rowSums(Rep_Cor_Ctrl) == 1), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+
+RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 1] == Rep_Cor_RNase[, 3] & rowSums(Rep_Cor_RNase) == 1), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 1] == Rep_Cor_RNase[, 2] & rowSums(Rep_Cor_RNase) == 1), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 2] == Rep_Cor_RNase[, 3] & rowSums(Rep_Cor_RNase) == 1), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+
+# ---> Zum Schluss ersetzen wir jeweils ein Replikat mit NA-values, wenn eine der Korrelationen unter 0.95 liegt
+RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 1] == 0 & rowSums(Rep_Cor_Ctrl) == 2), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 2] == 0 & rowSums(Rep_Cor_Ctrl) == 2), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 3] == 0 & rowSums(Rep_Cor_Ctrl) == 2), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+
+RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 1] == 0 & rowSums(Rep_Cor_RNase) == 2), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 2] == 0 & rowSums(Rep_Cor_RNase) == 2), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 3] == 0 & rowSums(Rep_Cor_RNase) == 2), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+# ---> Entfernung der erzeugten Variablen
+rm(Rep1_Ctrl, Rep2_Ctrl, Rep3_Ctrl, Rep1_RNase, Rep2_RNase, Rep3_RNase, Rep_Cor_Ctrl, Rep_Cor_RNase, Gene.Pos)
 ```
 
 
@@ -145,7 +246,7 @@ Mean_Ctrl = as.data.frame(
   sapply(seq(0,72,3), function(i) {
   # Äußere Schleife, die zum Auswählen der drei Replikate pro Fraktion da ist (Startvektor c(1,2,3) wird jeweils um c(3,3,3) erhöht) 
     
-    apply(RDeeP_HeLa_Interphase_Ctrl[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x)})
+    apply(RDeeP_HeLa_Interphase_Ctrl[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x, na.rm = T)})
     # Innere Schleife, die nachdem die drei Replikate für eine Fraktion ausgewählt wurden, über alle Zeilen dieser       Replikate den Mittelwert berechnet
     
     }))
@@ -156,7 +257,7 @@ colnames(Mean_Ctrl) = paste("Fraction",seq(1,25,1),"_Ctrl_Mean",sep="")
 # Analoges Vorgehen für den RNase Dataframe
 Mean_RNase = as.data.frame(
   sapply(seq(0,72,3), function(i) {
-    apply(RDeeP_HeLa_Interphase_RNase[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x)})
+    apply(RDeeP_HeLa_Interphase_RNase[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x, na.rm = T)})
     }))
 
 colnames(Mean_RNase) = paste("Fraction",seq(1,25,1),"_RNase_Mean",sep="")
@@ -178,14 +279,14 @@ RNase_Norm_100 = as.data.frame(sapply(RDeeP_HeLa_Interphase_RNase, function(i){(
 
 ###### 1.6.1 Without Normalization
 ```{r}
-plot(1:25, Mean_Ctrl[which(rownames(RDeeP_HeLa_Interphase)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN")
-lines(1:25, Mean_RNase[which(rownames(RDeeP_HeLa_Interphase)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
+plot(1:25, Mean_Ctrl[which(rownames(RDeeP_HeLa_Interphase_Ctrl)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN")
+lines(1:25, Mean_RNase[which(rownames(RDeeP_HeLa_Interphase_RNase)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
 grid()
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
 ```
 ```{r}
-plot(1:25, Mean_Ctrl[which(rownames(RDeeP_HeLa_Interphase)==c("CY24A_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CY24A_HUMAN")
-lines(1:25, Mean_RNase[which(rownames(RDeeP_HeLa_Interphase)==c("CY24A_HUMAN")),], type="l",lwd=3,col="red")
+plot(1:25, Mean_Ctrl[which(rownames(RDeeP_HeLa_Interphase_Ctrl)==c("CY24A_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CY24A_HUMAN")
+lines(1:25, Mean_RNase[which(rownames(RDeeP_HeLa_Interphase_RNase)==c("CY24A_HUMAN")),], type="l",lwd=3,col="red")
 grid()
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
 ```
@@ -198,15 +299,15 @@ Mean_RNase_Norm_100 = as.data.frame(sapply(Mean_RNase, function(i){(i/apply(Mean
 ```
 
 ```{r}
-plot(1:25, Mean_Ctrl_Norm_100[which(rownames(RDeeP_HeLa_Interphase)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN Normalized", ylim=c(0,25))
-lines(1:25, Mean_RNase_Norm_100[which(rownames(RDeeP_HeLa_Interphase)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
+plot(1:25, Mean_Ctrl_Norm_100[which(rownames(RDeeP_HeLa_Interphase_Ctrl)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN Normalized", ylim=c(0,25))
+lines(1:25, Mean_RNase_Norm_100[which(rownames(RDeeP_HeLa_Interphase_RNase)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
 grid()
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
 ```
 
 ```{r}
-plot(1:25, Mean_Ctrl_Norm_100[which(rownames(RDeeP_HeLa_Interphase)==c("CY24A_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CY24A_HUMAN Normailzed", ylim=c(0,18))
-lines(1:25, Mean_RNase_Norm_100[which(rownames(RDeeP_HeLa_Interphase)==c("CY24A_HUMAN")),], type="l",lwd=3,col="red")
+plot(1:25, Mean_Ctrl_Norm_100[which(rownames(RDeeP_HeLa_Interphase_Ctrl)==c("CY24A_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CY24A_HUMAN Normailzed", ylim=c(0,18))
+lines(1:25, Mean_RNase_Norm_100[which(rownames(RDeeP_HeLa_Interphase_RNase)==c("CY24A_HUMAN")),], type="l",lwd=3,col="red")
 grid()
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
 ```
@@ -397,38 +498,8 @@ grid()
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
 rm(gene.name)
 ```
-But Smoothing sometimes changes the position of the maxima!!!!
 
-```{r}
-gene.name=c("RS29_HUMAN")
-
-plot(1:25, Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name, "(Smoothed and Normalized)")), ylim=c(0,25))
-
-abline(v=Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name),],lwd=3,col="green",lty=2)
-
-lines(1:25, Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name),], type="l",lwd=3,col="red")
-
-abline(v=Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name),],lwd=3,col="red",lty=3)
-
-grid()
-
-legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
-
-
-plot(1:25, Mean_Ctrl_Norm_100[which(rownames(Mean_Ctrl)==gene.name),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name, "(Normalized)")), ylim=c(0,25))
-
-abline(v=Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name),],lwd=3,col="green",lty=3)
-
-lines(1:25, Mean_RNase_Norm_100[which(rownames(Mean_Ctrl)==gene.name),], type="l",lwd=3,col="red")
-
-abline(v=Mean_RNase_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name),],lwd=3,col="red",lty=3)
-
-grid()
-
-legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
-rm(gene.name)
-```
-Another Example, where the peak positions would be at the same fraction position in the unsmoothed data but differ in the smoothen data:
+But Smoothing sometimes changes the position of the maxima:
 ```{r}
 gene.name="XXLT1_HUMAN"
 
@@ -688,7 +759,7 @@ To test if this method works, we will try to fit Gaussian curves to the global p
 
 ```{r}
 # ---> Wir wählen ein beliebiges Gen aus
-gene.name=c("RL32_HUMAN")
+gene.name=c("CTCF_HUMAN")
 
 # ---> Schätzung der Werte für mu, sd und h anhand der oben beschriebenen Berechnungen
 mu_Ctrl <- unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name),])
@@ -773,10 +844,12 @@ Gaussian_Fit_Ctrl = as.data.frame(matrix(rep(NA, nrow(RDeeP_HeLa_Interphase_Ctrl
 colnames(Gaussian_Fit_Ctrl) = c("mu", "sd", "h", "prt_amount", "overlap")
 rownames(Gaussian_Fit_Ctrl) = rownames(RDeeP_HeLa_Interphase_Ctrl)
 
+
 # --> Schätzung der Werte für mu (Gaussian_Fit_Ctrl[,1]), sd (Gaussian_Fit_Ctrl[,2]) und h (Gaussian_Fit_Ctrl[,3]) mit den oben beschriebenen Berechnungen (bei "3.1 Introduction") für alle Gene 
 Gaussian_Fit_Ctrl[,1] <- unlist(Mean_Ctrl_Gbl_Max)
 Gaussian_Fit_Ctrl[,2] <- sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl),1), function(k) {min(abs(unlist(Mean_Ctrl_Gbl_Max[k,]) - which(Mean_Ctrl_Smooth_Norm_100[k,] <= max(Mean_Ctrl_Smooth_Norm_100[k,])/2)))/sqrt(2*log(2))})
 Gaussian_Fit_Ctrl[,3] <- apply(Mean_Ctrl_Smooth_Norm_100, 1, function(x) {max(x)})*sqrt(2*pi)*Gaussian_Fit_Ctrl[,2]
+
 
 # ---> Aufstellen und Optimieren der Funktion, die die Summe der quadratischen Abstände in Abhängigkeit von mu berechnet, über alle Gene und Abspeichern des resultierenden Vektors (enthält die jeweils optimierten Werte für mu über alle Gene) als erste Spalte von "Gaussian_Fit_Ctrl". 
 Gaussian_Fit_Ctrl[,1] <- sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
@@ -804,7 +877,6 @@ optimise(h_finder, interval = c(Gaussian_Fit_Ctrl[k,3]-5, Gaussian_Fit_Ctrl[k,3]
 
 # --> Berechung des Protein-Anteils unterhalb der Gauß-Kurve im Intervall [0, 25] (Berechnung als pnorm(25) - pnorm(0) multipliziert mit h) über alle Gene und Abspeichern des resultierenden Vektors in der Spalte "prt_amount"
 Gaussian_Fit_Ctrl[,4] <- sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl),1), function(k) {Gaussian_Fit_Ctrl[k,3] * (pnorm(25, mean = Gaussian_Fit_Ctrl[k,1], sd = Gaussian_Fit_Ctrl[k,2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[k,1], sd = Gaussian_Fit_Ctrl[k,2]))})
-
 
 
 # ---> Gleiches Spiel für die RNase Samples
@@ -1084,10 +1156,6 @@ But you can also specify the arguments to your liking:
 ```{r}
 ## To-Do
   # ggplot Unterstützung
-
-# RL32_HUMAN
-# ABCA1_HUMAN (gut für triple peaks to single peak)
-# NAT10_HUMAN (gut für verschiedene lokale Peaks)
 
 Gene_Plotter <- function(gene.name, col = c("green", "red", "dodgerblue", "orange"), Ctrl = T, RNase = T, Gbl.Max = T, Loc.Max = T, Gauss = T, grid = T, Type = "Smooth and Norm" #, "Norm", "Smooth", "Raw", "Compare"
                           ) {
