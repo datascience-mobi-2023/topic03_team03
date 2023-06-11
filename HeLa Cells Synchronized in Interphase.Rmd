@@ -13,24 +13,24 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Subtopic 3: HeLa Cells Synchronized in Interphase
 
-#### 1. Data Cleanup and Normalization
-
 First, we will load the dataset containing the mass spectrometry data from HeLa cells synchronized in interphase:
 
-```{r}
+```{r setup, include=FALSE}
 RDeeP_HeLa_Interphase = read.csv("https://www.dropbox.com/s/nm9bgsyg7cv6wu1/RDeeP_HeLa_Interphase.csv?dl=1", header=TRUE, row.names=1, sep = ";")
 head(RDeeP_HeLa_Interphase)
 ```
 
+#### 1. Data Cleanup and Normalization
+
 Are there any missing values in the dataset?
 
-```{r}
+```{r cleanup, echo=FALSE}
 sum(which(is.null(RDeeP_HeLa_Interphase)))
 ```
 
 Are there any rows that only contain zeros?
 
-```{r}
+```{r cleanup, echo=FALSE}
 which(rowSums(RDeeP_HeLa_Interphase)==0)
 ```
 
@@ -39,7 +39,7 @@ which(rowSums(RDeeP_HeLa_Interphase)==0)
 
 We can also split the dataset into two separate datasets that contain the Control and RNase values:
 
-```{r}
+```{r cleanup, include=FALSE}
 RDeeP_HeLa_Interphase_Ctrl = as.data.frame(
                              # Diese Matrix speichern wir noch als Dataframe
   matrix(
@@ -69,7 +69,7 @@ rownames(RDeeP_HeLa_Interphase_RNase) = rownames(RDeeP_HeLa_Interphase)
 
 ##### 1.2 NA Values and Zero Rows
 
-```{r}
+```{r cleanup, include=FALSE}
 ## Überprüfen welche Reihen in den Datasets nur Nullen enthalten
 
 which(rowSums(RDeeP_HeLa_Interphase_Ctrl)==0)
@@ -96,7 +96,7 @@ If all three correlation coefficients for a gene and condition are under 0.95, t
 If two correlation coefficients are under 0.95, the associated replicate will be replaced with NA values (e.g. if cor(Rep1, Rep2) and cor(Rep2, Rep3) are under 0.95, Rep2 will be replaced) (this applies to 2594 replicates).
 If only one correlation coefficient is under 0.95, one replicate is replaced (for cor(Rep1, Rep2) replicate 1 is replaced, for cor(Rep2, Rep3) replicate 2 and for cor(Rep1, Rep3) replicate 3) (this applies to 2285 replicates). 
 
-```{r}
+```{r cleanup, include=FALSE}
 # ---> Die einzelnen Replikate für jedes Gen in der Ctrl-condition werden separat ausgewählt und abgespeichert
 Rep1_Ctrl = RDeeP_HeLa_Interphase_Ctrl[, c(sapply(seq(0,72,3), function(k) {1 + k}))]
 Rep2_Ctrl = RDeeP_HeLa_Interphase_Ctrl[, c(sapply(seq(0,72,3), function(k) {2 + k}))]
@@ -239,7 +239,7 @@ rm(Rep1_Ctrl, Rep2_Ctrl, Rep3_Ctrl, Rep1_RNase, Rep2_RNase, Rep3_RNase, Rep_Cor_
 
 ##### 1.4 Mean of Replicates
 
-```{r}
+```{r cleanup, include=FALSE}
 Mean_Ctrl = as.data.frame(
             # Abspeichern als Dataframe
   
@@ -268,7 +268,7 @@ colnames(Mean_RNase) = paste("Fraction",seq(1,25,1),"_RNase_Mean",sep="")
 
 This will be done for the Control and RNase Datasets separately:
 
-```{r}
+```{r cleanup, include=FALSE}
 Ctrl_Norm_100 = as.data.frame(sapply(RDeeP_HeLa_Interphase_Ctrl, function(i){(i/apply(RDeeP_HeLa_Interphase_Ctrl,1,sum))*100}))
 
 RNase_Norm_100 = as.data.frame(sapply(RDeeP_HeLa_Interphase_RNase, function(i){(i/apply(RDeeP_HeLa_Interphase_RNase,1,sum))*100}))
@@ -278,13 +278,13 @@ RNase_Norm_100 = as.data.frame(sapply(RDeeP_HeLa_Interphase_RNase, function(i){(
 ##### 1.6 Data Exploration, First Graphical Representations
 
 ###### 1.6.1 Without Normalization
-```{r}
+```{r cleanup, echo=FALSE}
 plot(1:25, Mean_Ctrl[which(rownames(RDeeP_HeLa_Interphase_Ctrl)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN")
 lines(1:25, Mean_RNase[which(rownames(RDeeP_HeLa_Interphase_RNase)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
 grid()
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
 ```
-```{r}
+```{r cleanup, echo=FALSE}
 plot(1:25, Mean_Ctrl[which(rownames(RDeeP_HeLa_Interphase_Ctrl)==c("CY24A_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CY24A_HUMAN")
 lines(1:25, Mean_RNase[which(rownames(RDeeP_HeLa_Interphase_RNase)==c("CY24A_HUMAN")),], type="l",lwd=3,col="red")
 grid()
@@ -292,20 +292,20 @@ legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lw
 ```
 
 ###### 1.6.2 With Normailzation 
-```{r}
+```{r cleanup, include=FALSE}
 Mean_Ctrl_Norm_100 = as.data.frame(sapply(Mean_Ctrl, function(i){(i/apply(Mean_Ctrl,1,sum))*100}))
 
 Mean_RNase_Norm_100 = as.data.frame(sapply(Mean_RNase, function(i){(i/apply(Mean_RNase,1,sum))*100}))
 ```
 
-```{r}
+```{r cleanup, echo=FALSE}
 plot(1:25, Mean_Ctrl_Norm_100[which(rownames(RDeeP_HeLa_Interphase_Ctrl)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN Normalized", ylim=c(0,25))
 lines(1:25, Mean_RNase_Norm_100[which(rownames(RDeeP_HeLa_Interphase_RNase)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
 grid()
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
 ```
 
-```{r}
+```{r cleanup, echo=FALSE}
 plot(1:25, Mean_Ctrl_Norm_100[which(rownames(RDeeP_HeLa_Interphase_Ctrl)==c("CY24A_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CY24A_HUMAN Normailzed", ylim=c(0,18))
 lines(1:25, Mean_RNase_Norm_100[which(rownames(RDeeP_HeLa_Interphase_RNase)==c("CY24A_HUMAN")),], type="l",lwd=3,col="red")
 grid()
@@ -319,7 +319,7 @@ legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lw
 
 We will smooth out the Data by calculating the mean value for each fraction within a defined neighborhood (n = 1):
 
-```{r}
+```{r smoothing, include=FALSE}
 # n = 1 (left and right neighbor)
 Mean_Ctrl_Smooth = 
   # 5: Abspeichern der Matrix als Data.Frame
@@ -352,14 +352,14 @@ colnames(Mean_RNase_Smooth) = colnames(Mean_RNase)
 ```
 
 We will now normalize this data in a way, that the sum of each row will equal 100:
-```{r}
+```{r smoothing, include=FALSE}
 Mean_Ctrl_Smooth_Norm_100 = as.data.frame(sapply(Mean_Ctrl_Smooth, function(i){(i/apply(Mean_Ctrl_Smooth,1,sum))*100}))
 
 Mean_RNase_Smooth_Norm_100 = as.data.frame(sapply(Mean_RNase_Smooth, function(i){(i/apply(Mean_RNase_Smooth,1,sum))*100}))
 ```
 
 Now let us explore how this Smoothing and Normalization effects the data distribution:
-```{r}
+```{r smoothing, echo=FALSE}
 plot(1:25, Mean_Ctrl [which(rownames(Mean_Ctrl)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN", ylim=c(0,2200000))
 lines(1:25, Mean_RNase[which(rownames(Mean_Ctrl)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
 grid()
@@ -376,7 +376,7 @@ grid()
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
 ```
 
-```{r}
+```{r smoothing, echo=FALSE}
 plot(1:25, Mean_Ctrl [which(rownames(Mean_Ctrl)==c("CY24A_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CY24A_HUMAN", ylim=c(0,950000))
 lines(1:25, Mean_RNase[which(rownames(Mean_Ctrl)==c("CY24A_HUMAN")),], type="l",lwd=3,col="red")
 grid()
@@ -392,7 +392,7 @@ lines(1:25, Mean_RNase_Smooth_Norm_100[which(rownames(Mean_Ctrl)==c("CY24A_HUMAN
 grid()
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
 ```
-```{r}
+```{r smoothing, echo=FALSE}
 plot(1:25, Mean_Ctrl [which(rownames(Mean_Ctrl)==c("ABCA1_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="ABCA1_HUMAN", ylim=c(0,220000))
 lines(1:25, Mean_RNase[which(rownames(Mean_Ctrl)==c("ABCA1_HUMAN")),], type="l",lwd=3,col="red")
 grid()
@@ -416,7 +416,7 @@ legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lw
 
 Let us first start with the global maxima: we want a code that tells us the global maximum fraction position for each gene and condition (Control and RNase).
 We can calculate the global maxima by asking the question: "Which Protein Fractions contains the maximum protein amount?"
-```{r}
+```{r global max, include=FALSE}
 Mean_Ctrl_Gbl_Max = 
   
   # 2: Abspeichern als Matrix (besser für weiter Berechnungen (siehe unten))
@@ -464,7 +464,7 @@ Mean_Gbl_Max = cbind(Mean_Ctrl_Gbl_Max, Mean_RNase_Gbl_Max)
 
 
 Let us see if it worked!
-```{r}
+```{r global max, echo=FALSE}
 gene.name=c("CTCF_HUMAN")
 
 plot(1:25, Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name, "(Smoothed and Normalized)")), ylim=c(0,25))
@@ -482,7 +482,7 @@ rm(gene.name)
 ```
 
 
-```{r}
+```{r global max, echo=FALSE}
 gene.name=c("CY24A_HUMAN")
 
 plot(1:25, Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name, "(Smoothed and Normalized)")), ylim=c(0,20))
@@ -500,7 +500,7 @@ rm(gene.name)
 ```
 
 But Smoothing sometimes changes the position of the maxima:
-```{r}
+```{r global max, echo=FALSE}
 gene.name="XXLT1_HUMAN"
 
 plot(1:25, Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),],type="l",lwd=3,col="green",xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name, "(Smoothed and Normalized)")), ylim=c(0,max(max(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))+3))
@@ -539,7 +539,7 @@ We will look at the protein amount for a neighborhood of n = 2 for each fraction
 X X [X] X X 
 
 We will then compare the protein amount in that fraction position to the protein amount for the 4 fraction positions around that fraction position and ask the question: Is the protein amount in that fraction greater or equal to its neighborhood? If TRUE then we define that fraction position as a local maximum.
-```{r}
+```{r local max, include=FALSE}
 # ---> Erstellen eines Data.Frames mit 25 Spalten und so vielen Zeilen, wie es Gene gibt (nur NA-values)
 Mean_Ctrl_Loc_Max = as.data.frame(matrix(NA, nrow = nrow(RDeeP_HeLa_Interphase_Ctrl), ncol = 25))
 
@@ -757,7 +757,7 @@ Lastly, we calculate the protein amount under each gaussian curve (**prt_amount*
 
 To test if this method works, we will try to fit Gaussian curves to the global peaks of the Control and RNase distributions of the *RL32_HUMAN* gene:
 
-```{r}
+```{r gauss, echo=FALSE}
 # ---> Wir wählen ein beliebiges Gen aus
 gene.name=c("CTCF_HUMAN")
 
@@ -838,7 +838,7 @@ Note, that we will also calculate the protein amount under each peak (area under
 
 **Note:** *This chunk can take up to several minutes to run.*
 
-```{r}
+```{r gauss, include=FALSE}
 # ---> Erstellen eines Data.Frames (Gaussian_Fit_Ctrl) mit 5 Spalten ("mu", "sd", "h", "prt_amount" und "overlap") und so vielen zeilen, wie es Gene gibt. Füllen des Data.Frames mit NA-values. 
 Gaussian_Fit_Ctrl = as.data.frame(matrix(rep(NA, nrow(RDeeP_HeLa_Interphase_Ctrl)*5), ncol = 5))
 colnames(Gaussian_Fit_Ctrl) = c("mu", "sd", "h", "prt_amount", "overlap")
@@ -943,7 +943,7 @@ Note, that for the cases 6. - 9. it must also be consider whether or not x1 and 
 
 The resulting overlap will be both stored in the data.frames **Gaussian_Fit_Ctrl** and **Gaussian_Fit_RNase** as the column **overlap**. 
 
-``` {r}
+``` {r overlap, include=FALSE}
 # ---> Erstellen eines Vektors der so viele NA-values enthält, wie es Gene gibt
 overlap = rep(NA, nrow(RDeeP_HeLa_Interphase_Ctrl))
 
@@ -1153,7 +1153,7 @@ But you can also specify the arguments to your liking:
   * **grid**: logical argument (TRUE or FALSE) that specifies whether or not an **underlying grid** is shown
   * **Type**: specifies the type of data that is plotted; either as a single data type or a vector with multiple data types (available data types: **"Smooth and Norm", "Norm", "Smooth", "Raw", "Compare"**) (note: different data types are plotted separately)
   
-```{r}
+```{r gene plotter, include=FALSE}
 ## To-Do
   # ggplot Unterstützung
 
@@ -1496,6 +1496,6 @@ legend("topright",inset = c(-0.39,0),
 ```
 
 Let us see if it works!
-```{r}
+```{r gene plotter}
 Gene_Plotter("CTCF_HUMAN")
 ```
