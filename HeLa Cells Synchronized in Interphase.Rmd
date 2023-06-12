@@ -94,7 +94,7 @@ If two replicates of one gene and condition only contain only zeros, we will rem
 
 If all three correlation coefficients for a gene and condition are under 0.95, the entire gene will be removed from the dataframes(this applies to 1335 genes).
 If two correlation coefficients are under 0.95, the associated replicate will be replaced with NA values (e.g. if cor(Rep1, Rep2) and cor(Rep2, Rep3) are under 0.95, Rep2 will be replaced) (this applies to 2594 replicates).
-If only one correlation coefficient is under 0.95, one replicate is replaced (for cor(Rep1, Rep2) replicate 1 is replaced, for cor(Rep2, Rep3) replicate 2 and for cor(Rep1, Rep3) replicate 3) (this applies to 2285 replicates). 
+If only one correlation coefficient is under 0.95, the replicate is replaced for which the remaining correlation is lower (e.g. if cor(Rep1, Rep2) is under 0.95 and cor(Rep2, Rep3) is bigger than cor(Rep1, Rep3) (both are over 0.95) Rep1 is replaced) (this applies to 2285 replicates). 
 
 ```{r cleanup, include=FALSE}
 # ---> Die einzelnen Replikate für jedes Gen in der Ctrl-condition werden separat ausgewählt und abgespeichert
@@ -218,29 +218,38 @@ RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 1] == Rep_Cor_RNase[, 2] & row
 RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 2] == Rep_Cor_RNase[, 3] & rowSums(Rep_Cor_RNase) == 1), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
 
 
-# ---> Zum Schluss ersetzen wir jeweils ein Replikat mit NA-values, wenn eine der Korrelationen unter 0.95 liegt
-#test = apply(Cor_Ctrl[which(Rep_Cor_Ctrl[, 1] == 0 & rowSums(Rep_Cor_Ctrl) == 2), ], 1, function(n) {which(max(n) == n)})
-#Rep1 = c(sapply(seq(0,72,3), function(k) {1 + k}))
-#Rep2 = c(sapply(seq(0,72,3), function(k) {2 + k}))
-#Rep3 = c(sapply(seq(0,72,3), function(k) {3 + k}))
+# ---> Zum Schluss ersetzen wir jeweils das Replikat mit NA-values, wenn eine der Korrelationen unter 0.95 liegt und die andere Korrelation kleiner ist als die dritte Korrelation (wenn bspw. cor(Rep1, Rep2) unter 0.95 liegt und cor(Rep2,Rep3) größer als cor(Rep1, Rep3) ist, dann wird Rep1 ersetzt)
+
+RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 1] == 0 & rowSums(Rep_Cor_Ctrl) == 2 & Cor_Ctrl[, 2] > Cor_Ctrl[, 3]), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 1] == 0 & rowSums(Rep_Cor_Ctrl) == 2 & Cor_Ctrl[, 2] < Cor_Ctrl[, 3]), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
 
 
-# RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 1] == 0 & rowSums(Rep_Cor_Ctrl) == 2), sapply(seq(1, length(test), 1), function(k) { 
- # if(test[k] == 2) {Rep2} else {Rep3}}
-#  )] = NA
+RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 2] == 0 & rowSums(Rep_Cor_Ctrl) == 2 & Cor_Ctrl[, 1] > Cor_Ctrl[, 3]), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
 
-RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 1] == 0 & rowSums(Rep_Cor_Ctrl) == 2), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
-
-RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 2] == 0 & rowSums(Rep_Cor_Ctrl) == 2), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
-
-RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 3] == 0 & rowSums(Rep_Cor_Ctrl) == 2), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 2] == 0 & rowSums(Rep_Cor_Ctrl) == 2 & Cor_Ctrl[, 1] < Cor_Ctrl[, 3]), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
 
 
-RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 1] == 0 & rowSums(Rep_Cor_RNase) == 2), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 3] == 0 & rowSums(Rep_Cor_Ctrl) == 2 & Cor_Ctrl[, 1] > Cor_Ctrl[, 2]), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
 
-RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 2] == 0 & rowSums(Rep_Cor_RNase) == 2), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 3] == 0 & rowSums(Rep_Cor_Ctrl) == 2 & Cor_Ctrl[, 1] < Cor_Ctrl[, 2]), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
 
-RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 3] == 0 & rowSums(Rep_Cor_RNase) == 2), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+
+RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 1] == 0 & rowSums(Rep_Cor_RNase) == 2 & Cor_RNase[, 2] > Cor_RNase[, 3]), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 1] == 0 & rowSums(Rep_Cor_RNase) == 2 & Cor_RNase[, 2] < Cor_RNase[, 3]), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+
+RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 2] == 0 & rowSums(Rep_Cor_RNase) == 2 & Cor_RNase[, 1] > Cor_RNase[, 3]), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 2] == 0 & rowSums(Rep_Cor_RNase) == 2 & Cor_RNase[, 1] < Cor_RNase[, 3]), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+
+RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 3] == 0 & rowSums(Rep_Cor_RNase) == 2 & Cor_RNase[, 1] > Cor_RNase[, 2]), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 3] == 0 & rowSums(Rep_Cor_RNase) == 2 & Cor_RNase[, 1] < Cor_RNase[, 2]), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
 
 # ---> Entfernung der erzeugten Variablen
 rm(Rep1_Ctrl, Rep2_Ctrl, Rep3_Ctrl, Rep1_RNase, Rep2_RNase, Rep3_RNase, Rep_Cor_Ctrl, Rep_Cor_RNase, Gene.Pos)
@@ -1144,6 +1153,22 @@ Gaussian_Fit_Ctrl[, 5] = overlap
 Gaussian_Fit_RNase[, 5] = overlap
 
 rm(g1, g2, g3, g4, g5, g6, g7, g8, g9, u1, u2, a, b, c, x, x1, x2, overlap)
+```
+
+##### 3.5 Summary of Collected Data in one Dataframe
+
+We will now summarize all this collected data (global and local peak positions, gaussian fit and overlap) in one dataframe "**Sel_Cri**" (for *Selection Criteria*). 
+
+```{r}
+Sel_Cri = cbind(
+  Mean_Gbl_Max,
+  Gaussian_Fit_Ctrl[, 1:4],
+  Gaussian_Fit_RNase,
+  as.matrix(sapply(seq(1, nrow(Mean_Ctrl_Loc_Max), 1), function(k) {unlist(Mean_Ctrl_Loc_Max[k, which(!is.na(Mean_Ctrl_Loc_Max[k,]))], use.names = F)})),
+  as.matrix(sapply(seq(1, nrow(Mean_RNase_Loc_Max), 1), function(k) {unlist(Mean_RNase_Loc_Max[k, which(!is.na(Mean_RNase_Loc_Max[k,]))], use.names = F)}))
+  )
+
+colnames(Sel_Cri) <- c("Ctrl_Gbl_Max", "RNase_Gbl_Max", "Ctrl_mu", "Ctrl_sd", "Ctrl_h", "Ctrl_prt_amount", "RNase_mu", "RNase_sd", "RNase_h", "RNase_prt_amount", "overlap", "Ctrl_Loc_Max", "RNase_Loc_Max")
 ```
 
 
