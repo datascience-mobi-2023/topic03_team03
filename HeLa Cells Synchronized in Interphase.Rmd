@@ -40,7 +40,7 @@ which(rowSums(RDeeP_HeLa_Interphase)==0)
 We can also split the dataset into two separate datasets that contain the Control and RNase values:
 
 ```{r cleanup, include=FALSE}
-RDeeP_HeLa_Interphase_Ctrl = as.data.frame(
+Ctrl_RDeep = as.data.frame(
                              # Diese Matrix speichern wir noch als Dataframe
   matrix(
   # Aus dem großen Vektor, den wir mit "unlist" erstellt haben (mit 531450 Einträgen), machen wir eine Matrix mit      7086 Zeilen und 75 Spalten
@@ -54,16 +54,16 @@ RDeeP_HeLa_Interphase_Ctrl = as.data.frame(
     nrow=7086, ncol=75))
 
 # Hier werden dem neu erstellten Control Dataframe die Zeilen und Spaltennamen des originalen Dataframes zugeordnet (nutzt die gleiche Schleife zum Auswählen der Control Spalten wie oben)
-colnames(RDeeP_HeLa_Interphase_Ctrl) = as.vector(unlist(sapply(seq(0,144,6), function(n) {colnames(RDeeP_HeLa_Interphase[,c(1,2,3)+c(n,n,n)])})))
+colnames(Ctrl_RDeep) = as.vector(unlist(sapply(seq(0,144,6), function(n) {colnames(RDeeP_HeLa_Interphase[,c(1,2,3)+c(n,n,n)])})))
 
-rownames(RDeeP_HeLa_Interphase_Ctrl) = rownames(RDeeP_HeLa_Interphase)
+rownames(Ctrl_RDeep) = rownames(RDeeP_HeLa_Interphase)
 
 # Analoges Vorgehen für RNase wie Control, nur, dass sich die Startposition zum Auswählen verändert
-RDeeP_HeLa_Interphase_RNase = as.data.frame(matrix(unlist(sapply(seq(0,144,6), function(n) {RDeeP_HeLa_Interphase[,c(4,5,6)+c(n,n,n)]})), nrow=7086, ncol=75))
+RNase_RDeep = as.data.frame(matrix(unlist(sapply(seq(0,144,6), function(n) {RDeeP_HeLa_Interphase[,c(4,5,6)+c(n,n,n)]})), nrow=7086, ncol=75))
 
-colnames(RDeeP_HeLa_Interphase_RNase) = as.vector(unlist(sapply(seq(0,144,6), function(n) {colnames(RDeeP_HeLa_Interphase[,c(4,5,6)+c(n,n,n)])})))
+colnames(RNase_RDeep) = as.vector(unlist(sapply(seq(0,144,6), function(n) {colnames(RDeeP_HeLa_Interphase[,c(4,5,6)+c(n,n,n)])})))
 
-rownames(RDeeP_HeLa_Interphase_RNase) = rownames(RDeeP_HeLa_Interphase)
+rownames(RNase_RDeep) = rownames(RDeeP_HeLa_Interphase)
 ```
 
 
@@ -72,16 +72,16 @@ rownames(RDeeP_HeLa_Interphase_RNase) = rownames(RDeeP_HeLa_Interphase)
 ```{r cleanup, include=FALSE}
 ## Überprüfen welche Reihen in den Datasets nur Nullen enthalten
 
-which(rowSums(RDeeP_HeLa_Interphase_Ctrl)==0)
-which(rowSums(RDeeP_HeLa_Interphase_RNase)==0)
+which(rowSums(Ctrl_RDeep)==0)
+which(rowSums(RNase_RDeep)==0)
 
 ## Löschen der Nullreihen im Controldataset
 
-RDeeP_HeLa_Interphase_Ctrl <- RDeeP_HeLa_Interphase_Ctrl[!(rownames(RDeeP_HeLa_Interphase_Ctrl)%in% c("FHOD3_HUMAN","P210L_HUMAN","PKD1_HUMAN","TGM7_HUMAN","KIF1A_HUMAN")),]
+Ctrl_RDeep <- Ctrl_RDeep[!(rownames(Ctrl_RDeep)%in% c("FHOD3_HUMAN","P210L_HUMAN","PKD1_HUMAN","TGM7_HUMAN","KIF1A_HUMAN")),]
 
 ##Löschen der Nullreihen im RNase-Dataset
 
-RDeeP_HeLa_Interphase_RNase <- RDeeP_HeLa_Interphase_RNase[!(rownames(RDeeP_HeLa_Interphase_RNase) %in% c("FHOD3_HUMAN","P210L_HUMAN","PKD1_HUMAN","TGM7_HUMAN", "KIF1A_HUMAN")),]
+RNase_RDeep <- RNase_RDeep[!(rownames(RNase_RDeep) %in% c("FHOD3_HUMAN","P210L_HUMAN","PKD1_HUMAN","TGM7_HUMAN", "KIF1A_HUMAN")),]
 ```
 
 
@@ -89,7 +89,7 @@ RDeeP_HeLa_Interphase_RNase <- RDeeP_HeLa_Interphase_RNase[!(rownames(RDeeP_HeLa
 
 We will now test the reproducibility of the dataset: to do this we will calculate the pearson correlation between the 3 replicates. For each gene and condition this results in 3 correlation coefficients (cor(Rep1, Rep2), cor(Rep2, Rep3), cor(Rep1, Rep3)). The threshold for reproducibility is a correlation coefficient over or equal to 0.95.
 
-If one replicate only consists of zeros, the correlation can not be calculated (sd = 0; 1/sd = NaN). Because these replicates contain very little information, we will replace these replicates with the value NA in our dataframes **RDeep_HeLa_Interphase_Ctrl** and **RDeep_HeLa_Interphase_RNase** (this applies to 7 replicates).
+If one replicate only consists of zeros, the correlation can not be calculated (sd = 0; 1/sd = NaN). Because these replicates contain very little information, we will replace these replicates with the value NA in our dataframes **Ctrl_RDeep** and **RNase_RDeep** (this applies to 7 replicates).
 If two replicates of one gene and condition only contain only zeros, we will remove the entire gene from the dataframes (no proficient analysis with only one replicate for a condition) (this applies to 5 genes).
 
 If all three correlation coefficients for a gene and condition are under 0.95, the entire gene will be removed from the dataframes(this applies to 1335 genes).
@@ -98,35 +98,35 @@ If only one correlation coefficient is under 0.95, the replicate is replaced for
 
 ```{r cleanup, include=FALSE}
 # ---> Die einzelnen Replikate für jedes Gen in der Ctrl-condition werden separat ausgewählt und abgespeichert
-Rep1_Ctrl = RDeeP_HeLa_Interphase_Ctrl[, c(sapply(seq(0,72,3), function(k) {1 + k}))]
-Rep2_Ctrl = RDeeP_HeLa_Interphase_Ctrl[, c(sapply(seq(0,72,3), function(k) {2 + k}))]
-Rep3_Ctrl = RDeeP_HeLa_Interphase_Ctrl[, c(sapply(seq(0,72,3), function(k) {3 + k}))]
+Rep1_Ctrl = Ctrl_RDeep[, c(sapply(seq(0,72,3), function(k) {1 + k}))]
+Rep2_Ctrl = Ctrl_RDeep[, c(sapply(seq(0,72,3), function(k) {2 + k}))]
+Rep3_Ctrl = Ctrl_RDeep[, c(sapply(seq(0,72,3), function(k) {3 + k}))]
 
-# ---> es wird die paarweise Korrelation zwischen den einzelnen Replikaten für jedes Gen berechnet und in einem neuen Dataframe (Cor_Ctrl) abgespeichert 
-Cor_Ctrl = as.data.frame(cbind(
-      sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {cor(unlist(Rep1_Ctrl[k,]), unlist(Rep2_Ctrl[k,]), method = "pearson")}),
-      sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {cor(unlist(Rep2_Ctrl[k,]), unlist(Rep3_Ctrl[k,]), method = "pearson")}),
-      sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {cor(unlist(Rep1_Ctrl[k,]), unlist(Rep3_Ctrl[k,]), method = "pearson")})
+# ---> es wird die paarweise Korrelation zwischen den einzelnen Replikaten für jedes Gen berechnet und in einem neuen Dataframe (Ctrl_Cor) abgespeichert 
+Ctrl_Cor = as.data.frame(cbind(
+      sapply(seq(1, nrow(Ctrl_RDeep), 1), function(k) {cor(unlist(Rep1_Ctrl[k,]), unlist(Rep2_Ctrl[k,]), method = "pearson")}),
+      sapply(seq(1, nrow(Ctrl_RDeep), 1), function(k) {cor(unlist(Rep2_Ctrl[k,]), unlist(Rep3_Ctrl[k,]), method = "pearson")}),
+      sapply(seq(1, nrow(Ctrl_RDeep), 1), function(k) {cor(unlist(Rep1_Ctrl[k,]), unlist(Rep3_Ctrl[k,]), method = "pearson")})
       ))
 
-# --> Benennung der Reihen und Spalten von "Cor_Ctrl"
-rownames(Cor_Ctrl) = rownames(RDeeP_HeLa_Interphase_Ctrl)
-colnames(Cor_Ctrl) = c("cor(Rep1, Rep2)", "cor(Rep2, Rep3)", "cor(Rep1, Rep3)")
+# --> Benennung der Reihen und Spalten von "Ctrl_Cor"
+rownames(Ctrl_Cor) = rownames(Ctrl_RDeep)
+colnames(Ctrl_Cor) = c("cor(Rep1, Rep2)", "cor(Rep2, Rep3)", "cor(Rep1, Rep3)")
 
 
 # ---> gleiche Berechnungen für die RNase-condition
-Rep1_RNase = RDeeP_HeLa_Interphase_RNase[, c(sapply(seq(0,72,3), function(k) {1 + k}))]
-Rep2_RNase = RDeeP_HeLa_Interphase_RNase[, c(sapply(seq(0,72,3), function(k) {2 + k}))]
-Rep3_RNase = RDeeP_HeLa_Interphase_RNase[, c(sapply(seq(0,72,3), function(k) {3 + k}))]
+Rep1_RNase = RNase_RDeep[, c(sapply(seq(0,72,3), function(k) {1 + k}))]
+Rep2_RNase = RNase_RDeep[, c(sapply(seq(0,72,3), function(k) {2 + k}))]
+Rep3_RNase = RNase_RDeep[, c(sapply(seq(0,72,3), function(k) {3 + k}))]
 
-Cor_RNase = as.data.frame(cbind(
-      sapply(seq(1, nrow(RDeeP_HeLa_Interphase_RNase), 1), function(k) {cor(unlist(Rep1_RNase[k,]), unlist(Rep2_RNase[k,]), method = "pearson")}),
-      sapply(seq(1, nrow(RDeeP_HeLa_Interphase_RNase), 1), function(k) {cor(unlist(Rep2_RNase[k,]), unlist(Rep3_RNase[k,]), method = "pearson")}),
-      sapply(seq(1, nrow(RDeeP_HeLa_Interphase_RNase), 1), function(k) {cor(unlist(Rep1_RNase[k,]), unlist(Rep3_RNase[k,]), method = "pearson")})
+RNase_Cor = as.data.frame(cbind(
+      sapply(seq(1, nrow(RNase_RDeep), 1), function(k) {cor(unlist(Rep1_RNase[k,]), unlist(Rep2_RNase[k,]), method = "pearson")}),
+      sapply(seq(1, nrow(RNase_RDeep), 1), function(k) {cor(unlist(Rep2_RNase[k,]), unlist(Rep3_RNase[k,]), method = "pearson")}),
+      sapply(seq(1, nrow(RNase_RDeep), 1), function(k) {cor(unlist(Rep1_RNase[k,]), unlist(Rep3_RNase[k,]), method = "pearson")})
       ))
 
-rownames(Cor_RNase) = rownames(RDeeP_HeLa_Interphase_RNase)
-colnames(Cor_RNase) = c("cor(Rep1, Rep2)", "cor(Rep2, Rep3)", "cor(Rep1, Rep3)")
+rownames(RNase_Cor) = rownames(RNase_RDeep)
+colnames(RNase_Cor) = c("cor(Rep1, Rep2)", "cor(Rep2, Rep3)", "cor(Rep1, Rep3)")
 
 
 #### Sometimes NA values are produced -> we will test which replicates only contain zeros
@@ -143,143 +143,143 @@ colnames(Cor_RNase) = c("cor(Rep1, Rep2)", "cor(Rep2, Rep3)", "cor(Rep1, Rep3)")
 
 # -> Removal of rows 639 (BHMT2_HUMAN) (Rep2_Ctrl & Rep3_Ctrl), 3297 (MAP9_HUMAN) (Rep1_Ctrl & Rep2_Ctrl) 1771 (ECT2_HUMAN) (Rep2_RNase & Rep3_RNase), 2359 (GP161_HUMAN) (Rep2_RNase & Rep3_RNase) and 4209 (PATZ1_HUMAN) (Rep1_RNase & Rep2_RNase)
 
-RDeeP_HeLa_Interphase_Ctrl <- RDeeP_HeLa_Interphase_Ctrl[!(rownames(RDeeP_HeLa_Interphase_Ctrl) %in% c("BHMT2_HUMAN", "MAP9_HUMAN", "ECT2_HUMAN", "GP161_HUMAN", "PATZ1_HUMAN")),]
+Ctrl_RDeep <- Ctrl_RDeep[!(rownames(Ctrl_RDeep) %in% c("BHMT2_HUMAN", "MAP9_HUMAN", "ECT2_HUMAN", "GP161_HUMAN", "PATZ1_HUMAN")),]
 
-RDeeP_HeLa_Interphase_RNase <- RDeeP_HeLa_Interphase_RNase[!(rownames(RDeeP_HeLa_Interphase_RNase) %in% c("BHMT2_HUMAN", "MAP9_HUMAN", "ECT2_HUMAN", "GP161_HUMAN", "PATZ1_HUMAN")),]
+RNase_RDeep <- RNase_RDeep[!(rownames(RNase_RDeep) %in% c("BHMT2_HUMAN", "MAP9_HUMAN", "ECT2_HUMAN", "GP161_HUMAN", "PATZ1_HUMAN")),]
 
-# ---> Wenn gesamte Gene gelöscht werden, müssen diese jeweils auch aus den Cor_Ctrl und Cor_RNase Datensätzen entfernt werden, da ansonsten später falsche Replikate überschrieben werden würden
-Cor_Ctrl <- Cor_Ctrl[!(rownames(Cor_Ctrl) %in% c("BHMT2_HUMAN", "MAP9_HUMAN", "ECT2_HUMAN", "GP161_HUMAN", "PATZ1_HUMAN")),]
+# ---> Wenn gesamte Gene gelöscht werden, müssen diese jeweils auch aus den Ctrl_Cor und RNase_Cor Datensätzen entfernt werden, da ansonsten später falsche Replikate überschrieben werden würden
+Ctrl_Cor <- Ctrl_Cor[!(rownames(Ctrl_Cor) %in% c("BHMT2_HUMAN", "MAP9_HUMAN", "ECT2_HUMAN", "GP161_HUMAN", "PATZ1_HUMAN")),]
 
-Cor_RNase <- Cor_RNase[!(rownames(Cor_RNase) %in% c("BHMT2_HUMAN", "MAP9_HUMAN", "ECT2_HUMAN", "GP161_HUMAN", "PATZ1_HUMAN")),]
+RNase_Cor <- RNase_Cor[!(rownames(RNase_Cor) %in% c("BHMT2_HUMAN", "MAP9_HUMAN", "ECT2_HUMAN", "GP161_HUMAN", "PATZ1_HUMAN")),]
 
 # -> Replacement of:
       # Rep1_Ctrl: 664 (BMX_HUMAN), 1470 (DCAF7_HUMAN), 6487 (TSC2_HUMAN)
       # Rep2_RNase: 904 (CCDC9_HUMAN), 1305 (CQ051_HUMAN)
       # Rep3_RNase: 2523 (HEM0_HUMAN), 6491 (TSN3_HUMAN)
 
-RDeeP_HeLa_Interphase_Ctrl[which(rownames(RDeeP_HeLa_Interphase_Ctrl) == "BMX_HUMAN"), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+Ctrl_RDeep[which(rownames(Ctrl_RDeep) == "BMX_HUMAN"), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
 
-RDeeP_HeLa_Interphase_Ctrl[which(rownames(RDeeP_HeLa_Interphase_Ctrl) == "DCAF7_HUMAN"), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+Ctrl_RDeep[which(rownames(Ctrl_RDeep) == "DCAF7_HUMAN"), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
 
-RDeeP_HeLa_Interphase_Ctrl[which(rownames(RDeeP_HeLa_Interphase_Ctrl) == "TSC2_HUMAN"), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+Ctrl_RDeep[which(rownames(Ctrl_RDeep) == "TSC2_HUMAN"), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
 
-RDeeP_HeLa_Interphase_RNase[which(rownames(RDeeP_HeLa_Interphase_Ctrl) == "CCDC9_HUMAN"), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+RNase_RDeep[which(rownames(Ctrl_RDeep) == "CCDC9_HUMAN"), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
 
-RDeeP_HeLa_Interphase_RNase[which(rownames(RDeeP_HeLa_Interphase_Ctrl) == "CQ051_HUMAN"), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+RNase_RDeep[which(rownames(Ctrl_RDeep) == "CQ051_HUMAN"), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
 
-RDeeP_HeLa_Interphase_RNase[which(rownames(RDeeP_HeLa_Interphase_Ctrl) == "HEM0_HUMAN"), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+RNase_RDeep[which(rownames(Ctrl_RDeep) == "HEM0_HUMAN"), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
 
-RDeeP_HeLa_Interphase_RNase[which(rownames(RDeeP_HeLa_Interphase_Ctrl) == "TSN3_HUMAN"), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+RNase_RDeep[which(rownames(Ctrl_RDeep) == "TSN3_HUMAN"), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
 
 
-# ---> zur vereinfachten Berechnung erstellen wir zwei Matrices, die genau so groß sind wie die Datenframes "Cor_Ctrl" und "Cor_RNase", aber bei jeder Korrelation über oder gleich 0.95 eine "1" enthalten und bei jeder Korrelation unter 0.95 eine "0" enthalten.
-Rep_Cor_Ctrl = rep(1, nrow(Cor_Ctrl)*3)
-Rep_Cor_Ctrl[which(Cor_Ctrl < 0.95)] = 0
-Rep_Cor_Ctrl = matrix(Rep_Cor_Ctrl, ncol = 3)
+# ---> zur vereinfachten Berechnung erstellen wir zwei Matrices, die genau so groß sind wie die Datenframes "Ctrl_Cor" und "RNase_Cor", aber bei jeder Korrelation über oder gleich 0.95 eine "1" enthalten und bei jeder Korrelation unter 0.95 eine "0" enthalten.
+Ctrl_Cor_Rep = rep(1, nrow(Ctrl_Cor)*3)
+Ctrl_Cor_Rep[which(Ctrl_Cor < 0.95)] = 0
+Ctrl_Cor_Rep = matrix(Ctrl_Cor_Rep, ncol = 3)
 
-Rep_Cor_RNase = rep(1, nrow(Cor_RNase)*3)
-Rep_Cor_RNase[which(Cor_RNase < 0.95)] = 0
-Rep_Cor_RNase = matrix(Rep_Cor_RNase, ncol = 3)
+RNase_Cor_Rep = rep(1, nrow(RNase_Cor)*3)
+RNase_Cor_Rep[which(RNase_Cor < 0.95)] = 0
+RNase_Cor_Rep = matrix(RNase_Cor_Rep, ncol = 3)
 
-# ---> wir wollen zuerst alle Gene löschen, die in einer condition für alle drei Korrelationen unter 0.95 liegen (werden aber auch separat in den Dataframes "Weird_Ctrl" und "Weird_RNase" abgespeichert)
+# ---> wir wollen zuerst alle Gene löschen, die in einer condition für alle drei Korrelationen unter 0.95 liegen (werden aber auch separat in den Dataframes "Ctrl_Weird" und "RNase_Weird" abgespeichert)
 # ---> Note: only the second row has < 0.95 both in RNase and Control for all 3 replicates (therefore the [-1])
-Gene.Pos = c(which(rowSums(Rep_Cor_Ctrl) == 0)[-1], which(rowSums(Rep_Cor_RNase) == 0))
+Gene.Pos = c(which(rowSums(Ctrl_Cor_Rep) == 0)[-1], which(rowSums(RNase_Cor_Rep) == 0))
 
-Weird_Ctrl <- RDeeP_HeLa_Interphase_Ctrl[which(rowSums(Rep_Cor_Ctrl) == 0), ]
+Ctrl_Weird <- Ctrl_RDeep[which(rowSums(Ctrl_Cor_Rep) == 0), ]
 
-Weird_RNase <- RDeeP_HeLa_Interphase_RNase[which(rowSums(Rep_Cor_RNase) == 0), ]
+RNase_Weird <- RNase_RDeep[which(rowSums(RNase_Cor_Rep) == 0), ]
 
-RDeeP_HeLa_Interphase_Ctrl <- RDeeP_HeLa_Interphase_Ctrl[- Gene.Pos,]
+Ctrl_RDeep <- Ctrl_RDeep[- Gene.Pos,]
 
-RDeeP_HeLa_Interphase_RNase <- RDeeP_HeLa_Interphase_RNase[- Gene.Pos,]
+RNase_RDeep <- RNase_RDeep[- Gene.Pos,]
 
-# ---> wie oben auch, müssen die Gene auch aus den "Cor_Ctrl" und "Cor_RNase" Dataframes gelöscht werden, zudem aus den "Rep_Cor_Ctrl" und "Rep_Cor_RNase" Dataframes
-Cor_Ctrl <- Cor_Ctrl[- Gene.Pos,]
+# ---> wie oben auch, müssen die Gene auch aus den "Ctrl_Cor" und "RNase_Cor" Dataframes gelöscht werden, zudem aus den "Ctrl_Cor_Rep" und "RNase_Cor_Rep" Dataframes
+Ctrl_Cor <- Ctrl_Cor[- Gene.Pos,]
 
-Cor_RNase <- Cor_RNase[- Gene.Pos,]
+RNase_Cor <- RNase_Cor[- Gene.Pos,]
 
-Rep_Cor_Ctrl <- Rep_Cor_Ctrl[- Gene.Pos,]
+Ctrl_Cor_Rep <- Ctrl_Cor_Rep[- Gene.Pos,]
 
-Rep_Cor_RNase <- Rep_Cor_RNase[- Gene.Pos,]
+RNase_Cor_Rep <- RNase_Cor_Rep[- Gene.Pos,]
 
 
 # ---> wir ersetzen nun die Replikate mit NA values, für die gilt, dass ihre beiden Korrelationen unter 0.95 liegen
-RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 1] == Rep_Cor_Ctrl[, 3] & rowSums(Rep_Cor_Ctrl) == 1), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+Ctrl_RDeep[which(Ctrl_Cor_Rep[, 1] == Ctrl_Cor_Rep[, 3] & rowSums(Ctrl_Cor_Rep) == 1), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
 
-RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 1] == Rep_Cor_Ctrl[, 2] & rowSums(Rep_Cor_Ctrl) == 1), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+Ctrl_RDeep[which(Ctrl_Cor_Rep[, 1] == Ctrl_Cor_Rep[, 2] & rowSums(Ctrl_Cor_Rep) == 1), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
 
-RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 2] == Rep_Cor_Ctrl[, 3] & rowSums(Rep_Cor_Ctrl) == 1), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+Ctrl_RDeep[which(Ctrl_Cor_Rep[, 2] == Ctrl_Cor_Rep[, 3] & rowSums(Ctrl_Cor_Rep) == 1), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
 
 
-RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 1] == Rep_Cor_RNase[, 3] & rowSums(Rep_Cor_RNase) == 1), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+RNase_RDeep[which(RNase_Cor_Rep[, 1] == RNase_Cor_Rep[, 3] & rowSums(RNase_Cor_Rep) == 1), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
 
-RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 1] == Rep_Cor_RNase[, 2] & rowSums(Rep_Cor_RNase) == 1), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+RNase_RDeep[which(RNase_Cor_Rep[, 1] == RNase_Cor_Rep[, 2] & rowSums(RNase_Cor_Rep) == 1), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
 
-RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 2] == Rep_Cor_RNase[, 3] & rowSums(Rep_Cor_RNase) == 1), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+RNase_RDeep[which(RNase_Cor_Rep[, 2] == RNase_Cor_Rep[, 3] & rowSums(RNase_Cor_Rep) == 1), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
 
 
 # ---> Zum Schluss ersetzen wir jeweils das Replikat mit NA-values, wenn eine der Korrelationen unter 0.95 liegt und die andere Korrelation kleiner ist als die dritte Korrelation (wenn bspw. cor(Rep1, Rep2) unter 0.95 liegt und cor(Rep2,Rep3) größer als cor(Rep1, Rep3) ist, dann wird Rep1 ersetzt)
 
-RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 1] == 0 & rowSums(Rep_Cor_Ctrl) == 2 & Cor_Ctrl[, 2] > Cor_Ctrl[, 3]), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+Ctrl_RDeep[which(Ctrl_Cor_Rep[, 1] == 0 & rowSums(Ctrl_Cor_Rep) == 2 & Ctrl_Cor[, 2] > Ctrl_Cor[, 3]), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
 
-RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 1] == 0 & rowSums(Rep_Cor_Ctrl) == 2 & Cor_Ctrl[, 2] < Cor_Ctrl[, 3]), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
-
-
-RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 2] == 0 & rowSums(Rep_Cor_Ctrl) == 2 & Cor_Ctrl[, 1] > Cor_Ctrl[, 3]), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
-
-RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 2] == 0 & rowSums(Rep_Cor_Ctrl) == 2 & Cor_Ctrl[, 1] < Cor_Ctrl[, 3]), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+Ctrl_RDeep[which(Ctrl_Cor_Rep[, 1] == 0 & rowSums(Ctrl_Cor_Rep) == 2 & Ctrl_Cor[, 2] < Ctrl_Cor[, 3]), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
 
 
-RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 3] == 0 & rowSums(Rep_Cor_Ctrl) == 2 & Cor_Ctrl[, 1] > Cor_Ctrl[, 2]), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+Ctrl_RDeep[which(Ctrl_Cor_Rep[, 2] == 0 & rowSums(Ctrl_Cor_Rep) == 2 & Ctrl_Cor[, 1] > Ctrl_Cor[, 3]), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
 
-RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 3] == 0 & rowSums(Rep_Cor_Ctrl) == 2 & Cor_Ctrl[, 1] < Cor_Ctrl[, 2]), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
-
-
-
-RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 1] == 0 & rowSums(Rep_Cor_RNase) == 2 & Cor_RNase[, 2] > Cor_RNase[, 3]), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
-
-RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 1] == 0 & rowSums(Rep_Cor_RNase) == 2 & Cor_RNase[, 2] < Cor_RNase[, 3]), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+Ctrl_RDeep[which(Ctrl_Cor_Rep[, 2] == 0 & rowSums(Ctrl_Cor_Rep) == 2 & Ctrl_Cor[, 1] < Ctrl_Cor[, 3]), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
 
 
-RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 2] == 0 & rowSums(Rep_Cor_RNase) == 2 & Cor_RNase[, 1] > Cor_RNase[, 3]), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+Ctrl_RDeep[which(Ctrl_Cor_Rep[, 3] == 0 & rowSums(Ctrl_Cor_Rep) == 2 & Ctrl_Cor[, 1] > Ctrl_Cor[, 2]), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
 
-RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 2] == 0 & rowSums(Rep_Cor_RNase) == 2 & Cor_RNase[, 1] < Cor_RNase[, 3]), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+Ctrl_RDeep[which(Ctrl_Cor_Rep[, 3] == 0 & rowSums(Ctrl_Cor_Rep) == 2 & Ctrl_Cor[, 1] < Ctrl_Cor[, 2]), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
 
 
-RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 3] == 0 & rowSums(Rep_Cor_RNase) == 2 & Cor_RNase[, 1] > Cor_RNase[, 2]), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
 
-RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 3] == 0 & rowSums(Rep_Cor_RNase) == 2 & Cor_RNase[, 1] < Cor_RNase[, 2]), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+RNase_RDeep[which(RNase_Cor_Rep[, 1] == 0 & rowSums(RNase_Cor_Rep) == 2 & RNase_Cor[, 2] > RNase_Cor[, 3]), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+RNase_RDeep[which(RNase_Cor_Rep[, 1] == 0 & rowSums(RNase_Cor_Rep) == 2 & RNase_Cor[, 2] < RNase_Cor[, 3]), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+
+RNase_RDeep[which(RNase_Cor_Rep[, 2] == 0 & rowSums(RNase_Cor_Rep) == 2 & RNase_Cor[, 1] > RNase_Cor[, 3]), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+RNase_RDeep[which(RNase_Cor_Rep[, 2] == 0 & rowSums(RNase_Cor_Rep) == 2 & RNase_Cor[, 1] < RNase_Cor[, 3]), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+
+RNase_RDeep[which(RNase_Cor_Rep[, 3] == 0 & rowSums(RNase_Cor_Rep) == 2 & RNase_Cor[, 1] > RNase_Cor[, 2]), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+RNase_RDeep[which(RNase_Cor_Rep[, 3] == 0 & rowSums(RNase_Cor_Rep) == 2 & RNase_Cor[, 1] < RNase_Cor[, 2]), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
 
 
 # ---> Entfernung der erzeugten Variablen
-rm(Rep1_Ctrl, Rep2_Ctrl, Rep3_Ctrl, Rep1_RNase, Rep2_RNase, Rep3_RNase, Rep_Cor_Ctrl, Rep_Cor_RNase, Gene.Pos)
+rm(Rep1_Ctrl, Rep2_Ctrl, Rep3_Ctrl, Rep1_RNase, Rep2_RNase, Rep3_RNase, Ctrl_Cor_Rep, RNase_Cor_Rep, Gene.Pos)
 ```
 
 
 ##### 1.4 Mean of Replicates
 
 ```{r cleanup, include=FALSE}
-Mean_Ctrl = as.data.frame(
+Ctrl_Mean = as.data.frame(
             # Abspeichern als Dataframe
   
   sapply(seq(0,72,3), function(i) {
   # Äußere Schleife, die zum Auswählen der drei Replikate pro Fraktion da ist (Startvektor c(1,2,3) wird jeweils um c(3,3,3) erhöht) 
     
-    apply(RDeeP_HeLa_Interphase_Ctrl[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x, na.rm = T)})
+    apply(Ctrl_RDeep[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x, na.rm = T)})
     # Innere Schleife, die nachdem die drei Replikate für eine Fraktion ausgewählt wurden, über alle Zeilen dieser       Replikate den Mittelwert berechnet
     
     }))
 
-# Erstellen neuer Spaltennamen für den Mean_Ctrl Dataframe. Der Befehl "paste" erlaubt es, sowohl Text als auch Befehle als ein String zu haben (sep="", bedeutet, dass die Elemente durch kein Leerzeichen voneinander getrennt werden sollen)
-colnames(Mean_Ctrl) = paste("Fraction",seq(1,25,1),"_Ctrl_Mean",sep="")
+# Erstellen neuer Spaltennamen für den Ctrl_Mean Dataframe. Der Befehl "paste" erlaubt es, sowohl Text als auch Befehle als ein String zu haben (sep="", bedeutet, dass die Elemente durch kein Leerzeichen voneinander getrennt werden sollen)
+colnames(Ctrl_Mean) = paste("Fraction",seq(1,25,1),"_Ctrl_Mean",sep="")
 
 # Analoges Vorgehen für den RNase Dataframe
-Mean_RNase = as.data.frame(
+RNase_Mean = as.data.frame(
   sapply(seq(0,72,3), function(i) {
-    apply(RDeeP_HeLa_Interphase_RNase[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x, na.rm = T)})
+    apply(RNase_RDeep[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x, na.rm = T)})
     }))
 
-colnames(Mean_RNase) = paste("Fraction",seq(1,25,1),"_RNase_Mean",sep="")
+colnames(RNase_Mean) = paste("Fraction",seq(1,25,1),"_RNase_Mean",sep="")
 ```
 
 
@@ -288,9 +288,9 @@ colnames(Mean_RNase) = paste("Fraction",seq(1,25,1),"_RNase_Mean",sep="")
 This will be done for the Control and RNase Datasets separately:
 
 ```{r cleanup, include=FALSE}
-Ctrl_Norm_100 = as.data.frame(sapply(RDeeP_HeLa_Interphase_Ctrl, function(i){(i/apply(RDeeP_HeLa_Interphase_Ctrl,1,sum))*100}))
+Ctrl_Norm100 = as.data.frame(sapply(Ctrl_RDeep, function(i){(i/apply(Ctrl_RDeep,1,sum))*100}))
 
-RNase_Norm_100 = as.data.frame(sapply(RDeeP_HeLa_Interphase_RNase, function(i){(i/apply(RDeeP_HeLa_Interphase_RNase,1,sum))*100}))
+RNase_Norm100 = as.data.frame(sapply(RNase_RDeep, function(i){(i/apply(RNase_RDeep,1,sum))*100}))
 ```
 
 
@@ -298,35 +298,35 @@ RNase_Norm_100 = as.data.frame(sapply(RDeeP_HeLa_Interphase_RNase, function(i){(
 
 ###### 1.6.1 Without Normalization
 ```{r cleanup, echo=FALSE}
-plot(1:25, Mean_Ctrl[which(rownames(RDeeP_HeLa_Interphase_Ctrl)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN")
-lines(1:25, Mean_RNase[which(rownames(RDeeP_HeLa_Interphase_RNase)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
+plot(1:25, Ctrl_Mean[which(rownames(Ctrl_RDeep)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN")
+lines(1:25, RNase_Mean[which(rownames(RNase_RDeep)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
 grid()
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
 ```
 ```{r cleanup, echo=FALSE}
-plot(1:25, Mean_Ctrl[which(rownames(RDeeP_HeLa_Interphase_Ctrl)==c("CY24A_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CY24A_HUMAN")
-lines(1:25, Mean_RNase[which(rownames(RDeeP_HeLa_Interphase_RNase)==c("CY24A_HUMAN")),], type="l",lwd=3,col="red")
+plot(1:25, Ctrl_Mean[which(rownames(Ctrl_RDeep)==c("CY24A_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CY24A_HUMAN")
+lines(1:25, RNase_Mean[which(rownames(RNase_RDeep)==c("CY24A_HUMAN")),], type="l",lwd=3,col="red")
 grid()
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
 ```
 
 ###### 1.6.2 With Normailzation 
 ```{r cleanup, include=FALSE}
-Mean_Ctrl_Norm_100 = as.data.frame(sapply(Mean_Ctrl, function(i){(i/apply(Mean_Ctrl,1,sum))*100}))
+Ctrl_Mean_Norm100 = as.data.frame(sapply(Ctrl_Mean, function(i){(i/apply(Ctrl_Mean,1,sum))*100}))
 
-Mean_RNase_Norm_100 = as.data.frame(sapply(Mean_RNase, function(i){(i/apply(Mean_RNase,1,sum))*100}))
+RNase_Mean_Norm100 = as.data.frame(sapply(RNase_Mean, function(i){(i/apply(RNase_Mean,1,sum))*100}))
 ```
 
 ```{r cleanup, echo=FALSE}
-plot(1:25, Mean_Ctrl_Norm_100[which(rownames(RDeeP_HeLa_Interphase_Ctrl)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN Normalized", ylim=c(0,25))
-lines(1:25, Mean_RNase_Norm_100[which(rownames(RDeeP_HeLa_Interphase_RNase)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
+plot(1:25, Ctrl_Mean_Norm100[which(rownames(Ctrl_RDeep)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN Normalized", ylim=c(0,25))
+lines(1:25, RNase_Mean_Norm100[which(rownames(RNase_RDeep)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
 grid()
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
 ```
 
 ```{r cleanup, echo=FALSE}
-plot(1:25, Mean_Ctrl_Norm_100[which(rownames(RDeeP_HeLa_Interphase_Ctrl)==c("CY24A_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CY24A_HUMAN Normailzed", ylim=c(0,18))
-lines(1:25, Mean_RNase_Norm_100[which(rownames(RDeeP_HeLa_Interphase_RNase)==c("CY24A_HUMAN")),], type="l",lwd=3,col="red")
+plot(1:25, Ctrl_Mean_Norm100[which(rownames(Ctrl_RDeep)==c("CY24A_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CY24A_HUMAN Normailzed", ylim=c(0,18))
+lines(1:25, RNase_Mean_Norm100[which(rownames(RNase_RDeep)==c("CY24A_HUMAN")),], type="l",lwd=3,col="red")
 grid()
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
 ```
@@ -340,90 +340,90 @@ We will smooth out the Data by calculating the mean value for each fraction with
 
 ```{r smoothing, include=FALSE}
 # n = 1 (left and right neighbor)
-Mean_Ctrl_Smooth = 
+Ctrl_Mean_Smooth = 
   # 5: Abspeichern der Matrix als Data.Frame
   as.data.frame(
 # 4: Spaltenweises Verbinden der zwei Vektoren und der Matrix | Output: Matrix mit 25 Spalten und 7081 Zeilen 
 cbind(
   
   # 2: Mittelwert-Berechnung für die Fraktion 1 (Mittelwert aus der Fraktion 1 und 2) | Output: Vektor mit 7081        Einträgen
-  (Mean_Ctrl[,1]+Mean_Ctrl[,2])/2,
+  (Ctrl_Mean[,1]+Ctrl_Mean[,2])/2,
       
       # 1: Schleife, die jeweils ein Fenster aus 3 Fraktionen auswählt (startet bei 1,2,3 und endet bei 23,24,25) und       dann mit einer zweiten Schleife den Mittelwert dieser 3 Fraktione über alle Reihen berechnet | Output: Matrix        mit 23 Spalten und 7081 Zeilen, die die Mittelwerte für die Fraktionen 2 bis 24 enthält
-      sapply(seq(0,22,1), function(i) {apply(Mean_Ctrl[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x)})}), 
+      sapply(seq(0,22,1), function(i) {apply(Ctrl_Mean[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x)})}), 
   
   # 3: Mittelwert-Berechnung für die Fraktion 25 (Mittelwert aus der Fraktion 24 und 25) | Output: Vektor mit 7081     Einträgen
-  (Mean_Ctrl[,24]+Mean_Ctrl[,25])/2)
+  (Ctrl_Mean[,24]+Ctrl_Mean[,25])/2)
 )
 
-colnames(Mean_Ctrl_Smooth) = colnames(Mean_Ctrl)
+colnames(Ctrl_Mean_Smooth) = colnames(Ctrl_Mean)
 
 
 # Gleicher Code für RNase
-Mean_RNase_Smooth = 
+RNase_Mean_Smooth = 
   as.data.frame(
-cbind((Mean_RNase[,1]+Mean_RNase[,2])/2,
-      sapply(seq(0,22,1), function(i) {apply(Mean_RNase[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x)})}), 
-      (Mean_RNase[,24]+Mean_RNase[,25])/2)
+cbind((RNase_Mean[,1]+RNase_Mean[,2])/2,
+      sapply(seq(0,22,1), function(i) {apply(RNase_Mean[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x)})}), 
+      (RNase_Mean[,24]+RNase_Mean[,25])/2)
 )
 
-colnames(Mean_RNase_Smooth) = colnames(Mean_RNase)
+colnames(RNase_Mean_Smooth) = colnames(RNase_Mean)
 ```
 
 We will now normalize this data in a way, that the sum of each row will equal 100:
 ```{r smoothing, include=FALSE}
-Mean_Ctrl_Smooth_Norm_100 = as.data.frame(sapply(Mean_Ctrl_Smooth, function(i){(i/apply(Mean_Ctrl_Smooth,1,sum))*100}))
+Ctrl_Mean_Smooth_Norm100 = as.data.frame(sapply(Ctrl_Mean_Smooth, function(i){(i/apply(Ctrl_Mean_Smooth,1,sum))*100}))
 
-Mean_RNase_Smooth_Norm_100 = as.data.frame(sapply(Mean_RNase_Smooth, function(i){(i/apply(Mean_RNase_Smooth,1,sum))*100}))
+RNase_Mean_Smooth_Norm100 = as.data.frame(sapply(RNase_Mean_Smooth, function(i){(i/apply(RNase_Mean_Smooth,1,sum))*100}))
 ```
 
 Now let us explore how this Smoothing and Normalization effects the data distribution:
 ```{r smoothing, echo=FALSE}
-plot(1:25, Mean_Ctrl [which(rownames(Mean_Ctrl)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN", ylim=c(0,2200000))
-lines(1:25, Mean_RNase[which(rownames(Mean_Ctrl)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
+plot(1:25, Ctrl_Mean [which(rownames(Ctrl_Mean)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN", ylim=c(0,2200000))
+lines(1:25, RNase_Mean[which(rownames(Ctrl_Mean)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
 grid()
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
 
-plot(1:25, Mean_Ctrl_Smooth[which(rownames(Mean_Ctrl)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN (Smoothed)", ylim=c(0,2200000))
-lines(1:25, Mean_RNase_Smooth[which(rownames(Mean_Ctrl)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
+plot(1:25, Ctrl_Mean_Smooth[which(rownames(Ctrl_Mean)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN (Smoothed)", ylim=c(0,2200000))
+lines(1:25, RNase_Mean_Smooth[which(rownames(Ctrl_Mean)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
 grid()
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
 
-plot(1:25, Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN (Smoothed and Normalized)", ylim=c(0,22))
-lines(1:25, Mean_RNase_Smooth_Norm_100[which(rownames(Mean_Ctrl)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
+plot(1:25, Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN (Smoothed and Normalized)", ylim=c(0,22))
+lines(1:25, RNase_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
 grid()
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
 ```
 
 ```{r smoothing, echo=FALSE}
-plot(1:25, Mean_Ctrl [which(rownames(Mean_Ctrl)==c("CY24A_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CY24A_HUMAN", ylim=c(0,950000))
-lines(1:25, Mean_RNase[which(rownames(Mean_Ctrl)==c("CY24A_HUMAN")),], type="l",lwd=3,col="red")
+plot(1:25, Ctrl_Mean [which(rownames(Ctrl_Mean)==c("CY24A_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CY24A_HUMAN", ylim=c(0,950000))
+lines(1:25, RNase_Mean[which(rownames(Ctrl_Mean)==c("CY24A_HUMAN")),], type="l",lwd=3,col="red")
 grid()
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
 
-plot(1:25, Mean_Ctrl_Smooth[which(rownames(Mean_Ctrl)==c("CY24A_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CY24A_HUMAN (Smoothed)", ylim=c(0,950000))
-lines(1:25, Mean_RNase_Smooth[which(rownames(Mean_Ctrl)==c("CY24A_HUMAN")),], type="l",lwd=3,col="red")
+plot(1:25, Ctrl_Mean_Smooth[which(rownames(Ctrl_Mean)==c("CY24A_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CY24A_HUMAN (Smoothed)", ylim=c(0,950000))
+lines(1:25, RNase_Mean_Smooth[which(rownames(Ctrl_Mean)==c("CY24A_HUMAN")),], type="l",lwd=3,col="red")
 grid()
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
 
-plot(1:25, Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==c("CY24A_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CY24A_HUMAN (Smoothed and Normalized)", ylim=c(0,22))
-lines(1:25, Mean_RNase_Smooth_Norm_100[which(rownames(Mean_Ctrl)==c("CY24A_HUMAN")),], type="l",lwd=3,col="red")
+plot(1:25, Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==c("CY24A_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CY24A_HUMAN (Smoothed and Normalized)", ylim=c(0,22))
+lines(1:25, RNase_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==c("CY24A_HUMAN")),], type="l",lwd=3,col="red")
 grid()
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
 ```
 ```{r smoothing, echo=FALSE}
-plot(1:25, Mean_Ctrl [which(rownames(Mean_Ctrl)==c("ABCA1_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="ABCA1_HUMAN", ylim=c(0,220000))
-lines(1:25, Mean_RNase[which(rownames(Mean_Ctrl)==c("ABCA1_HUMAN")),], type="l",lwd=3,col="red")
+plot(1:25, Ctrl_Mean [which(rownames(Ctrl_Mean)==c("ABCA1_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="ABCA1_HUMAN", ylim=c(0,220000))
+lines(1:25, RNase_Mean[which(rownames(Ctrl_Mean)==c("ABCA1_HUMAN")),], type="l",lwd=3,col="red")
 grid()
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
 
-plot(1:25, Mean_Ctrl_Smooth[which(rownames(Mean_Ctrl)==c("ABCA1_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="ABCA1_HUMAN (Smoothed)", ylim=c(0,220000))
-lines(1:25, Mean_RNase_Smooth[which(rownames(Mean_Ctrl)==c("ABCA1_HUMAN")),], type="l",lwd=3,col="red")
+plot(1:25, Ctrl_Mean_Smooth[which(rownames(Ctrl_Mean)==c("ABCA1_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="ABCA1_HUMAN (Smoothed)", ylim=c(0,220000))
+lines(1:25, RNase_Mean_Smooth[which(rownames(Ctrl_Mean)==c("ABCA1_HUMAN")),], type="l",lwd=3,col="red")
 grid()
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
 
-plot(1:25, Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==c("ABCA1_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="ABCA1_HUMAN (Smoothed and Normalized)", ylim=c(0,38))
-lines(1:25, Mean_RNase_Smooth_Norm_100[which(rownames(Mean_Ctrl)==c("ABCA1_HUMAN")),], type="l",lwd=3,col="red")
+plot(1:25, Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==c("ABCA1_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="ABCA1_HUMAN (Smoothed and Normalized)", ylim=c(0,38))
+lines(1:25, RNase_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==c("ABCA1_HUMAN")),], type="l",lwd=3,col="red")
 grid()
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
 ```
@@ -436,50 +436,50 @@ legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lw
 Let us first start with the global maxima: we want a code that tells us the global maximum fraction position for each gene and condition (Control and RNase).
 We can calculate the global maxima by asking the question: "Which Protein Fractions contains the maximum protein amount?"
 ```{r global max, include=FALSE}
-Mean_Ctrl_Gbl_Max = 
+Ctrl_Mean_Gbl_Max = 
   
   # 2: Abspeichern als Matrix (besser für weiter Berechnungen (siehe unten))
   as.matrix(
     
-    # 1: Schleife, die für jedes Gen des Datensatzes "Mean_Ctrl_Smooth_Norm_100" bestimmt, welche Fraktion den           größten Protein-Anteil enthält | Output: Liste mit allen Fraktionen mit größtem Protein-Anteil pro Gen             (Problem: manchmal mehrere Einträge für ein Gen (siehe Plot von Gen ABCA1_HUMAN oben))
-    sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(i) {which(Mean_Ctrl_Smooth_Norm_100[i,] == max(Mean_Ctrl_Smooth_Norm_100[i,]))}))
+    # 1: Schleife, die für jedes Gen des Datensatzes "Ctrl_Mean_Smooth_Norm100" bestimmt, welche Fraktion den           größten Protein-Anteil enthält | Output: Liste mit allen Fraktionen mit größtem Protein-Anteil pro Gen             (Problem: manchmal mehrere Einträge für ein Gen (siehe Plot von Gen ABCA1_HUMAN oben))
+    sapply(seq(1, nrow(Ctrl_RDeep), 1), function(i) {which(Ctrl_Mean_Smooth_Norm100[i,] == max(Ctrl_Mean_Smooth_Norm100[i,]))}))
 
 
 ## If 2 fraction positions contain the maximum protein amount, we determine the mean of these 2 fraction positions
 
 # 2: Wir rufen die Fraction Positions für die Zeilen ab, die genau zwei globale Maxima enthalten | Output: Liste mit den globalen Maxima für alle Gene
-Mean_Ctrl_Gbl_Max[
+Ctrl_Mean_Gbl_Max[
   
   # 1: Für jedes Gen wird geschaut, wie viele Einträge es für die globalen Maxima gibt und verglichen, ob es genau 2   Einträge gibt. "which()" gibt dann die Gene aus, für die diese Bedingung TRUE ist. | Output: vektor aller Zeilen,    für die Bedingung stimmt.
   which(
-    sapply(seq(1,nrow(RDeeP_HeLa_Interphase_Ctrl),1),function(i) {
-      length(which(Mean_Ctrl_Smooth_Norm_100[i,] == max(Mean_Ctrl_Smooth_Norm_100[i,])))}) == 2), 
+    sapply(seq(1,nrow(Ctrl_RDeep),1),function(i) {
+      length(which(Ctrl_Mean_Smooth_Norm100[i,] == max(Ctrl_Mean_Smooth_Norm100[i,])))}) == 2), 
      
      # 3: Wir ersetzen jede Zeile, die 2 Einträge besitzt, mit dem Mittelwert aus diesen 2 Einträgen
   1] = 
-  apply(matrix(unlist(Mean_Ctrl_Gbl_Max[which(sapply(seq(1,nrow(RDeeP_HeLa_Interphase_Ctrl),1),function(i) {length(which(Mean_Ctrl_Smooth_Norm_100[i,] == max(Mean_Ctrl_Smooth_Norm_100[i,]) ))}) == 2),1]), ncol=2, byrow=T), 1, function(x) {mean(x)})
+  apply(matrix(unlist(Ctrl_Mean_Gbl_Max[which(sapply(seq(1,nrow(Ctrl_RDeep),1),function(i) {length(which(Ctrl_Mean_Smooth_Norm100[i,] == max(Ctrl_Mean_Smooth_Norm100[i,]) ))}) == 2),1]), ncol=2, byrow=T), 1, function(x) {mean(x)})
 
 ## If 3 fraction positions contain the maximum protein amount, we determine the mean of these 3 fraction positions
-Mean_Ctrl_Gbl_Max[which(sapply(seq(1,nrow(RDeeP_HeLa_Interphase_Ctrl),1),function(i) {length(which(Mean_Ctrl_Smooth_Norm_100[i,] == max(Mean_Ctrl_Smooth_Norm_100[i,]) ))}) == 3),1] = apply(matrix(unlist(Mean_Ctrl_Gbl_Max[which(sapply(seq(1,nrow(RDeeP_HeLa_Interphase_Ctrl),1),function(i) {length(which(Mean_Ctrl_Smooth_Norm_100[i,] == max(Mean_Ctrl_Smooth_Norm_100[i,]) ))}) == 3),1]), ncol=3, byrow=T), 1, function(x) {mean(x)})
+Ctrl_Mean_Gbl_Max[which(sapply(seq(1,nrow(Ctrl_RDeep),1),function(i) {length(which(Ctrl_Mean_Smooth_Norm100[i,] == max(Ctrl_Mean_Smooth_Norm100[i,]) ))}) == 3),1] = apply(matrix(unlist(Ctrl_Mean_Gbl_Max[which(sapply(seq(1,nrow(Ctrl_RDeep),1),function(i) {length(which(Ctrl_Mean_Smooth_Norm100[i,] == max(Ctrl_Mean_Smooth_Norm100[i,]) ))}) == 3),1]), ncol=3, byrow=T), 1, function(x) {mean(x)})
 
-Mean_Ctrl_Gbl_Max = as.data.frame(unlist(Mean_Ctrl_Gbl_Max))
+Ctrl_Mean_Gbl_Max = as.data.frame(unlist(Ctrl_Mean_Gbl_Max))
 
-colnames(Mean_Ctrl_Gbl_Max) = c("Ctrl_Gbl_Max")
-rownames(Mean_Ctrl_Gbl_Max) = rownames(Mean_Ctrl_Smooth_Norm_100)
+colnames(Ctrl_Mean_Gbl_Max) = c("Ctrl_Gbl_Max")
+rownames(Ctrl_Mean_Gbl_Max) = rownames(Ctrl_Mean_Smooth_Norm100)
 
 
-Mean_RNase_Gbl_Max = as.matrix(sapply(seq(1,nrow(RDeeP_HeLa_Interphase_RNase),1),function(i) {which(Mean_RNase_Smooth_Norm_100[i,] == max(Mean_RNase_Smooth_Norm_100[i,]))}))
+RNase_Mean_Gbl_Max = as.matrix(sapply(seq(1,nrow(RNase_RDeep),1),function(i) {which(RNase_Mean_Smooth_Norm100[i,] == max(RNase_Mean_Smooth_Norm100[i,]))}))
 
-Mean_RNase_Gbl_Max[which(sapply(seq(1,nrow(RDeeP_HeLa_Interphase_RNase),1),function(i) {length(which(Mean_RNase_Smooth_Norm_100[i,] == max(Mean_RNase_Smooth_Norm_100[i,]) ))}) == 2),1] = apply(matrix(unlist(Mean_RNase_Gbl_Max[which(sapply(seq(1,nrow(RDeeP_HeLa_Interphase_RNase),1),function(i) {length(which(Mean_RNase_Smooth_Norm_100[i,] == max(Mean_RNase_Smooth_Norm_100[i,]) ))}) == 2),1]), ncol=2, byrow=T), 1, function(x) {mean(x)})
+RNase_Mean_Gbl_Max[which(sapply(seq(1,nrow(RNase_RDeep),1),function(i) {length(which(RNase_Mean_Smooth_Norm100[i,] == max(RNase_Mean_Smooth_Norm100[i,]) ))}) == 2),1] = apply(matrix(unlist(RNase_Mean_Gbl_Max[which(sapply(seq(1,nrow(RNase_RDeep),1),function(i) {length(which(RNase_Mean_Smooth_Norm100[i,] == max(RNase_Mean_Smooth_Norm100[i,]) ))}) == 2),1]), ncol=2, byrow=T), 1, function(x) {mean(x)})
 
-Mean_RNase_Gbl_Max[which(sapply(seq(1,nrow(RDeeP_HeLa_Interphase_RNase),1),function(i) {length(which(Mean_RNase_Smooth_Norm_100[i,] == max(Mean_RNase_Smooth_Norm_100[i,]) ))}) == 3),1] = apply(matrix(unlist(Mean_RNase_Gbl_Max[which(sapply(seq(1,nrow(RDeeP_HeLa_Interphase_RNase),1),function(i) {length(which(Mean_RNase_Smooth_Norm_100[i,] == max(Mean_RNase_Smooth_Norm_100[i,]) ))}) == 3),1]), ncol=3, byrow=T), 1, function(x) {mean(x)})
+RNase_Mean_Gbl_Max[which(sapply(seq(1,nrow(RNase_RDeep),1),function(i) {length(which(RNase_Mean_Smooth_Norm100[i,] == max(RNase_Mean_Smooth_Norm100[i,]) ))}) == 3),1] = apply(matrix(unlist(RNase_Mean_Gbl_Max[which(sapply(seq(1,nrow(RNase_RDeep),1),function(i) {length(which(RNase_Mean_Smooth_Norm100[i,] == max(RNase_Mean_Smooth_Norm100[i,]) ))}) == 3),1]), ncol=3, byrow=T), 1, function(x) {mean(x)})
 
-Mean_RNase_Gbl_Max = as.data.frame(unlist(Mean_RNase_Gbl_Max))
+RNase_Mean_Gbl_Max = as.data.frame(unlist(RNase_Mean_Gbl_Max))
 
-colnames(Mean_RNase_Gbl_Max) = c("RNase_Gbl_Max")
-rownames(Mean_RNase_Gbl_Max) = rownames(Mean_RNase_Smooth_Norm_100)
+colnames(RNase_Mean_Gbl_Max) = c("RNase_Gbl_Max")
+rownames(RNase_Mean_Gbl_Max) = rownames(RNase_Mean_Smooth_Norm100)
 
-Mean_Gbl_Max = cbind(Mean_Ctrl_Gbl_Max, Mean_RNase_Gbl_Max)
+Mean_Gbl_Max = cbind(Ctrl_Mean_Gbl_Max, RNase_Mean_Gbl_Max)
 
 # length(which(unlist(Mean_Gbl_Max[,1]) == unlist(Mean_Gbl_Max[,2])))
 # length(which(abs(unlist(Mean_Gbl_Max[,1])-unlist(Mean_Gbl_Max[,2])) >= 2))
@@ -490,13 +490,13 @@ Let us see if it worked!
 ```{r global max, echo=FALSE}
 gene.name=c("CTCF_HUMAN")
 
-plot(1:25, Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name, "(Smoothed and Normalized)")), ylim=c(0,25))
+plot(1:25, Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name, "(Smoothed and Normalized)")), ylim=c(0,25))
 
-abline(v=Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name),],lwd=3,col="green",lty=2)
+abline(v=Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name),],lwd=3,col="green",lty=2)
 
-lines(1:25, Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name),], type="l",lwd=3,col="red")
+lines(1:25, RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name),], type="l",lwd=3,col="red")
 
-abline(v=Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name),],lwd=3,col="red",lty=3)
+abline(v=RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name),],lwd=3,col="red",lty=3)
 
 grid()
 
@@ -508,13 +508,13 @@ rm(gene.name)
 ```{r global max, echo=FALSE}
 gene.name=c("CY24A_HUMAN")
 
-plot(1:25, Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name, "(Smoothed and Normalized)")), ylim=c(0,20))
+plot(1:25, Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name, "(Smoothed and Normalized)")), ylim=c(0,20))
 
-abline(v=Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name),],lwd=3,col="green",lty=2)
+abline(v=Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name),],lwd=3,col="green",lty=2)
 
-lines(1:25, Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name),], type="l",lwd=3,col="red")
+lines(1:25, RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name),], type="l",lwd=3,col="red")
 
-abline(v=Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name),],lwd=3,col="red",lty=3)
+abline(v=RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name),],lwd=3,col="red",lty=3)
 
 grid()
 
@@ -526,26 +526,26 @@ But Smoothing sometimes changes the position of the maxima:
 ```{r global max, echo=FALSE}
 gene.name="XXLT1_HUMAN"
 
-plot(1:25, Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),],type="l",lwd=3,col="green",xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name, "(Smoothed and Normalized)")), ylim=c(0,max(max(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))+3))
+plot(1:25, Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name),],type="l",lwd=3,col="green",xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name, "(Smoothed and Normalized)")), ylim=c(0,max(max(Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name),]), max(RNase_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name),]))+3))
 
-abline(v=Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name),],lwd=3,col="green",lty=3)
+abline(v=Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name),],lwd=3,col="green",lty=3)
 
-lines(1:25, Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name),], type="l",lwd=3,col="red")
+lines(1:25, RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name),], type="l",lwd=3,col="red")
 
-abline(v=Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name),],lwd=3,col="red",lty=3)
+abline(v=RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name),],lwd=3,col="red",lty=3)
 
 grid()
 
 legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
 
 
-plot(1:25, Mean_Ctrl_Norm_100[which(rownames(Mean_Ctrl)==gene.name),],type="l",lwd=3,col="green",xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name, "(Normalized)")), ylim=c(0,max(max(Mean_Ctrl_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]), max(Mean_RNase_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))+3))
+plot(1:25, Ctrl_Mean_Norm100[which(rownames(Ctrl_Mean)==gene.name),],type="l",lwd=3,col="green",xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name, "(Normalized)")), ylim=c(0,max(max(Ctrl_Mean_Norm100[which(rownames(Ctrl_Mean)==gene.name),]), max(RNase_Mean_Norm100[which(rownames(Ctrl_Mean)==gene.name),]))+3))
 
-abline(v=Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name),],lwd=3,col="green",lty=3)
+abline(v=Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name),],lwd=3,col="green",lty=3)
 
-lines(1:25, Mean_RNase_Norm_100[which(rownames(Mean_RNase)==gene.name),], type="l",lwd=3,col="red")
+lines(1:25, RNase_Mean_Norm100[which(rownames(RNase_Mean)==gene.name),], type="l",lwd=3,col="red")
 
-abline(v=Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name),],lwd=3,col="red",lty=3)
+abline(v=RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name),],lwd=3,col="red",lty=3)
 
 grid()
 
@@ -564,36 +564,36 @@ X X [X] X X
 We will then compare the protein amount in that fraction position to the protein amount for the 4 fraction positions around that fraction position and ask the question: Is the protein amount in that fraction greater or equal to its neighborhood? If TRUE then we define that fraction position as a local maximum.
 ```{r local max, include=FALSE}
 # ---> Erstellen eines Data.Frames mit 25 Spalten und so vielen Zeilen, wie es Gene gibt (nur NA-values)
-Mean_Ctrl_Loc_Max = as.data.frame(matrix(NA, nrow = nrow(RDeeP_HeLa_Interphase_Ctrl), ncol = 25))
+Ctrl_Mean_Loc_Max = as.data.frame(matrix(NA, nrow = nrow(Ctrl_RDeep), ncol = 25))
 
 # ---> Bestimmung der Fraction Positions für alle lokalen Maxima (in den Control Samples), indem jeweils in einem 5 Fraktion-Window berechnet wird, welche Position den größten Protein Anteil beinhaltet und ob diese Position der mittleren Position entspricht
-Fra.Pos = sapply(seq(0,20,1), function(i) {which(seq(2*nrow(RDeeP_HeLa_Interphase_Ctrl)+1,3*nrow(RDeeP_HeLa_Interphase_Ctrl),1) %in% which(apply(Mean_Ctrl_Smooth_Norm_100[,c(1:5)+c(i,i,i,i,i)], 1, function(x) {max(x)}) == Mean_Ctrl_Smooth_Norm_100[,c(1:5)+c(i,i,i,i,i)] & apply(Mean_Ctrl_Smooth_Norm_100[,c(1:5)+c(i,i,i,i,i)], 1, function(x) {max(x)}) != 0))})
+Fra.Pos = sapply(seq(0,20,1), function(i) {which(seq(2*nrow(Ctrl_RDeep)+1,3*nrow(Ctrl_RDeep),1) %in% which(apply(Ctrl_Mean_Smooth_Norm100[,c(1:5)+c(i,i,i,i,i)], 1, function(x) {max(x)}) == Ctrl_Mean_Smooth_Norm100[,c(1:5)+c(i,i,i,i,i)] & apply(Ctrl_Mean_Smooth_Norm100[,c(1:5)+c(i,i,i,i,i)], 1, function(x) {max(x)}) != 0))})
 
-# ---> Einspeichern der lokalen Maxima im Data.Frame "Mean_Ctrl_Loc_Max" (erstellt in erster Zeile des Chunks), indem pro Gen der NA-value jeder Fraktion, die ein lokales Maximum ist, durch den Wert der Fraktion ersetzt wird (also, wenn in Gen 1 Fraktion 5 ein lokales Maximum ist, wird der Wert für Fraktion 5 in Gen 1 (NA) mit "5" ersetzt) 
-Mean_Ctrl_Loc_Max[, 3:23] = sapply(seq(1,21,1), function(n) {
+# ---> Einspeichern der lokalen Maxima im Data.Frame "Ctrl_Mean_Loc_Max" (erstellt in erster Zeile des Chunks), indem pro Gen der NA-value jeder Fraktion, die ein lokales Maximum ist, durch den Wert der Fraktion ersetzt wird (also, wenn in Gen 1 Fraktion 5 ein lokales Maximum ist, wird der Wert für Fraktion 5 in Gen 1 (NA) mit "5" ersetzt) 
+Ctrl_Mean_Loc_Max[, 3:23] = sapply(seq(1,21,1), function(n) {
   replace(
-        Mean_Ctrl_Loc_Max[, n+2], 
+        Ctrl_Mean_Loc_Max[, n+2], 
         Fra.Pos[[n]], 
         n+2)})
 
 # ---> Benennung der Zeilen (Gennamen) und Spalten (Fraktionen)
-rownames(Mean_Ctrl_Loc_Max) = rownames(Mean_Ctrl)
-colnames(Mean_Ctrl_Loc_Max) = colnames(Mean_Ctrl)
+rownames(Ctrl_Mean_Loc_Max) = rownames(Ctrl_Mean)
+colnames(Ctrl_Mean_Loc_Max) = colnames(Ctrl_Mean)
 
 
 # ---> Gleicher Code für die RNase Samples
-Mean_RNase_Loc_Max = as.data.frame(matrix(NA, nrow = nrow(RDeeP_HeLa_Interphase_RNase), ncol = 25))
+RNase_Mean_Loc_Max = as.data.frame(matrix(NA, nrow = nrow(RNase_RDeep), ncol = 25))
 
-Fra.Pos = sapply(seq(0,20,1), function(i) {which(seq(2*nrow(RDeeP_HeLa_Interphase_RNase)+1,3*nrow(RDeeP_HeLa_Interphase_RNase),1) %in% which(apply(Mean_RNase_Smooth_Norm_100[,c(1:5)+c(i,i,i,i,i)], 1, function(x) {max(x)}) == Mean_RNase_Smooth_Norm_100[,c(1:5)+c(i,i,i,i,i)] & apply(Mean_RNase_Smooth_Norm_100[,c(1:5)+c(i,i,i,i,i)], 1, function(x) {max(x)}) != 0))})
+Fra.Pos = sapply(seq(0,20,1), function(i) {which(seq(2*nrow(RNase_RDeep)+1,3*nrow(RNase_RDeep),1) %in% which(apply(RNase_Mean_Smooth_Norm100[,c(1:5)+c(i,i,i,i,i)], 1, function(x) {max(x)}) == RNase_Mean_Smooth_Norm100[,c(1:5)+c(i,i,i,i,i)] & apply(RNase_Mean_Smooth_Norm100[,c(1:5)+c(i,i,i,i,i)], 1, function(x) {max(x)}) != 0))})
 
-Mean_RNase_Loc_Max[, 3:23] = sapply(seq(1,21,1), function(n) {
+RNase_Mean_Loc_Max[, 3:23] = sapply(seq(1,21,1), function(n) {
   replace(
-        Mean_RNase_Loc_Max[, n+2], 
+        RNase_Mean_Loc_Max[, n+2], 
         Fra.Pos[[n]], 
         n+2)})
 
-rownames(Mean_RNase_Loc_Max) = rownames(Mean_RNase)
-colnames(Mean_RNase_Loc_Max) = colnames(Mean_RNase)
+rownames(RNase_Mean_Loc_Max) = rownames(RNase_Mean)
+colnames(RNase_Mean_Loc_Max) = colnames(RNase_Mean)
 
 
 ## Edge Cases:
@@ -601,48 +601,48 @@ colnames(Mean_RNase_Loc_Max) = colnames(Mean_RNase)
 # ---> Da wir eine Maske mit n = 2 anwenden, können wir mit dieser Methode nur die Fraktionen 3 bis 23 auf lokale Maxima überprüfen. Damit Fraktion 1 bzw. 25 ein lokales Maximum sind, müssen sie größer sein, als die Fraktionen 2 und 3 bzw. 24 und 23. Damit Fraktion 2 bzw. 24 ein lokales Maximum sind, müssen sie größer sein, als die Fraktionen 1, 3 und 4 bzw. 25, 23 und 22.  
 
 # Fraction 1
-Mean_Ctrl_Loc_Max[which(Mean_Ctrl_Smooth_Norm_100[,1] >= Mean_Ctrl_Smooth_Norm_100[,2] & Mean_Ctrl_Smooth_Norm_100[,1] >= Mean_Ctrl_Smooth_Norm_100[,3] & Mean_Ctrl_Smooth_Norm_100[,1] != 0),1] = 1
+Ctrl_Mean_Loc_Max[which(Ctrl_Mean_Smooth_Norm100[,1] >= Ctrl_Mean_Smooth_Norm100[,2] & Ctrl_Mean_Smooth_Norm100[,1] >= Ctrl_Mean_Smooth_Norm100[,3] & Ctrl_Mean_Smooth_Norm100[,1] != 0),1] = 1
 
-Mean_RNase_Loc_Max[which(Mean_RNase_Smooth_Norm_100[,1] >= Mean_RNase_Smooth_Norm_100[,2] & Mean_RNase_Smooth_Norm_100[,1] >= Mean_RNase_Smooth_Norm_100[,3] & Mean_RNase_Smooth_Norm_100[,1] != 0),1] = 1
+RNase_Mean_Loc_Max[which(RNase_Mean_Smooth_Norm100[,1] >= RNase_Mean_Smooth_Norm100[,2] & RNase_Mean_Smooth_Norm100[,1] >= RNase_Mean_Smooth_Norm100[,3] & RNase_Mean_Smooth_Norm100[,1] != 0),1] = 1
 
 # Fraction 2
-Mean_Ctrl_Loc_Max[which(Mean_Ctrl_Smooth_Norm_100[,2] >= Mean_Ctrl_Smooth_Norm_100[,3] & Mean_Ctrl_Smooth_Norm_100[,2] >= Mean_Ctrl_Smooth_Norm_100[,4] & Mean_Ctrl_Smooth_Norm_100[,2] >= Mean_Ctrl_Smooth_Norm_100[,1] & Mean_Ctrl_Smooth_Norm_100[,1] != 0), 2] = 2
+Ctrl_Mean_Loc_Max[which(Ctrl_Mean_Smooth_Norm100[,2] >= Ctrl_Mean_Smooth_Norm100[,3] & Ctrl_Mean_Smooth_Norm100[,2] >= Ctrl_Mean_Smooth_Norm100[,4] & Ctrl_Mean_Smooth_Norm100[,2] >= Ctrl_Mean_Smooth_Norm100[,1] & Ctrl_Mean_Smooth_Norm100[,1] != 0), 2] = 2
 
-Mean_RNase_Loc_Max[which(Mean_RNase_Smooth_Norm_100[,2] >= Mean_RNase_Smooth_Norm_100[,3] & Mean_RNase_Smooth_Norm_100[,2] >= Mean_RNase_Smooth_Norm_100[,4] & Mean_RNase_Smooth_Norm_100[,2] >= Mean_RNase_Smooth_Norm_100[,1] & Mean_RNase_Smooth_Norm_100[,1] != 0), 2] = 2
+RNase_Mean_Loc_Max[which(RNase_Mean_Smooth_Norm100[,2] >= RNase_Mean_Smooth_Norm100[,3] & RNase_Mean_Smooth_Norm100[,2] >= RNase_Mean_Smooth_Norm100[,4] & RNase_Mean_Smooth_Norm100[,2] >= RNase_Mean_Smooth_Norm100[,1] & RNase_Mean_Smooth_Norm100[,1] != 0), 2] = 2
 
 # Fraction 25
-Mean_Ctrl_Loc_Max[which(Mean_Ctrl_Smooth_Norm_100[,25] >= Mean_Ctrl_Smooth_Norm_100[,24] & Mean_Ctrl_Smooth_Norm_100[,25] >= Mean_Ctrl_Smooth_Norm_100[,23] & Mean_Ctrl_Smooth_Norm_100[,25] != 0), 25] = 25
+Ctrl_Mean_Loc_Max[which(Ctrl_Mean_Smooth_Norm100[,25] >= Ctrl_Mean_Smooth_Norm100[,24] & Ctrl_Mean_Smooth_Norm100[,25] >= Ctrl_Mean_Smooth_Norm100[,23] & Ctrl_Mean_Smooth_Norm100[,25] != 0), 25] = 25
 
-Mean_RNase_Loc_Max[which(Mean_RNase_Smooth_Norm_100[,25] >= Mean_RNase_Smooth_Norm_100[,24] & Mean_RNase_Smooth_Norm_100[,25] >= Mean_RNase_Smooth_Norm_100[,23] & Mean_RNase_Smooth_Norm_100[,25] != 0), 25] = 25
+RNase_Mean_Loc_Max[which(RNase_Mean_Smooth_Norm100[,25] >= RNase_Mean_Smooth_Norm100[,24] & RNase_Mean_Smooth_Norm100[,25] >= RNase_Mean_Smooth_Norm100[,23] & RNase_Mean_Smooth_Norm100[,25] != 0), 25] = 25
 
 # Fraction 24
-Mean_Ctrl_Loc_Max[which(Mean_Ctrl_Smooth_Norm_100[,24] >= Mean_Ctrl_Smooth_Norm_100[,23] & Mean_Ctrl_Smooth_Norm_100[,24] >= Mean_Ctrl_Smooth_Norm_100[,22] & Mean_Ctrl_Smooth_Norm_100[,24] >= Mean_Ctrl_Smooth_Norm_100[,25] & Mean_Ctrl_Smooth_Norm_100[,24] != 0), 24] = 24
+Ctrl_Mean_Loc_Max[which(Ctrl_Mean_Smooth_Norm100[,24] >= Ctrl_Mean_Smooth_Norm100[,23] & Ctrl_Mean_Smooth_Norm100[,24] >= Ctrl_Mean_Smooth_Norm100[,22] & Ctrl_Mean_Smooth_Norm100[,24] >= Ctrl_Mean_Smooth_Norm100[,25] & Ctrl_Mean_Smooth_Norm100[,24] != 0), 24] = 24
 
-Mean_RNase_Loc_Max[which(Mean_RNase_Smooth_Norm_100[,24] >= Mean_RNase_Smooth_Norm_100[,23] & Mean_RNase_Smooth_Norm_100[,24] >= Mean_RNase_Smooth_Norm_100[,22] & Mean_RNase_Smooth_Norm_100[,24] >= Mean_RNase_Smooth_Norm_100[,25] & Mean_RNase_Smooth_Norm_100[,24] != 0), 24] = 24
+RNase_Mean_Loc_Max[which(RNase_Mean_Smooth_Norm100[,24] >= RNase_Mean_Smooth_Norm100[,23] & RNase_Mean_Smooth_Norm100[,24] >= RNase_Mean_Smooth_Norm100[,22] & RNase_Mean_Smooth_Norm100[,24] >= RNase_Mean_Smooth_Norm100[,25] & RNase_Mean_Smooth_Norm100[,24] != 0), 24] = 24
 
 
 ## Removal of Global Maxima in Local Maxima Datasets (also removes all double and triple global maxima!!!)
 
-# ---> Die Methode, die wir zum Finden der lokalen Maxima bisher angewendet haben, gibt uns als Output natürlich auch die Positionen der globalen Maxima. Diese wollen wir nun mit der Hilfe einer Maske (Ctrl_Mask bzw. RNase_Mask) entfernen: diese hat die gleiche Größe, wie der Data.frame Mean_Ctrl_Loc_Max bzw. Mean_RNase_Loc_Max (# Gene x 25) enthält aber nur den Wert "1", außer an den Stellen, an denen es globale Maxima gibt (dort ist der Wert NA vermerkt). Multiplizieren wir nun die Maske mit dem Data.frame, werden alle globalen Peaks gelöscht (durch NA ersetzt), während die lokalen Peaks erhalten bleiben (NA * any value = NA, 1 * any value = any value). 
+# ---> Die Methode, die wir zum Finden der lokalen Maxima bisher angewendet haben, gibt uns als Output natürlich auch die Positionen der globalen Maxima. Diese wollen wir nun mit der Hilfe einer Maske (Ctrl_Mask bzw. RNase_Mask) entfernen: diese hat die gleiche Größe, wie der Data.frame Ctrl_Mean_Loc_Max bzw. RNase_Mean_Loc_Max (# Gene x 25) enthält aber nur den Wert "1", außer an den Stellen, an denen es globale Maxima gibt (dort ist der Wert NA vermerkt). Multiplizieren wir nun die Maske mit dem Data.frame, werden alle globalen Peaks gelöscht (durch NA ersetzt), während die lokalen Peaks erhalten bleiben (NA * any value = NA, 1 * any value = any value). 
 
-Crtl_Mask = matrix(1, nrow = nrow(RDeeP_HeLa_Interphase_Ctrl)*25, ncol = 1)
+Crtl_Mask = matrix(1, nrow = nrow(Ctrl_RDeep)*25, ncol = 1)
 
-Crtl_Mask[which(apply(Mean_Ctrl_Smooth_Norm_100, 1, function(x) {max(x)}) == Mean_Ctrl_Smooth_Norm_100)] = NA
+Crtl_Mask[which(apply(Ctrl_Mean_Smooth_Norm100, 1, function(x) {max(x)}) == Ctrl_Mean_Smooth_Norm100)] = NA
 
-Crtl_Mask = as.data.frame(matrix(unlist(Crtl_Mask), nrow=nrow(RDeeP_HeLa_Interphase_Ctrl), ncol=25))
+Crtl_Mask = as.data.frame(matrix(unlist(Crtl_Mask), nrow=nrow(Ctrl_RDeep), ncol=25))
 
-Mean_Ctrl_Loc_Max = Mean_Ctrl_Loc_Max * Crtl_Mask
+Ctrl_Mean_Loc_Max = Ctrl_Mean_Loc_Max * Crtl_Mask
 
 rm(Crtl_Mask)
 
 
-RNase_Mask = matrix(1, nrow = nrow(RDeeP_HeLa_Interphase_RNase)*25, ncol = 1)
+RNase_Mask = matrix(1, nrow = nrow(RNase_RDeep)*25, ncol = 1)
 
-RNase_Mask[which(apply(Mean_RNase_Smooth_Norm_100, 1, function(x) {max(x)}) == Mean_RNase_Smooth_Norm_100)] = NA
+RNase_Mask[which(apply(RNase_Mean_Smooth_Norm100, 1, function(x) {max(x)}) == RNase_Mean_Smooth_Norm100)] = NA
 
-RNase_Mask = as.data.frame(matrix(unlist(RNase_Mask), nrow=nrow(RDeeP_HeLa_Interphase_RNase), ncol=25))
+RNase_Mask = as.data.frame(matrix(unlist(RNase_Mask), nrow=nrow(RNase_RDeep), ncol=25))
 
-Mean_RNase_Loc_Max = Mean_RNase_Loc_Max * RNase_Mask
+RNase_Mean_Loc_Max = RNase_Mean_Loc_Max * RNase_Mask
 
 rm(RNase_Mask)
 
@@ -652,17 +652,17 @@ rm(RNase_Mask)
 # ---> Wie bei der Bestimmung der globalen Peaks auch, gibt es auch bei den lokalen Peaks manchmal Fälle, in denen 2 oder 3 peaks direkt nebeneinander vorkommen. Diese wollen wir nun jeweils durch den Mittelwert der Positionen der peaks ersetzen (bei einem double peak wird der Mittelwert in die linke der beiden Fraktionen notiert und der rechte peak durch NA ersetzt; und bei einem triple peak werden die Fraction-positions links und rechts von mittleren peak durch NA ersetzt).
 
 ## Double peaks
-Fra.Pos = sapply(seq(0,21,1), function(i) {which(!(is.na(Mean_Ctrl_Loc_Max[,c(2)+c(i)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(3)+c(i)])) & is.na(Mean_Ctrl_Loc_Max[,c(1)+c(i)]) & is.na(Mean_Ctrl_Loc_Max[,c(4)+c(i)]))})
+Fra.Pos = sapply(seq(0,21,1), function(i) {which(!(is.na(Ctrl_Mean_Loc_Max[,c(2)+c(i)])) & !(is.na(Ctrl_Mean_Loc_Max[,c(3)+c(i)])) & is.na(Ctrl_Mean_Loc_Max[,c(1)+c(i)]) & is.na(Ctrl_Mean_Loc_Max[,c(4)+c(i)]))})
 
-Mean_Ctrl_Loc_Max[, 2:23] = sapply(seq(1,22,1), function(n) {
+Ctrl_Mean_Loc_Max[, 2:23] = sapply(seq(1,22,1), function(n) {
   replace(
-        Mean_Ctrl_Loc_Max[, n+1], 
+        Ctrl_Mean_Loc_Max[, n+1], 
         Fra.Pos[[n]], 
         n+1.5)})
 
-Mean_Ctrl_Loc_Max[, 3:24] = sapply(seq(1,22,1), function(n) {
+Ctrl_Mean_Loc_Max[, 3:24] = sapply(seq(1,22,1), function(n) {
   replace(
-        Mean_Ctrl_Loc_Max[, n+2], 
+        Ctrl_Mean_Loc_Max[, n+2], 
         Fra.Pos[[n]], 
         NA)})
 
@@ -671,72 +671,72 @@ Mean_Ctrl_Loc_Max[, 3:24] = sapply(seq(1,22,1), function(n) {
 
 # ---> Bei den double peaks müssten wir noch Fraktion 1 & 2 und 24 & 25 gesondert betrachen, da wir diese vorher nicht überprüfen können (der Code überprüft jeweils, ob in der aktuell ausgewählten Position und der Position rechts davon ein Wert vorhanden ist; um die Erkennung von triple peaks zu vermeiden, muss aber auch überprüft werden, ob in der Fraktion links und zweifach rechts von der aktuellen Position keine Werte (also NA-values) vorhanden sind). Diese Edge cases treten aber nicht auf und somit ist der Code redundant.
 
-# Fra.Pos = which(!(is.na(Mean_Ctrl_Loc_Max[,c(1)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(2)])) & !(!(is.na(Mean_Ctrl_Loc_Max[,c(1)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(2)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(3)]))))
+# Fra.Pos = which(!(is.na(Ctrl_Mean_Loc_Max[,c(1)])) & !(is.na(Ctrl_Mean_Loc_Max[,c(2)])) & !(!(is.na(Ctrl_Mean_Loc_Max[,c(1)])) & !(is.na(Ctrl_Mean_Loc_Max[,c(2)])) & !(is.na(Ctrl_Mean_Loc_Max[,c(3)]))))
 
-# Mean_Ctrl_Loc_Max[Fra.Pos[[1]],1]=1.5
-# Mean_Ctrl_Loc_Max[Fra.Pos[[1]],2]=NA
+# Ctrl_Mean_Loc_Max[Fra.Pos[[1]],1]=1.5
+# Ctrl_Mean_Loc_Max[Fra.Pos[[1]],2]=NA
 
-# Fra.Pos = which(!(is.na(Mean_Ctrl_Loc_Max[,c(24)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(25)])) & !(!(is.na(Mean_Ctrl_Loc_Max[,c(23)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(24)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(25)]))))
+# Fra.Pos = which(!(is.na(Ctrl_Mean_Loc_Max[,c(24)])) & !(is.na(Ctrl_Mean_Loc_Max[,c(25)])) & !(!(is.na(Ctrl_Mean_Loc_Max[,c(23)])) & !(is.na(Ctrl_Mean_Loc_Max[,c(24)])) & !(is.na(Ctrl_Mean_Loc_Max[,c(25)]))))
 
-# Mean_Ctrl_Loc_Max[Fra.Pos[[1]],24]=24.5
-# Mean_Ctrl_Loc_Max[Fra.Pos[[1]],25]=NA
+# Ctrl_Mean_Loc_Max[Fra.Pos[[1]],24]=24.5
+# Ctrl_Mean_Loc_Max[Fra.Pos[[1]],25]=NA
 
 
-Fra.Pos = sapply(seq(0,21,1), function(i) {which(!(is.na(Mean_RNase_Loc_Max[,c(2)+c(i)])) & !(is.na(Mean_RNase_Loc_Max[,c(3)+c(i)])) & is.na(Mean_RNase_Loc_Max[,c(1)+c(i)]) & is.na(Mean_RNase_Loc_Max[,c(4)+c(i)]))})
+Fra.Pos = sapply(seq(0,21,1), function(i) {which(!(is.na(RNase_Mean_Loc_Max[,c(2)+c(i)])) & !(is.na(RNase_Mean_Loc_Max[,c(3)+c(i)])) & is.na(RNase_Mean_Loc_Max[,c(1)+c(i)]) & is.na(RNase_Mean_Loc_Max[,c(4)+c(i)]))})
 
-Mean_RNase_Loc_Max[, 2:23] = sapply(seq(1,22,1), function(n) {
+RNase_Mean_Loc_Max[, 2:23] = sapply(seq(1,22,1), function(n) {
   replace(
-        Mean_RNase_Loc_Max[, n+1], 
+        RNase_Mean_Loc_Max[, n+1], 
         Fra.Pos[[n]], 
         n+1.5)})
 
-Mean_RNase_Loc_Max[, 3:24] = sapply(seq(1,22,1), function(n) {
+RNase_Mean_Loc_Max[, 3:24] = sapply(seq(1,22,1), function(n) {
   replace(
-        Mean_RNase_Loc_Max[, n+2], 
+        RNase_Mean_Loc_Max[, n+2], 
         Fra.Pos[[n]], 
         NA)})
 
 # Edge Cases (not necessary in this case)
 
-# Fra.Pos = which(!(is.na(Mean_RNase_Loc_Max[,c(1)])) & !(is.na(Mean_RNase_Loc_Max[,c(2)])) & !(!(is.na(Mean_RNase_Loc_Max[,c(1)])) & !(is.na(Mean_RNase_Loc_Max[,c(2)])) & !(is.na(Mean_RNase_Loc_Max[,c(3)]))))
+# Fra.Pos = which(!(is.na(RNase_Mean_Loc_Max[,c(1)])) & !(is.na(RNase_Mean_Loc_Max[,c(2)])) & !(!(is.na(RNase_Mean_Loc_Max[,c(1)])) & !(is.na(RNase_Mean_Loc_Max[,c(2)])) & !(is.na(RNase_Mean_Loc_Max[,c(3)]))))
 
-# Mean_RNase_Loc_Max[Fra.Pos[[1]],1]=1.5
-# Mean_RNase_Loc_Max[Fra.Pos[[1]],2]=NA
+# RNase_Mean_Loc_Max[Fra.Pos[[1]],1]=1.5
+# RNase_Mean_Loc_Max[Fra.Pos[[1]],2]=NA
 
-# Fra.Pos = which(!(is.na(Mean_RNase_Loc_Max[,c(24)])) & !(is.na(Mean_RNase_Loc_Max[,c(25)])) & !(!(is.na(Mean_RNase_Loc_Max[,c(23)])) & !(is.na(Mean_RNase_Loc_Max[,c(24)])) & !(is.na(Mean_RNase_Loc_Max[,c(25)]))))
+# Fra.Pos = which(!(is.na(RNase_Mean_Loc_Max[,c(24)])) & !(is.na(RNase_Mean_Loc_Max[,c(25)])) & !(!(is.na(RNase_Mean_Loc_Max[,c(23)])) & !(is.na(RNase_Mean_Loc_Max[,c(24)])) & !(is.na(RNase_Mean_Loc_Max[,c(25)]))))
 
-# Mean_RNase_Loc_Max[Fra.Pos[[1]],24]=24.5
-# Mean_RNase_Loc_Max[Fra.Pos[[1]],25]=NA
+# RNase_Mean_Loc_Max[Fra.Pos[[1]],24]=24.5
+# RNase_Mean_Loc_Max[Fra.Pos[[1]],25]=NA
 
 
 
 # Triple peaks
-Fra.Pos = sapply(seq(0,22,1), function(i) {which(!(is.na(Mean_Ctrl_Loc_Max[,c(1)+c(i)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(2)+c(i)])) & !(is.na(Mean_Ctrl_Loc_Max[,c(3)+c(i)])))})
+Fra.Pos = sapply(seq(0,22,1), function(i) {which(!(is.na(Ctrl_Mean_Loc_Max[,c(1)+c(i)])) & !(is.na(Ctrl_Mean_Loc_Max[,c(2)+c(i)])) & !(is.na(Ctrl_Mean_Loc_Max[,c(3)+c(i)])))})
 
-Mean_Ctrl_Loc_Max[, 1:23] = sapply(seq(1,23,1), function(n) {
+Ctrl_Mean_Loc_Max[, 1:23] = sapply(seq(1,23,1), function(n) {
   replace(
-        Mean_Ctrl_Loc_Max[, n], 
+        Ctrl_Mean_Loc_Max[, n], 
         Fra.Pos[[n]], 
         NA)})
 
-Mean_Ctrl_Loc_Max[, 3:25] = sapply(seq(1,23,1), function(n) {
+Ctrl_Mean_Loc_Max[, 3:25] = sapply(seq(1,23,1), function(n) {
   replace(
-        Mean_Ctrl_Loc_Max[, n+2], 
+        Ctrl_Mean_Loc_Max[, n+2], 
         Fra.Pos[[n]], 
         NA)})
 
 
-Fra.Pos = sapply(seq(0,22,1), function(i) {which(!(is.na(Mean_RNase_Loc_Max[,c(1)+c(i)])) & !(is.na(Mean_RNase_Loc_Max[,c(2)+c(i)])) & !(is.na(Mean_RNase_Loc_Max[,c(3)+c(i)])))})
+Fra.Pos = sapply(seq(0,22,1), function(i) {which(!(is.na(RNase_Mean_Loc_Max[,c(1)+c(i)])) & !(is.na(RNase_Mean_Loc_Max[,c(2)+c(i)])) & !(is.na(RNase_Mean_Loc_Max[,c(3)+c(i)])))})
 
-Mean_RNase_Loc_Max[, 1:23] = sapply(seq(1,23,1), function(n) {
+RNase_Mean_Loc_Max[, 1:23] = sapply(seq(1,23,1), function(n) {
   replace(
-        Mean_RNase_Loc_Max[, n], 
+        RNase_Mean_Loc_Max[, n], 
         Fra.Pos[[n]], 
         NA)})
 
-Mean_RNase_Loc_Max[, 3:25] = sapply(seq(1,23,1), function(n) {
+RNase_Mean_Loc_Max[, 3:25] = sapply(seq(1,23,1), function(n) {
   replace(
-        Mean_RNase_Loc_Max[, n+2], 
+        RNase_Mean_Loc_Max[, n+2], 
         Fra.Pos[[n]], 
         NA)})
 
@@ -778,21 +778,21 @@ Lastly, we calculate the protein amount under each gaussian curve (**prt_amount*
 
 ##### 3.2 Proof-of-Concept
 
-To test if this method works, we will try to fit Gaussian curves to the global peaks of the Control and RNase distributions of the *RL32_HUMAN* gene:
+To test if this method works, we will try to fit Gaussian curves to the global peaks of the Control and RNase distributions of the *CTCF_HUMAN* gene:
 
 ```{r gauss, echo=FALSE}
 # ---> Wir wählen ein beliebiges Gen aus
 gene.name=c("CTCF_HUMAN")
 
 # ---> Schätzung der Werte für mu, sd und h anhand der oben beschriebenen Berechnungen
-mu_Ctrl <- unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name),])
-sd_Ctrl <- min(abs(which(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),] == max(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),])) - which(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),] <= max(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),])/2)))/sqrt(2*log(2))
-h_Ctrl <- max(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),])*sqrt(2*pi)*sd_Ctrl
+mu_Ctrl <- unlist(Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name),])
+sd_Ctrl <- min(abs(which(Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name),] == max(Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name),])) - which(Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name),] <= max(Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name),])/2)))/sqrt(2*log(2))
+h_Ctrl <- max(Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name),])*sqrt(2*pi)*sd_Ctrl
 
 
 # ---> Aufstellen einer Funktion, die die Summe der quadratischen Differenzen zwischen Gaussian Fit und Protein Verteilung in Abhängigkeit von mu berechnet
 mu_finder <- function(mu_Ctrl) {
-  sum((sapply(seq(1,25,1), function(n) {h_Ctrl*(1/(sd_Ctrl*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-mu_Ctrl)/sd_Ctrl)^2)}) - unlist(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))^2)
+  sum((sapply(seq(1,25,1), function(n) {h_Ctrl*(1/(sd_Ctrl*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-mu_Ctrl)/sd_Ctrl)^2)}) - unlist(Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name),]))^2)
 }
 
 # --> Optimieren der Funktion im Bezug auf den Parameter mu (innerhalb des oben beschriebenen Intervalls), sodass der Output der Funktion minimal wird (also die Summe der quadratischen Abstände). "$minimum" gibt den optimierten Wert für mu aus und dieser wird genutzt, um den alten Schätzwert zu überschreiben. 
@@ -802,49 +802,49 @@ mu_Ctrl <- optimise(mu_finder, interval = c(mu_Ctrl-0.5, mu_Ctrl+0.5))$minimum
 # --> selbes Spiel bezogen auf die Parameter sd und h
 
 sd_finder <- function(sd_Ctrl) {
-  sum((sapply(seq(1,25,1), function(n) {h_Ctrl*(1/(sd_Ctrl*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-mu_Ctrl)/sd_Ctrl)^2)}) - unlist(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))^2)
+  sum((sapply(seq(1,25,1), function(n) {h_Ctrl*(1/(sd_Ctrl*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-mu_Ctrl)/sd_Ctrl)^2)}) - unlist(Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name),]))^2)
 }
 
 sd_Ctrl <- optimise(sd_finder, interval = c(0.8*sd_Ctrl, 1.2*sd_Ctrl))$minimum
 
 
 h_finder <- function(h_Ctrl) {
-  sum((sapply(seq(1,25,1), function(n) {h_Ctrl*(1/(sd_Ctrl*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-mu_Ctrl)/sd_Ctrl)^2)}) - unlist(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),]))^2)
+  sum((sapply(seq(1,25,1), function(n) {h_Ctrl*(1/(sd_Ctrl*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-mu_Ctrl)/sd_Ctrl)^2)}) - unlist(Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name),]))^2)
 }
 
 h_Ctrl <- optimise(h_finder, interval = c(h_Ctrl-5, h_Ctrl+5))$minimum
 
 
 # ---> Gleiches Spiel für die RNase Samples von dem Gen
-mu_RNase <- unlist(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name),])
-sd_RNase <- min(abs(which(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name),] == max(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name),])) - which(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name),] <= max(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name),])/2)))/sqrt(2*log(2))
-h_RNase <- max(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name),])*sqrt(2*pi)*sd_RNase
+mu_RNase <- unlist(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name),])
+sd_RNase <- min(abs(which(RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name),] == max(RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name),])) - which(RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name),] <= max(RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name),])/2)))/sqrt(2*log(2))
+h_RNase <- max(RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name),])*sqrt(2*pi)*sd_RNase
 
 
 mu_finder <- function(mu_RNase) {
-  sum((sapply(seq(1,25,1), function(n) {h_RNase*(1/(sd_RNase*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-mu_RNase)/sd_RNase)^2)}) - unlist(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name),]))^2)
+  sum((sapply(seq(1,25,1), function(n) {h_RNase*(1/(sd_RNase*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-mu_RNase)/sd_RNase)^2)}) - unlist(RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name),]))^2)
 }
 
 mu_RNase <- optimise(mu_finder, interval = c(mu_RNase-0.5, mu_RNase+0.5))$minimum
 
 
 sd_finder <- function(sd_RNase) {
-  sum((sapply(seq(1,25,1), function(n) {h_RNase*(1/(sd_RNase*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-mu_RNase)/sd_RNase)^2)}) - unlist(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name),]))^2)
+  sum((sapply(seq(1,25,1), function(n) {h_RNase*(1/(sd_RNase*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-mu_RNase)/sd_RNase)^2)}) - unlist(RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name),]))^2)
 }
 
 sd_RNase <- optimise(sd_finder, interval = c(0.8*sd_RNase, 1.2*sd_RNase))$minimum
 
 
 h_finder <- function(h_RNase) {
-  sum((sapply(seq(1,25,1), function(n) {h_RNase*(1/(sd_RNase*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-mu_RNase)/sd_RNase)^2)}) - unlist(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name),]))^2)
+  sum((sapply(seq(1,25,1), function(n) {h_RNase*(1/(sd_RNase*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-mu_RNase)/sd_RNase)^2)}) - unlist(RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name),]))^2)
 }
 
 h_RNase <- optimise(h_finder, interval = c(h_RNase-5, h_RNase+5))$minimum
 
 # ---> Plotten der Protein-Verteilungen und gefitteten Gauß-Kurven.
-plot(1:25, Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name, "(Smoothed and Normalized)")), ylim=c(0,27))
+plot(1:25, Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main=paste(paste(gene.name, "(Smoothed and Normalized)")), ylim=c(0,27))
 
-lines(1:25, Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name),], type="l", lwd=3, col = "red")
+lines(1:25, RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name),], type="l", lwd=3, col = "red")
 
 curve(h_Ctrl*(1/(sd_Ctrl*(sqrt(2*pi))))*exp(1)^(-(1/2)*((x-mu_Ctrl)/sd_Ctrl)^2), add = T, lwd = 3, col = scales::alpha("blue", 0.65))
 
@@ -856,84 +856,84 @@ rm(mu_Ctrl, sd_Ctrl, h_Ctrl, mu_RNase, sd_RNase, h_RNase, gene.name, mu_finder, 
 
 ##### 3.3 Gaussian Fitting of the Entire Data Set
 
-We will now do the same calculations we did for the *RL32_HUMAN* gene for each gene in our data set. The results will be stored in the data frames **Gaussian_Fit_Ctrl** and **Gaussian_Fit_RNase**. 
+We will now do the same calculations we did for the *CTCF_HUMAN* gene for each gene in our data set. The results will be stored in the data frames **Ctrl_Gauss_Fit** and **RNase_Gauss_Fit**. 
 Note, that we will also calculate the protein amount under each peak (area under the curve of fitted Gaussian curve) by using the `pnorm` function and scaling the results with **h**. 
 
 **Note:** *This chunk can take up to several minutes to run.*
 
 ```{r gauss, include=FALSE}
-# ---> Erstellen eines Data.Frames (Gaussian_Fit_Ctrl) mit 5 Spalten ("mu", "sd", "h", "prt_amount" und "overlap") und so vielen zeilen, wie es Gene gibt. Füllen des Data.Frames mit NA-values. 
-Gaussian_Fit_Ctrl = as.data.frame(matrix(rep(NA, nrow(RDeeP_HeLa_Interphase_Ctrl)*5), ncol = 5))
-colnames(Gaussian_Fit_Ctrl) = c("mu", "sd", "h", "prt_amount", "overlap")
-rownames(Gaussian_Fit_Ctrl) = rownames(RDeeP_HeLa_Interphase_Ctrl)
+# ---> Erstellen eines Data.Frames (Ctrl_Gauss_Fit) mit 5 Spalten ("mu", "sd", "h", "prt_amount" und "overlap") und so vielen zeilen, wie es Gene gibt. Füllen des Data.Frames mit NA-values. 
+Ctrl_Gauss_Fit = as.data.frame(matrix(rep(NA, nrow(Ctrl_RDeep)*5), ncol = 5))
+colnames(Ctrl_Gauss_Fit) = c("mu", "sd", "h", "prt_amount", "overlap")
+rownames(Ctrl_Gauss_Fit) = rownames(Ctrl_RDeep)
 
 
-# --> Schätzung der Werte für mu (Gaussian_Fit_Ctrl[,1]), sd (Gaussian_Fit_Ctrl[,2]) und h (Gaussian_Fit_Ctrl[,3]) mit den oben beschriebenen Berechnungen (bei "3.1 Introduction") für alle Gene 
-Gaussian_Fit_Ctrl[,1] <- unlist(Mean_Ctrl_Gbl_Max)
-Gaussian_Fit_Ctrl[,2] <- sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl),1), function(k) {min(abs(unlist(Mean_Ctrl_Gbl_Max[k,]) - which(Mean_Ctrl_Smooth_Norm_100[k,] <= max(Mean_Ctrl_Smooth_Norm_100[k,])/2)))/sqrt(2*log(2))})
-Gaussian_Fit_Ctrl[,3] <- apply(Mean_Ctrl_Smooth_Norm_100, 1, function(x) {max(x)})*sqrt(2*pi)*Gaussian_Fit_Ctrl[,2]
+# --> Schätzung der Werte für mu (Ctrl_Gauss_Fit[,1]), sd (Ctrl_Gauss_Fit[,2]) und h (Ctrl_Gauss_Fit[,3]) mit den oben beschriebenen Berechnungen (bei "3.1 Introduction") für alle Gene 
+Ctrl_Gauss_Fit[,1] <- unlist(Ctrl_Mean_Gbl_Max)
+Ctrl_Gauss_Fit[,2] <- sapply(seq(1, nrow(Ctrl_RDeep),1), function(k) {min(abs(unlist(Ctrl_Mean_Gbl_Max[k,]) - which(Ctrl_Mean_Smooth_Norm100[k,] <= max(Ctrl_Mean_Smooth_Norm100[k,])/2)))/sqrt(2*log(2))})
+Ctrl_Gauss_Fit[,3] <- apply(Ctrl_Mean_Smooth_Norm100, 1, function(x) {max(x)})*sqrt(2*pi)*Ctrl_Gauss_Fit[,2]
 
 
-# ---> Aufstellen und Optimieren der Funktion, die die Summe der quadratischen Abstände in Abhängigkeit von mu berechnet, über alle Gene und Abspeichern des resultierenden Vektors (enthält die jeweils optimierten Werte für mu über alle Gene) als erste Spalte von "Gaussian_Fit_Ctrl". 
-Gaussian_Fit_Ctrl[,1] <- sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
+# ---> Aufstellen und Optimieren der Funktion, die die Summe der quadratischen Abstände in Abhängigkeit von mu berechnet, über alle Gene und Abspeichern des resultierenden Vektors (enthält die jeweils optimierten Werte für mu über alle Gene) als erste Spalte von "Ctrl_Gauss_Fit". 
+Ctrl_Gauss_Fit[,1] <- sapply(seq(1, nrow(Ctrl_RDeep), 1), function(k) {
   
-mu_finder <- function(mu = Gaussian_Fit_Ctrl[k,1]) {sum((sapply(seq(1,25,1), function(n) {Gaussian_Fit_Ctrl[k,3]*(1/(Gaussian_Fit_Ctrl[k,2]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-mu)/Gaussian_Fit_Ctrl[k,2])^2)}) - unlist(Mean_Ctrl_Smooth_Norm_100[k,]))^2)}
+mu_finder <- function(mu = Ctrl_Gauss_Fit[k,1]) {sum((sapply(seq(1,25,1), function(n) {Ctrl_Gauss_Fit[k,3]*(1/(Ctrl_Gauss_Fit[k,2]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-mu)/Ctrl_Gauss_Fit[k,2])^2)}) - unlist(Ctrl_Mean_Smooth_Norm100[k,]))^2)}
 
-optimise(mu_finder, interval = c(Gaussian_Fit_Ctrl[k,1]-0.5, Gaussian_Fit_Ctrl[k,1]+0.5))$minimum})
+optimise(mu_finder, interval = c(Ctrl_Gauss_Fit[k,1]-0.5, Ctrl_Gauss_Fit[k,1]+0.5))$minimum})
 
 
 # ---> Wieder gleiches Spiel für sd und h
 
-Gaussian_Fit_Ctrl[,2] <- sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
+Ctrl_Gauss_Fit[,2] <- sapply(seq(1, nrow(Ctrl_RDeep), 1), function(k) {
 
-sd_finder <- function(sd = Gaussian_Fit_Ctrl[k,2]) {sum((sapply(seq(1,25,1), function(n) {Gaussian_Fit_Ctrl[k,3]*(1/(sd*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-Gaussian_Fit_Ctrl[k,1])/sd)^2)}) - unlist(Mean_Ctrl_Smooth_Norm_100[k,]))^2)}
+sd_finder <- function(sd = Ctrl_Gauss_Fit[k,2]) {sum((sapply(seq(1,25,1), function(n) {Ctrl_Gauss_Fit[k,3]*(1/(sd*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-Ctrl_Gauss_Fit[k,1])/sd)^2)}) - unlist(Ctrl_Mean_Smooth_Norm100[k,]))^2)}
 
-optimise(sd_finder, interval = c(0.8*Gaussian_Fit_Ctrl[k,2], 1.2*Gaussian_Fit_Ctrl[k,2]))$minimum})
+optimise(sd_finder, interval = c(0.8*Ctrl_Gauss_Fit[k,2], 1.2*Ctrl_Gauss_Fit[k,2]))$minimum})
 
 
-Gaussian_Fit_Ctrl[,3] <- sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl), 1), function(k) {
+Ctrl_Gauss_Fit[,3] <- sapply(seq(1, nrow(Ctrl_RDeep), 1), function(k) {
 
-h_finder <- function(h = Gaussian_Fit_Ctrl[k,3]) {sum((sapply(seq(1,25,1), function(n) {h*(1/(Gaussian_Fit_Ctrl[k,2]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-Gaussian_Fit_Ctrl[k,1])/Gaussian_Fit_Ctrl[k,2])^2)}) - unlist(Mean_Ctrl_Smooth_Norm_100[k,]))^2)}
+h_finder <- function(h = Ctrl_Gauss_Fit[k,3]) {sum((sapply(seq(1,25,1), function(n) {h*(1/(Ctrl_Gauss_Fit[k,2]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-Ctrl_Gauss_Fit[k,1])/Ctrl_Gauss_Fit[k,2])^2)}) - unlist(Ctrl_Mean_Smooth_Norm100[k,]))^2)}
 
-optimise(h_finder, interval = c(Gaussian_Fit_Ctrl[k,3]-5, Gaussian_Fit_Ctrl[k,3]+5))$minimum})
+optimise(h_finder, interval = c(Ctrl_Gauss_Fit[k,3]-5, Ctrl_Gauss_Fit[k,3]+5))$minimum})
 
 
 # --> Berechung des Protein-Anteils unterhalb der Gauß-Kurve im Intervall [0, 25] (Berechnung als pnorm(25) - pnorm(0) multipliziert mit h) über alle Gene und Abspeichern des resultierenden Vektors in der Spalte "prt_amount"
-Gaussian_Fit_Ctrl[,4] <- sapply(seq(1, nrow(RDeeP_HeLa_Interphase_Ctrl),1), function(k) {Gaussian_Fit_Ctrl[k,3] * (pnorm(25, mean = Gaussian_Fit_Ctrl[k,1], sd = Gaussian_Fit_Ctrl[k,2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[k,1], sd = Gaussian_Fit_Ctrl[k,2]))})
+Ctrl_Gauss_Fit[,4] <- sapply(seq(1, nrow(Ctrl_RDeep),1), function(k) {Ctrl_Gauss_Fit[k,3] * (pnorm(25, mean = Ctrl_Gauss_Fit[k,1], sd = Ctrl_Gauss_Fit[k,2]) - pnorm(0, mean = Ctrl_Gauss_Fit[k,1], sd = Ctrl_Gauss_Fit[k,2]))})
 
 
 # ---> Gleiches Spiel für die RNase Samples
-Gaussian_Fit_RNase = as.data.frame(matrix(rep(NA, nrow(RDeeP_HeLa_Interphase_RNase)*5), ncol = 5))
-colnames(Gaussian_Fit_RNase) = c("mu", "sd", "h", "prt_amount", "overlap")
-rownames(Gaussian_Fit_RNase) = rownames(RDeeP_HeLa_Interphase_RNase)
+RNase_Gauss_Fit = as.data.frame(matrix(rep(NA, nrow(RNase_RDeep)*5), ncol = 5))
+colnames(RNase_Gauss_Fit) = c("mu", "sd", "h", "prt_amount", "overlap")
+rownames(RNase_Gauss_Fit) = rownames(RNase_RDeep)
 
-Gaussian_Fit_RNase[,1] <- unlist(Mean_RNase_Gbl_Max)
-Gaussian_Fit_RNase[,2] <- sapply(seq(1, nrow(RDeeP_HeLa_Interphase_RNase),1), function(k) {min(abs(unlist(Mean_RNase_Gbl_Max[k,]) - which(Mean_RNase_Smooth_Norm_100[k,] <= max(Mean_RNase_Smooth_Norm_100[k,])/2)))/sqrt(2*log(2))})
-Gaussian_Fit_RNase[,3] <- apply(Mean_RNase_Smooth_Norm_100, 1, function(x) {max(x)})*sqrt(2*pi)*Gaussian_Fit_RNase[,2]
+RNase_Gauss_Fit[,1] <- unlist(RNase_Mean_Gbl_Max)
+RNase_Gauss_Fit[,2] <- sapply(seq(1, nrow(RNase_RDeep),1), function(k) {min(abs(unlist(RNase_Mean_Gbl_Max[k,]) - which(RNase_Mean_Smooth_Norm100[k,] <= max(RNase_Mean_Smooth_Norm100[k,])/2)))/sqrt(2*log(2))})
+RNase_Gauss_Fit[,3] <- apply(RNase_Mean_Smooth_Norm100, 1, function(x) {max(x)})*sqrt(2*pi)*RNase_Gauss_Fit[,2]
 
 
-Gaussian_Fit_RNase[,1] <- sapply(seq(1, nrow(RDeeP_HeLa_Interphase_RNase), 1), function(k) {
+RNase_Gauss_Fit[,1] <- sapply(seq(1, nrow(RNase_RDeep), 1), function(k) {
   
-mu_finder <- function(mu = Gaussian_Fit_RNase[k,1]) {sum((sapply(seq(1,25,1), function(n) {Gaussian_Fit_RNase[k,3]*(1/(Gaussian_Fit_RNase[k,2]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-mu)/Gaussian_Fit_RNase[k,2])^2)}) - unlist(Mean_RNase_Smooth_Norm_100[k,]))^2)}
+mu_finder <- function(mu = RNase_Gauss_Fit[k,1]) {sum((sapply(seq(1,25,1), function(n) {RNase_Gauss_Fit[k,3]*(1/(RNase_Gauss_Fit[k,2]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-mu)/RNase_Gauss_Fit[k,2])^2)}) - unlist(RNase_Mean_Smooth_Norm100[k,]))^2)}
 
-optimise(mu_finder, interval = c(Gaussian_Fit_RNase[k,1]-0.5, Gaussian_Fit_RNase[k,1]+0.5))$minimum})
-
-
-Gaussian_Fit_RNase[,2] <- sapply(seq(1, nrow(RDeeP_HeLa_Interphase_RNase), 1), function(k) {
-
-sd_finder <- function(sd = Gaussian_Fit_RNase[k,2]) {sum((sapply(seq(1,25,1), function(n) {Gaussian_Fit_RNase[k,3]*(1/(sd*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-Gaussian_Fit_RNase[k,1])/sd)^2)}) - unlist(Mean_RNase_Smooth_Norm_100[k,]))^2)}
-
-optimise(sd_finder, interval = c(0.8*Gaussian_Fit_RNase[k,2], 1.2*Gaussian_Fit_RNase[k,2]))$minimum})
+optimise(mu_finder, interval = c(RNase_Gauss_Fit[k,1]-0.5, RNase_Gauss_Fit[k,1]+0.5))$minimum})
 
 
-Gaussian_Fit_RNase[,3] <- sapply(seq(1, nrow(RDeeP_HeLa_Interphase_RNase), 1), function(k) {
+RNase_Gauss_Fit[,2] <- sapply(seq(1, nrow(RNase_RDeep), 1), function(k) {
 
-h_finder <- function(h = Gaussian_Fit_RNase[k,3]) {sum((sapply(seq(1,25,1), function(n) {h*(1/(Gaussian_Fit_RNase[k,2]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-Gaussian_Fit_RNase[k,1])/Gaussian_Fit_RNase[k,2])^2)}) - unlist(Mean_RNase_Smooth_Norm_100[k,]))^2)}
+sd_finder <- function(sd = RNase_Gauss_Fit[k,2]) {sum((sapply(seq(1,25,1), function(n) {RNase_Gauss_Fit[k,3]*(1/(sd*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-RNase_Gauss_Fit[k,1])/sd)^2)}) - unlist(RNase_Mean_Smooth_Norm100[k,]))^2)}
 
-optimise(h_finder, interval = c(Gaussian_Fit_RNase[k,3]-5, Gaussian_Fit_RNase[k,3]+5))$minimum})
+optimise(sd_finder, interval = c(0.8*RNase_Gauss_Fit[k,2], 1.2*RNase_Gauss_Fit[k,2]))$minimum})
 
 
-Gaussian_Fit_RNase[,4] <- sapply(seq(1, nrow(RDeeP_HeLa_Interphase_RNase),1), function(k) {Gaussian_Fit_RNase[k,3] * (pnorm(25, mean = Gaussian_Fit_RNase[k,1], sd = Gaussian_Fit_RNase[k,2]) - pnorm(0, mean = Gaussian_Fit_RNase[k,1], sd = Gaussian_Fit_RNase[k,2]))})
+RNase_Gauss_Fit[,3] <- sapply(seq(1, nrow(RNase_RDeep), 1), function(k) {
+
+h_finder <- function(h = RNase_Gauss_Fit[k,3]) {sum((sapply(seq(1,25,1), function(n) {h*(1/(RNase_Gauss_Fit[k,2]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-RNase_Gauss_Fit[k,1])/RNase_Gauss_Fit[k,2])^2)}) - unlist(RNase_Mean_Smooth_Norm100[k,]))^2)}
+
+optimise(h_finder, interval = c(RNase_Gauss_Fit[k,3]-5, RNase_Gauss_Fit[k,3]+5))$minimum})
+
+
+RNase_Gauss_Fit[,4] <- sapply(seq(1, nrow(RNase_RDeep),1), function(k) {RNase_Gauss_Fit[k,3] * (pnorm(25, mean = RNase_Gauss_Fit[k,1], sd = RNase_Gauss_Fit[k,2]) - pnorm(0, mean = RNase_Gauss_Fit[k,1], sd = RNase_Gauss_Fit[k,2]))})
 ```
 
 
@@ -964,17 +964,17 @@ These cases differ in their arrangement of the 2 gaussian curves and their numbe
   
 Note, that for the cases 6. - 9. it must also be consider whether or not x1 and x2 are inside or outside the interval [0, 25]. 
 
-The resulting overlap will be both stored in the data.frames **Gaussian_Fit_Ctrl** and **Gaussian_Fit_RNase** as the column **overlap**. 
+The resulting overlap will be both stored in the data.frames **Ctrl_Gauss_Fit** and **RNase_Gauss_Fit** as the column **overlap**. 
 
 ``` {r overlap, include=FALSE}
 # ---> Erstellen eines Vektors der so viele NA-values enthält, wie es Gene gibt
-overlap = rep(NA, nrow(RDeeP_HeLa_Interphase_Ctrl))
+overlap = rep(NA, nrow(Ctrl_RDeep))
 
 
 ################### 1. sd1 = sd2, mu1 = mu2, h1 = h2
 
-# ---> "gX" ist jeweils ein Vektor, der die Reihen (Genpositionen) enthält, für die die Bedingungen (je nach Fall) wahr sind (überprüft im Data.frame "Gaussian_Fit_Ctrl")
-g1 = which(Gaussian_Fit_Ctrl[, 2] == Gaussian_Fit_RNase[, 2] & Gaussian_Fit_Ctrl[, 1] == Gaussian_Fit_RNase[, 1] & Gaussian_Fit_Ctrl[, 3] == Gaussian_Fit_RNase[, 3])
+# ---> "gX" ist jeweils ein Vektor, der die Reihen (Genpositionen) enthält, für die die Bedingungen (je nach Fall) wahr sind (überprüft im Data.frame "Ctrl_Gauss_Fit")
+g1 = which(Ctrl_Gauss_Fit[, 2] == RNase_Gauss_Fit[, 2] & Ctrl_Gauss_Fit[, 1] == RNase_Gauss_Fit[, 1] & Ctrl_Gauss_Fit[, 3] == RNase_Gauss_Fit[, 3])
 
 # ---> Nachdem die Reihen identifiziert wurden, die sich dem entsprechenden Fall zuordnen lassen, werden diese Positionen im Vektor "overlap" durch die entsprechende berechnete prozentuale Überschneidung der Gaußkurven ersetzt (im 1. Fall sehr einfach, da beide Gaußkurven identisch sind und somit overlap = 1 ist)
 overlap[g1] = 1
@@ -983,51 +983,51 @@ overlap[g1] = 1
 ################### 2. sd1 = sd2, mu1 > mu2, h1 = h2 | h1 < h2 | h1 > h2
 
 # ---> Gleiches, wie bei g1, nur, dass andere Bedingungen (für 2. Fall) angewendet werden
-g2 = which(Gaussian_Fit_Ctrl[, 2] == Gaussian_Fit_RNase[, 2] & Gaussian_Fit_Ctrl[, 1] > Gaussian_Fit_RNase[, 1])
+g2 = which(Ctrl_Gauss_Fit[, 2] == RNase_Gauss_Fit[, 2] & Ctrl_Gauss_Fit[, 1] > RNase_Gauss_Fit[, 1])
 
 # ---> Berechnung der Schnittpunkte der Gaußkurven über alle Gene, auf die der 2. Fall zutrifft (mathematische Formel per Hand aufgestellt)
-x = ((Gaussian_Fit_Ctrl[g2, 2])^(2) * log(Gaussian_Fit_Ctrl[g2, 3]/Gaussian_Fit_RNase[g2, 3]))/(Gaussian_Fit_RNase[g2, 1] -  Gaussian_Fit_Ctrl[g2, 1]) + (Gaussian_Fit_RNase[g2, 1] + Gaussian_Fit_Ctrl[g2, 1])/2
+x = ((Ctrl_Gauss_Fit[g2, 2])^(2) * log(Ctrl_Gauss_Fit[g2, 3]/RNase_Gauss_Fit[g2, 3]))/(RNase_Gauss_Fit[g2, 1] -  Ctrl_Gauss_Fit[g2, 1]) + (RNase_Gauss_Fit[g2, 1] + Ctrl_Gauss_Fit[g2, 1])/2
 
 # ---> Wieder Ersetzen der Positionen im vektor "overlap" durch die prozentualen Werte für die Überschneidung der Gaußkurven (berechnet mithilfe von pnorm())
 overlap[g2] = sapply(seq(1,length(g2),1), function(k) {
-  (Gaussian_Fit_Ctrl[g2[k], 3] * (pnorm(x[k], mean = Gaussian_Fit_Ctrl[g2[k], 1], sd = Gaussian_Fit_Ctrl[g2[k], 2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[g2[k], 1], sd = Gaussian_Fit_Ctrl[g2[k], 2])) + Gaussian_Fit_RNase[g2[k], 3] * (pnorm(25, mean = Gaussian_Fit_RNase[g2[k], 1], sd = Gaussian_Fit_RNase[g2[k], 2]) - pnorm(x[k], mean = Gaussian_Fit_RNase[g2[k], 1], sd = Gaussian_Fit_RNase[g2[k], 2])))/((Gaussian_Fit_Ctrl[g2[k], 4] + Gaussian_Fit_RNase[g2[k], 4])/2)
+  (Ctrl_Gauss_Fit[g2[k], 3] * (pnorm(x[k], mean = Ctrl_Gauss_Fit[g2[k], 1], sd = Ctrl_Gauss_Fit[g2[k], 2]) - pnorm(0, mean = Ctrl_Gauss_Fit[g2[k], 1], sd = Ctrl_Gauss_Fit[g2[k], 2])) + RNase_Gauss_Fit[g2[k], 3] * (pnorm(25, mean = RNase_Gauss_Fit[g2[k], 1], sd = RNase_Gauss_Fit[g2[k], 2]) - pnorm(x[k], mean = RNase_Gauss_Fit[g2[k], 1], sd = RNase_Gauss_Fit[g2[k], 2])))/((Ctrl_Gauss_Fit[g2[k], 4] + RNase_Gauss_Fit[g2[k], 4])/2)
 })
 
 
 # ---> Fast identisches Vorgehen für die Fälle 3 bis 9 (ABER: 1. Wenn die eine Gaußkurve komplett in der anderen liegt (Fälle 4 und 5 und potentiell 7 und 9), wird die prozentuale Überschneidung berechnet, indem die Fläche unter der Gaußkurve, die in der anderen Gaußkurve liegt, dividiert wird durch den Mittelwert beider Flächen unter den Gaußkurven & 2. Sobald sich die Standardabweichungen unterscheiden (Fälle 6 bis 9) gibt es jeweils potentiell 2 Schnittpunkte (diese werden mit der abc-Formel berechnet), zudem muss geschaut werden, ob die Schnittpunkte außerhalb des Intervalls [0, 25] liegen (da sich dann wieder die Berechnung der prozentualen Überschneidung verändert))
 
 ################### 3. sd1 = sd2, mu1 < mu2, h1 = h2 | h1 < h2 | h1 > h2
-g3 = which(Gaussian_Fit_Ctrl[, 2] == Gaussian_Fit_RNase[, 2] & Gaussian_Fit_Ctrl[, 1] < Gaussian_Fit_RNase[, 1])
+g3 = which(Ctrl_Gauss_Fit[, 2] == RNase_Gauss_Fit[, 2] & Ctrl_Gauss_Fit[, 1] < RNase_Gauss_Fit[, 1])
 
-x = ((Gaussian_Fit_Ctrl[g3, 2])^(2) * log(Gaussian_Fit_Ctrl[g3, 3]/Gaussian_Fit_RNase[g3, 3]))/(Gaussian_Fit_RNase[g3, 1] -  Gaussian_Fit_Ctrl[g3, 1]) + (Gaussian_Fit_RNase[g3, 1] + Gaussian_Fit_Ctrl[g3, 1])/2
+x = ((Ctrl_Gauss_Fit[g3, 2])^(2) * log(Ctrl_Gauss_Fit[g3, 3]/RNase_Gauss_Fit[g3, 3]))/(RNase_Gauss_Fit[g3, 1] -  Ctrl_Gauss_Fit[g3, 1]) + (RNase_Gauss_Fit[g3, 1] + Ctrl_Gauss_Fit[g3, 1])/2
 
 overlap[g3] = sapply(seq(1,length(g3),1), function(k) {
-  (Gaussian_Fit_RNase[g3[k], 3] * (pnorm(x[k], mean = Gaussian_Fit_RNase[g3[k], 1], sd = Gaussian_Fit_RNase[g3[k], 2]) - pnorm(0, mean = Gaussian_Fit_RNase[g3[k], 1], sd = Gaussian_Fit_RNase[g3[k], 2])) + Gaussian_Fit_Ctrl[g3[k], 3] * (pnorm(25, mean = Gaussian_Fit_Ctrl[g3[k], 1], sd = Gaussian_Fit_Ctrl[g3[k], 2]) - pnorm(x[k], mean = Gaussian_Fit_Ctrl[g3[k], 1], sd = Gaussian_Fit_Ctrl[g3[k], 2])))/((Gaussian_Fit_Ctrl[g3[k], 4] + Gaussian_Fit_RNase[g3[k], 4])/2)
+  (RNase_Gauss_Fit[g3[k], 3] * (pnorm(x[k], mean = RNase_Gauss_Fit[g3[k], 1], sd = RNase_Gauss_Fit[g3[k], 2]) - pnorm(0, mean = RNase_Gauss_Fit[g3[k], 1], sd = RNase_Gauss_Fit[g3[k], 2])) + Ctrl_Gauss_Fit[g3[k], 3] * (pnorm(25, mean = Ctrl_Gauss_Fit[g3[k], 1], sd = Ctrl_Gauss_Fit[g3[k], 2]) - pnorm(x[k], mean = Ctrl_Gauss_Fit[g3[k], 1], sd = Ctrl_Gauss_Fit[g3[k], 2])))/((Ctrl_Gauss_Fit[g3[k], 4] + RNase_Gauss_Fit[g3[k], 4])/2)
 })
 
 
 ################### 4. sd1 = sd2, mu1 = mu2, h1 > h2
-g4 = which(Gaussian_Fit_Ctrl[, 2] == Gaussian_Fit_RNase[, 2] & Gaussian_Fit_Ctrl[, 1] == Gaussian_Fit_RNase[, 1] & Gaussian_Fit_Ctrl[, 3] > Gaussian_Fit_RNase[, 3])
+g4 = which(Ctrl_Gauss_Fit[, 2] == RNase_Gauss_Fit[, 2] & Ctrl_Gauss_Fit[, 1] == RNase_Gauss_Fit[, 1] & Ctrl_Gauss_Fit[, 3] > RNase_Gauss_Fit[, 3])
 
 overlap[g4] = sapply(seq(1, length(g4), 1), function(k) {
-  (Gaussian_Fit_RNase[g4[k], 4])/((Gaussian_Fit_Ctrl[g4[k], 4] + Gaussian_Fit_RNase[g4[k], 4])/2)
+  (RNase_Gauss_Fit[g4[k], 4])/((Ctrl_Gauss_Fit[g4[k], 4] + RNase_Gauss_Fit[g4[k], 4])/2)
 })
 
 
 ################### 5. sd1 = sd2, mu1 = mu2, h1 < h2
-g5 = which(Gaussian_Fit_Ctrl[, 2] == Gaussian_Fit_RNase[, 2] & Gaussian_Fit_Ctrl[, 1] == Gaussian_Fit_RNase[, 1] & Gaussian_Fit_Ctrl[, 3] < Gaussian_Fit_RNase[, 3])
+g5 = which(Ctrl_Gauss_Fit[, 2] == RNase_Gauss_Fit[, 2] & Ctrl_Gauss_Fit[, 1] == RNase_Gauss_Fit[, 1] & Ctrl_Gauss_Fit[, 3] < RNase_Gauss_Fit[, 3])
 
 overlap[g5] = sapply(seq(1, length(g5), 1), function(k) {
-  (Gaussian_Fit_Ctrl[g5[k], 4])/((Gaussian_Fit_Ctrl[g5[k], 4] + Gaussian_Fit_RNase[g5[k], 4])/2)
+  (Ctrl_Gauss_Fit[g5[k], 4])/((Ctrl_Gauss_Fit[g5[k], 4] + RNase_Gauss_Fit[g5[k], 4])/2)
 })
 
 
 ################### 6. sd1 > sd2, mu1 = mu2 | mu1 > mu2 | mu1 < mu2, h1 = h2 | h1 < h2
-g6 = which(Gaussian_Fit_Ctrl[, 2] > Gaussian_Fit_RNase[, 2] & Gaussian_Fit_Ctrl[, 3] <= Gaussian_Fit_RNase[, 3])
+g6 = which(Ctrl_Gauss_Fit[, 2] > RNase_Gauss_Fit[, 2] & Ctrl_Gauss_Fit[, 3] <= RNase_Gauss_Fit[, 3])
 
-a = (1/(Gaussian_Fit_Ctrl[g6,2])^2 - 1/(Gaussian_Fit_RNase[g6,2])^2)
-b = 2 * ((Gaussian_Fit_RNase[g6,1])/(Gaussian_Fit_RNase[g6,2])^2 - (Gaussian_Fit_Ctrl[g6,1])/(Gaussian_Fit_Ctrl[g6,2])^2)
-c = (Gaussian_Fit_Ctrl[g6,1]/Gaussian_Fit_Ctrl[g6,2])^2 - (Gaussian_Fit_RNase[g6,1]/Gaussian_Fit_RNase[g6,2])^2 - 2 * log((Gaussian_Fit_Ctrl[g6,3] * Gaussian_Fit_RNase[g6,2])/(Gaussian_Fit_RNase[g6,3] * Gaussian_Fit_Ctrl[g6,2]))
+a = (1/(Ctrl_Gauss_Fit[g6,2])^2 - 1/(RNase_Gauss_Fit[g6,2])^2)
+b = 2 * ((RNase_Gauss_Fit[g6,1])/(RNase_Gauss_Fit[g6,2])^2 - (Ctrl_Gauss_Fit[g6,1])/(Ctrl_Gauss_Fit[g6,2])^2)
+c = (Ctrl_Gauss_Fit[g6,1]/Ctrl_Gauss_Fit[g6,2])^2 - (RNase_Gauss_Fit[g6,1]/RNase_Gauss_Fit[g6,2])^2 - 2 * log((Ctrl_Gauss_Fit[g6,3] * RNase_Gauss_Fit[g6,2])/(RNase_Gauss_Fit[g6,3] * Ctrl_Gauss_Fit[g6,2]))
 
 x1 = (- b - sqrt(b^(2) - 4 * a * c))/(2 * a)
 x2 = (- b + sqrt(b^(2) - 4 * a * c))/(2 * a)
@@ -1035,28 +1035,28 @@ x2 = (- b + sqrt(b^(2) - 4 * a * c))/(2 * a)
 u1 = g6[which(x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)]
 u2 = which(x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)
 overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
-  (Gaussian_Fit_RNase[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) + pnorm(25, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])) + Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+  (RNase_Gauss_Fit[u1[k], 3] * (pnorm(x2[u2[k]], mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2]) - pnorm(0, mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2]) + pnorm(25, mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2]) - pnorm(x1[u2[k]], mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2])) + Ctrl_Gauss_Fit[u1[k], 3] * (pnorm(x1[u2[k]], mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2]) - pnorm(x2[u2[k]], mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2])))/((Ctrl_Gauss_Fit[u1[k], 4] + RNase_Gauss_Fit[u1[k], 4])/2)
 })
 
 u1 = g6[which(x1 > 25)]
 u2 = which(x1 > 25)
 overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
-  (Gaussian_Fit_RNase[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])) + Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(25, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+  (RNase_Gauss_Fit[u1[k], 3] * (pnorm(x2[u2[k]], mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2]) - pnorm(0, mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2])) + Ctrl_Gauss_Fit[u1[k], 3] * (pnorm(25, mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2]) - pnorm(x2[u2[k]], mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2])))/((Ctrl_Gauss_Fit[u1[k], 4] + RNase_Gauss_Fit[u1[k], 4])/2)
 })
 
 u1 = g6[which(x2 < 0)]
 u2 = which(x2 < 0)
 overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
-  (Gaussian_Fit_RNase[u1[k], 3] * (pnorm(25, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])) + Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+  (RNase_Gauss_Fit[u1[k], 3] * (pnorm(25, mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2]) - pnorm(x1[u2[k]], mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2])) + Ctrl_Gauss_Fit[u1[k], 3] * (pnorm(x1[u2[k]], mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2]) - pnorm(0, mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2])))/((Ctrl_Gauss_Fit[u1[k], 4] + RNase_Gauss_Fit[u1[k], 4])/2)
 })
 
 
 ################### 7. sd1 > sd2, mu1 = mu2 | mu1 > mu2 | mu1 < mu2, h1 > h2
-g7 = which(Gaussian_Fit_Ctrl[, 2] > Gaussian_Fit_RNase[, 2] & Gaussian_Fit_Ctrl[, 3] > Gaussian_Fit_RNase[, 3])
+g7 = which(Ctrl_Gauss_Fit[, 2] > RNase_Gauss_Fit[, 2] & Ctrl_Gauss_Fit[, 3] > RNase_Gauss_Fit[, 3])
 
-a = (1/(Gaussian_Fit_Ctrl[g7,2])^2 - 1/(Gaussian_Fit_RNase[g7,2])^2)
-b = 2 * ((Gaussian_Fit_RNase[g7,1])/(Gaussian_Fit_RNase[g7,2])^2 - (Gaussian_Fit_Ctrl[g7,1])/(Gaussian_Fit_Ctrl[g7,2])^2)
-c = (Gaussian_Fit_Ctrl[g7,1]/Gaussian_Fit_Ctrl[g7,2])^2 - (Gaussian_Fit_RNase[g7,1]/Gaussian_Fit_RNase[g7,2])^2 - 2 * log((Gaussian_Fit_Ctrl[g7,3] * Gaussian_Fit_RNase[g7,2])/(Gaussian_Fit_RNase[g7,3] * Gaussian_Fit_Ctrl[g7,2]))
+a = (1/(Ctrl_Gauss_Fit[g7,2])^2 - 1/(RNase_Gauss_Fit[g7,2])^2)
+b = 2 * ((RNase_Gauss_Fit[g7,1])/(RNase_Gauss_Fit[g7,2])^2 - (Ctrl_Gauss_Fit[g7,1])/(Ctrl_Gauss_Fit[g7,2])^2)
+c = (Ctrl_Gauss_Fit[g7,1]/Ctrl_Gauss_Fit[g7,2])^2 - (RNase_Gauss_Fit[g7,1]/RNase_Gauss_Fit[g7,2])^2 - 2 * log((Ctrl_Gauss_Fit[g7,3] * RNase_Gauss_Fit[g7,2])/(RNase_Gauss_Fit[g7,3] * Ctrl_Gauss_Fit[g7,2]))
 
 x1 = (- b - sqrt(b^(2) - 4 * a * c))/(2 * a)
 x2 = (- b + sqrt(b^(2) - 4 * a * c))/(2 * a)
@@ -1064,34 +1064,34 @@ x2 = (- b + sqrt(b^(2) - 4 * a * c))/(2 * a)
 u1 = g7[which(!is.nan(x1) & x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)]
 u2 = which(!is.nan(x1) & x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)
 overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
-  (Gaussian_Fit_RNase[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) + pnorm(25, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])) + Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+  (RNase_Gauss_Fit[u1[k], 3] * (pnorm(x2[u2[k]], mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2]) - pnorm(0, mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2]) + pnorm(25, mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2]) - pnorm(x1[u2[k]], mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2])) + Ctrl_Gauss_Fit[u1[k], 3] * (pnorm(x1[u2[k]], mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2]) - pnorm(x2[u2[k]], mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2])))/((Ctrl_Gauss_Fit[u1[k], 4] + RNase_Gauss_Fit[u1[k], 4])/2)
 })
 
 u1 = g7[which(!is.nan(x1) & x1 > 25)]
 u2 = which(!is.nan(x1) & x1 > 25)
 overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
-  (Gaussian_Fit_RNase[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])) + Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(25, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+  (RNase_Gauss_Fit[u1[k], 3] * (pnorm(x2[u2[k]], mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2]) - pnorm(0, mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2])) + Ctrl_Gauss_Fit[u1[k], 3] * (pnorm(25, mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2]) - pnorm(x2[u2[k]], mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2])))/((Ctrl_Gauss_Fit[u1[k], 4] + RNase_Gauss_Fit[u1[k], 4])/2)
 })
 
 u1 = g7[which(!is.nan(x1) & x2 < 0)]
 u2 = which(!is.nan(x1) & x2 < 0)
 overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
-  (Gaussian_Fit_RNase[u1[k], 3] * (pnorm(25, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])) + Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+  (RNase_Gauss_Fit[u1[k], 3] * (pnorm(25, mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2]) - pnorm(x1[u2[k]], mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2])) + Ctrl_Gauss_Fit[u1[k], 3] * (pnorm(x1[u2[k]], mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2]) - pnorm(0, mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2])))/((Ctrl_Gauss_Fit[u1[k], 4] + RNase_Gauss_Fit[u1[k], 4])/2)
 })
 
 u1 = g7[which(is.nan(x1))]
 u2 = which(is.nan(x1))
 overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
-  (Gaussian_Fit_RNase[u1[k], 4])/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+  (RNase_Gauss_Fit[u1[k], 4])/((Ctrl_Gauss_Fit[u1[k], 4] + RNase_Gauss_Fit[u1[k], 4])/2)
 })
 
 
 ################### 8. sd1 < sd2, mu1 = mu2 | mu1 > mu2 | mu1 < mu2, h1 = h2 | h1 > h2
-g8 = which(Gaussian_Fit_Ctrl[, 2] < Gaussian_Fit_RNase[, 2] & Gaussian_Fit_Ctrl[, 3] >= Gaussian_Fit_RNase[, 3])
+g8 = which(Ctrl_Gauss_Fit[, 2] < RNase_Gauss_Fit[, 2] & Ctrl_Gauss_Fit[, 3] >= RNase_Gauss_Fit[, 3])
 
-a = (1/(Gaussian_Fit_Ctrl[g8,2])^2 - 1/(Gaussian_Fit_RNase[g8,2])^2)
-b = 2 * ((Gaussian_Fit_RNase[g8,1])/(Gaussian_Fit_RNase[g8,2])^2 - (Gaussian_Fit_Ctrl[g8,1])/(Gaussian_Fit_Ctrl[g8,2])^2)
-c = (Gaussian_Fit_Ctrl[g8,1]/Gaussian_Fit_Ctrl[g8,2])^2 - (Gaussian_Fit_RNase[g8,1]/Gaussian_Fit_RNase[g8,2])^2 - 2 * log((Gaussian_Fit_Ctrl[g8,3] * Gaussian_Fit_RNase[g8,2])/(Gaussian_Fit_RNase[g8,3] * Gaussian_Fit_Ctrl[g8,2]))
+a = (1/(Ctrl_Gauss_Fit[g8,2])^2 - 1/(RNase_Gauss_Fit[g8,2])^2)
+b = 2 * ((RNase_Gauss_Fit[g8,1])/(RNase_Gauss_Fit[g8,2])^2 - (Ctrl_Gauss_Fit[g8,1])/(Ctrl_Gauss_Fit[g8,2])^2)
+c = (Ctrl_Gauss_Fit[g8,1]/Ctrl_Gauss_Fit[g8,2])^2 - (RNase_Gauss_Fit[g8,1]/RNase_Gauss_Fit[g8,2])^2 - 2 * log((Ctrl_Gauss_Fit[g8,3] * RNase_Gauss_Fit[g8,2])/(RNase_Gauss_Fit[g8,3] * Ctrl_Gauss_Fit[g8,2]))
 
 x2 = (- b - sqrt(b^(2) - 4 * a * c))/(2 * a)
 x1 = (- b + sqrt(b^(2) - 4 * a * c))/(2 * a)
@@ -1099,28 +1099,28 @@ x1 = (- b + sqrt(b^(2) - 4 * a * c))/(2 * a)
 u1 = g8[which(x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)]
 u2 = which(x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)
 overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
-  (Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) + pnorm(25, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])) + Gaussian_Fit_RNase[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+  (Ctrl_Gauss_Fit[u1[k], 3] * (pnorm(x2[u2[k]], mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2]) - pnorm(0, mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2]) + pnorm(25, mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2]) - pnorm(x1[u2[k]], mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2])) + RNase_Gauss_Fit[u1[k], 3] * (pnorm(x1[u2[k]], mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2]) - pnorm(x2[u2[k]], mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2])))/((Ctrl_Gauss_Fit[u1[k], 4] + RNase_Gauss_Fit[u1[k], 4])/2)
 })
 
 u1 = g8[which(x1 > 25)]
 u2 = which(x1 > 25)
 overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
-  (Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])) + Gaussian_Fit_RNase[u1[k], 3] * (pnorm(25, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+  (Ctrl_Gauss_Fit[u1[k], 3] * (pnorm(x2[u2[k]], mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2]) - pnorm(0, mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2])) + RNase_Gauss_Fit[u1[k], 3] * (pnorm(25, mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2]) - pnorm(x2[u2[k]], mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2])))/((Ctrl_Gauss_Fit[u1[k], 4] + RNase_Gauss_Fit[u1[k], 4])/2)
 })
 
 u1 = g8[which(x2 < 0)]
 u2 = which(x2 < 0)
 overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
-  (Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(25, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])) + Gaussian_Fit_RNase[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])))/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+  (Ctrl_Gauss_Fit[u1[k], 3] * (pnorm(25, mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2]) - pnorm(x1[u2[k]], mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2])) + RNase_Gauss_Fit[u1[k], 3] * (pnorm(x1[u2[k]], mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2]) - pnorm(0, mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2])))/((Ctrl_Gauss_Fit[u1[k], 4] + RNase_Gauss_Fit[u1[k], 4])/2)
 })
 
 
 ################### 9. sd1 < sd2, mu1 = mu2 | mu1 > mu2 | mu1 < mu2, h1 < h2
-g9 = which(Gaussian_Fit_Ctrl[, 2] < Gaussian_Fit_RNase[, 2] & Gaussian_Fit_Ctrl[, 3] < Gaussian_Fit_RNase[, 3])
+g9 = which(Ctrl_Gauss_Fit[, 2] < RNase_Gauss_Fit[, 2] & Ctrl_Gauss_Fit[, 3] < RNase_Gauss_Fit[, 3])
 
-a = (1/(Gaussian_Fit_Ctrl[g9,2])^2 - 1/(Gaussian_Fit_RNase[g9,2])^2)
-b = 2 * ((Gaussian_Fit_RNase[g9,1])/(Gaussian_Fit_RNase[g9,2])^2 - (Gaussian_Fit_Ctrl[g9,1])/(Gaussian_Fit_Ctrl[g9,2])^2)
-c = (Gaussian_Fit_Ctrl[g9,1]/Gaussian_Fit_Ctrl[g9,2])^2 - (Gaussian_Fit_RNase[g9,1]/Gaussian_Fit_RNase[g9,2])^2 - 2 * log((Gaussian_Fit_Ctrl[g9,3] * Gaussian_Fit_RNase[g9,2])/(Gaussian_Fit_RNase[g9,3] * Gaussian_Fit_Ctrl[g9,2]))
+a = (1/(Ctrl_Gauss_Fit[g9,2])^2 - 1/(RNase_Gauss_Fit[g9,2])^2)
+b = 2 * ((RNase_Gauss_Fit[g9,1])/(RNase_Gauss_Fit[g9,2])^2 - (Ctrl_Gauss_Fit[g9,1])/(Ctrl_Gauss_Fit[g9,2])^2)
+c = (Ctrl_Gauss_Fit[g9,1]/Ctrl_Gauss_Fit[g9,2])^2 - (RNase_Gauss_Fit[g9,1]/RNase_Gauss_Fit[g9,2])^2 - 2 * log((Ctrl_Gauss_Fit[g9,3] * RNase_Gauss_Fit[g9,2])/(RNase_Gauss_Fit[g9,3] * Ctrl_Gauss_Fit[g9,2]))
 
 x2 = (- b - sqrt(b^(2) - 4 * a * c))/(2 * a)
 x1 = (- b + sqrt(b^(2) - 4 * a * c))/(2 * a)
@@ -1128,47 +1128,47 @@ x1 = (- b + sqrt(b^(2) - 4 * a * c))/(2 * a)
 u1 = g9[which(!is.nan(x1) & x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)]
 u2 = which(!is.nan(x1) & x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)
 overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
-  (Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) + pnorm(25, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])) + Gaussian_Fit_RNase[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])))/((Gaussian_Fit_RNase[u1[k], 4] + Gaussian_Fit_Ctrl[u1[k], 4])/2)
+  (Ctrl_Gauss_Fit[u1[k], 3] * (pnorm(x2[u2[k]], mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2]) - pnorm(0, mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2]) + pnorm(25, mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2]) - pnorm(x1[u2[k]], mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2])) + RNase_Gauss_Fit[u1[k], 3] * (pnorm(x1[u2[k]], mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2]) - pnorm(x2[u2[k]], mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2])))/((RNase_Gauss_Fit[u1[k], 4] + Ctrl_Gauss_Fit[u1[k], 4])/2)
 })
 
 u1 = g9[which(!is.nan(x1) & x1 > 25)]
 u2 = which(!is.nan(x1) & x1 > 25)
 overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
-  (Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])) + Gaussian_Fit_RNase[u1[k], 3] * (pnorm(25, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])))/((Gaussian_Fit_RNase[u1[k], 4] + Gaussian_Fit_Ctrl[u1[k], 4])/2)
+  (Ctrl_Gauss_Fit[u1[k], 3] * (pnorm(x2[u2[k]], mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2]) - pnorm(0, mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2])) + RNase_Gauss_Fit[u1[k], 3] * (pnorm(25, mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2]) - pnorm(x2[u2[k]], mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2])))/((RNase_Gauss_Fit[u1[k], 4] + Ctrl_Gauss_Fit[u1[k], 4])/2)
 })
 
 u1 = g9[which(!is.nan(x1) & x2 < 0)]
 u2 = which(!is.nan(x1) & x2 < 0)
 overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
-  (Gaussian_Fit_Ctrl[u1[k], 3] * (pnorm(25, mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gaussian_Fit_Ctrl[u1[k], 1], sd = Gaussian_Fit_Ctrl[u1[k], 2])) + Gaussian_Fit_RNase[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2]) - pnorm(0, mean = Gaussian_Fit_RNase[u1[k], 1], sd = Gaussian_Fit_RNase[u1[k], 2])))/((Gaussian_Fit_RNase[u1[k], 4] + Gaussian_Fit_Ctrl[u1[k], 4])/2)
+  (Ctrl_Gauss_Fit[u1[k], 3] * (pnorm(25, mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2]) - pnorm(x1[u2[k]], mean = Ctrl_Gauss_Fit[u1[k], 1], sd = Ctrl_Gauss_Fit[u1[k], 2])) + RNase_Gauss_Fit[u1[k], 3] * (pnorm(x1[u2[k]], mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2]) - pnorm(0, mean = RNase_Gauss_Fit[u1[k], 1], sd = RNase_Gauss_Fit[u1[k], 2])))/((RNase_Gauss_Fit[u1[k], 4] + Ctrl_Gauss_Fit[u1[k], 4])/2)
 })
 
 u1 = g9[which(is.nan(x1))]
 u2 = which(is.nan(x1))
 overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
-  (Gaussian_Fit_Ctrl[u1[k], 4])/((Gaussian_Fit_Ctrl[u1[k], 4] + Gaussian_Fit_RNase[u1[k], 4])/2)
+  (Ctrl_Gauss_Fit[u1[k], 4])/((Ctrl_Gauss_Fit[u1[k], 4] + RNase_Gauss_Fit[u1[k], 4])/2)
 })
 
-Gaussian_Fit_Ctrl[, 5] = overlap 
-Gaussian_Fit_RNase[, 5] = overlap
+Ctrl_Gauss_Fit[, 5] = overlap 
+RNase_Gauss_Fit[, 5] = overlap
 
 rm(g1, g2, g3, g4, g5, g6, g7, g8, g9, u1, u2, a, b, c, x, x1, x2, overlap)
 ```
 
 ##### 3.5 Summary of Collected Data in one Dataframe
 
-We will now summarize all this collected data (global and local peak positions, gaussian fit and overlap) in one dataframe "**Sel_Cri**" (for *Selection Criteria*). 
+We will now summarize all this collected data (global and local peak positions, gaussian fit and overlap) in one dataframe "**Sel_Crit**" (for *Selection Criteria*). 
 
 ```{r}
-Sel_Cri = cbind(
+Sel_Crit = cbind(
   Mean_Gbl_Max,
-  Gaussian_Fit_Ctrl[, 1:4],
-  Gaussian_Fit_RNase,
-  as.matrix(sapply(seq(1, nrow(Mean_Ctrl_Loc_Max), 1), function(k) {unlist(Mean_Ctrl_Loc_Max[k, which(!is.na(Mean_Ctrl_Loc_Max[k,]))], use.names = F)})),
-  as.matrix(sapply(seq(1, nrow(Mean_RNase_Loc_Max), 1), function(k) {unlist(Mean_RNase_Loc_Max[k, which(!is.na(Mean_RNase_Loc_Max[k,]))], use.names = F)}))
+  Ctrl_Gauss_Fit[, 1:4],
+  RNase_Gauss_Fit,
+  as.matrix(sapply(seq(1, nrow(Ctrl_Mean_Loc_Max), 1), function(k) {unlist(Ctrl_Mean_Loc_Max[k, which(!is.na(Ctrl_Mean_Loc_Max[k,]))], use.names = F)})),
+  as.matrix(sapply(seq(1, nrow(RNase_Mean_Loc_Max), 1), function(k) {unlist(RNase_Mean_Loc_Max[k, which(!is.na(RNase_Mean_Loc_Max[k,]))], use.names = F)}))
   )
 
-colnames(Sel_Cri) <- c("Ctrl_Gbl_Max", "RNase_Gbl_Max", "Ctrl_mu", "Ctrl_sd", "Ctrl_h", "Ctrl_prt_amount", "RNase_mu", "RNase_sd", "RNase_h", "RNase_prt_amount", "overlap", "Ctrl_Loc_Max", "RNase_Loc_Max")
+colnames(Sel_Crit) <- c("Ctrl_Gbl_Max", "RNase_Gbl_Max", "Ctrl_mu", "Ctrl_sd", "Ctrl_h", "Ctrl_prt_amount", "RNase_mu", "RNase_sd", "RNase_h", "RNase_prt_amount", "overlap", "Ctrl_Loc_Max", "RNase_Loc_Max")
 ```
 
 
@@ -1209,63 +1209,63 @@ if(Type[k] == "Smooth and Norm" & (Ctrl == T | RNase == T)) {
 par(mar=c(5, 4, 4, 7), xpd=F)
   
 plot(1:25, rep(NA, 25),xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(gene.name[j], "(Smoothed and Normalized)"), ylim=c(0, 1.1 * max(
-  if(Ctrl == T) {max(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name[j]),])}, 
-  if(RNase == T) {max(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name[j]),])}
+  if(Ctrl == T) {max(Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
+  if(RNase == T) {max(RNase_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])}
   )))
 
 if(grid == T) {grid()}
 
 if(Gbl.Max == T & Ctrl == T) {
-segments(unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]), 
+segments(unlist(Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]), 
          -1, 
-         unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]), 
-         Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name[j]), unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name[j]),])], 
+         unlist(Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]), 
+         Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]), unlist(Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name[j]),])], 
          lwd=3,col=col[1],lty=2)}
   
-if(Loc.Max == T & Ctrl == T & !is.null(unlist(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))]))) {
-segments(unlist(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))]), 
+if(Loc.Max == T & Ctrl == T & !is.null(unlist(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))]))) {
+segments(unlist(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))]), 
          -1, 
-         unlist(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))]), 
-         unlist(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name[j]), which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))]), 
+         unlist(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))]), 
+         unlist(Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]), which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))]), 
          lwd=3,col=col[1],lty=2)}
 
 if(Ctrl == T) {    
-lines(1:25, Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name[j]),], type="l", lwd=3, col = col[1])}
+lines(1:25, Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),], type="l", lwd=3, col = col[1])}
   
 if(Gbl.Max == T & RNase == T) {
-  segments(unlist(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name[j]),]), 
+  segments(unlist(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]),]), 
          -1, 
-         unlist(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name[j]),]), 
-         Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name[j]), unlist(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name[j]),])], 
+         unlist(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]),]), 
+         RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name[j]), unlist(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]),])], 
          lwd=3,col=col[2],lty=3)}
   
-if(Loc.Max == T & RNase == T & !is.null(unlist(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))]))) {
-segments(unlist(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))]), 
+if(Loc.Max == T & RNase == T & !is.null(unlist(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))]))) {
+segments(unlist(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))]), 
          -1, 
-         unlist(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))]), 
-         unlist(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name[j]), which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))]), 
+         unlist(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))]), 
+         unlist(RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name[j]), which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))]), 
          lwd=3,col=col[2],lty=3)}
 
 if(RNase == T) {
-lines(1:25, Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name[j]),], type="l", lwd=3, col = col[2])}
+lines(1:25, RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name[j]),], type="l", lwd=3, col = col[2])}
 
 if(Gbl.Max == T & Ctrl == T) {
-points(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name[j]), ], Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name[j]),unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name[j]),])], pch=21, col="black", bg=col[1], cex=1.5)}
+points(Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name[j]), ], Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),unlist(Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name[j]),])], pch=21, col="black", bg=col[1], cex=1.5)}
 
-if(Loc.Max == T & Ctrl == T & !is.null(unlist(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))]))) {
-points(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))], Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name[j]), which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))], pch=24, col="black", bg=col[1], cex=1.2)}
+if(Loc.Max == T & Ctrl == T & !is.null(unlist(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))]))) {
+points(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))], Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]), which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))], pch=24, col="black", bg=col[1], cex=1.2)}
 
-if(Loc.Max == T & RNase == T & !is.null(unlist(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))]))) {
-points(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))], Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name[j]), which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))], pch=24, col="black", bg=col[2], cex=1.2)}
+if(Loc.Max == T & RNase == T & !is.null(unlist(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))]))) {
+points(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))], RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name[j]), which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))], pch=24, col="black", bg=col[2], cex=1.2)}
 
 if(Gbl.Max == T & RNase == T) {
-points(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name[j]), ], Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name[j]),unlist(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name[j]),])], pch=21, col="black", bg=col[2], cex=1.5)}
+points(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]), ], RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name[j]),unlist(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]),])], pch=21, col="black", bg=col[2], cex=1.5)}
 
 if(Gauss == T & Ctrl == T) {
-curve(Gaussian_Fit_Ctrl[which(rownames(Mean_Ctrl)==gene.name[j]), 3]*(1/(Gaussian_Fit_Ctrl[which(rownames(Mean_Ctrl)==gene.name[j]), 2]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((x-Gaussian_Fit_Ctrl[which(rownames(Mean_Ctrl)==gene.name[j]), 1])/Gaussian_Fit_Ctrl[which(rownames(Mean_Ctrl)==gene.name[j]), 2])^2), add = T, lwd = 3, col = alpha(col[3], 0.5))}
+curve(Ctrl_Gauss_Fit[which(rownames(Ctrl_Mean)==gene.name[j]), 3]*(1/(Ctrl_Gauss_Fit[which(rownames(Ctrl_Mean)==gene.name[j]), 2]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((x-Ctrl_Gauss_Fit[which(rownames(Ctrl_Mean)==gene.name[j]), 1])/Ctrl_Gauss_Fit[which(rownames(Ctrl_Mean)==gene.name[j]), 2])^2), add = T, lwd = 3, col = alpha(col[3], 0.5))}
 
 if(Gauss == T & RNase == T) {
-curve(Gaussian_Fit_RNase[which(rownames(Mean_RNase)==gene.name[j]), 3]*(1/(Gaussian_Fit_RNase[which(rownames(Mean_RNase)==gene.name[j]), 2]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((x-Gaussian_Fit_RNase[which(rownames(Mean_RNase)==gene.name[j]), 1])/Gaussian_Fit_RNase[which(rownames(Mean_RNase)==gene.name[j]), 2])^2), add = T, lwd = 3, col = alpha(col[4], 0.5))}
+curve(RNase_Gauss_Fit[which(rownames(RNase_Mean)==gene.name[j]), 3]*(1/(RNase_Gauss_Fit[which(rownames(RNase_Mean)==gene.name[j]), 2]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((x-RNase_Gauss_Fit[which(rownames(RNase_Mean)==gene.name[j]), 1])/RNase_Gauss_Fit[which(rownames(RNase_Mean)==gene.name[j]), 2])^2), add = T, lwd = 3, col = alpha(col[4], 0.5))}
 
 par(xpd=T)
 
@@ -1284,28 +1284,28 @@ if(Type[k] == "Norm" & (Ctrl == T | RNase == T)) {
 par(mar=c(5, 4, 4, 7), xpd=F)
 
 plot(1:25, rep(NA, 25),xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(gene.name[j], "(Normalized)"), ylim=c(0, 1.1 * max(
-  if(Ctrl == T) {max(Mean_Ctrl_Norm_100[which(rownames(Mean_Ctrl)==gene.name[j]),])}, 
-  if(RNase == T) {max(Mean_RNase_Norm_100[which(rownames(Mean_Ctrl)==gene.name[j]),])})))
+  if(Ctrl == T) {max(Ctrl_Mean_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
+  if(RNase == T) {max(RNase_Mean_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])})))
 
 if(grid == T) {grid()}
 
-if(Loc.Max == T & Ctrl == T & !is.null(unlist(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))]))) {
-segments(unlist(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))]), -4.3, unlist(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))]), 110, col = col[1], lty = 3, lwd = 3)}
+if(Loc.Max == T & Ctrl == T & !is.null(unlist(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))]))) {
+segments(unlist(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))]), -4.3, unlist(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))]), 110, col = col[1], lty = 3, lwd = 3)}
 
-if(Loc.Max == T & RNase == T & !is.null(unlist(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))]))) {
-segments(unlist(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))]), -3.4, unlist(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))]), 110, col = col[2], lty = 3, lwd = 3)}
+if(Loc.Max == T & RNase == T & !is.null(unlist(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))]))) {
+segments(unlist(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))]), -3.4, unlist(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))]), 110, col = col[2], lty = 3, lwd = 3)}
 
 if(Gbl.Max == T & Ctrl == T) {
-segments(unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]), -4, unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]), 110, col = col[1], lty = 2, lwd = 3)}
+segments(unlist(Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]), -4, unlist(Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]), 110, col = col[1], lty = 2, lwd = 3)}
 
 if(Ctrl == T) {
-lines(1:25, Mean_Ctrl_Norm_100[which(rownames(Mean_Ctrl)==gene.name[j]),], type="l", lwd=3, col = col[1])}
+lines(1:25, Ctrl_Mean_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),], type="l", lwd=3, col = col[1])}
 
 if(Gbl.Max == T & RNase == T) {
-segments(unlist(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name[j]),]), -3, unlist(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name[j]),]), 110, col = col[2], lty = 2, lwd = 3)}
+segments(unlist(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]),]), -3, unlist(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]),]), 110, col = col[2], lty = 2, lwd = 3)}
 
 if(RNase == T) {
-lines(1:25, Mean_RNase_Norm_100[which(rownames(Mean_RNase)==gene.name[j]),], type="l", lwd=3, col = col[2])}
+lines(1:25, RNase_Mean_Norm100[which(rownames(RNase_Mean)==gene.name[j]),], type="l", lwd=3, col = col[2])}
 
 par(xpd=T)
 
@@ -1323,64 +1323,64 @@ if(Type[k] == "Smooth" & (Ctrl == T | RNase == T)) {
 par(mar=c(5, 4, 4, 7), xpd=F)
   
 plot(1:25, rep(NA, 25),xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(gene.name[j], "(Smoothed)"), ylim=c(0, 1.1 * max(
-  if(Ctrl == T) {max(Mean_Ctrl_Smooth[which(rownames(Mean_Ctrl)==gene.name[j]),])}, 
-  if(RNase == T) {max(Mean_RNase_Smooth[which(rownames(Mean_Ctrl)==gene.name[j]),])})))
+  if(Ctrl == T) {max(Ctrl_Mean_Smooth[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
+  if(RNase == T) {max(RNase_Mean_Smooth[which(rownames(Ctrl_Mean)==gene.name[j]),])})))
 
 if(grid == T) {grid()}
 
 if(Gbl.Max == T & Ctrl == T) {
-segments(unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]), 
+segments(unlist(Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]), 
          -0.1 * max(
-  if(Ctrl == T) {max(Mean_Ctrl_Smooth[which(rownames(Mean_Ctrl)==gene.name[j]),])}, 
-  if(RNase == T) {max(Mean_RNase_Smooth[which(rownames(Mean_Ctrl)==gene.name[j]),])}), 
-         unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]), 
-         Mean_Ctrl_Smooth[which(rownames(Mean_Ctrl)==gene.name[j]), unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name[j]),])], 
+  if(Ctrl == T) {max(Ctrl_Mean_Smooth[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
+  if(RNase == T) {max(RNase_Mean_Smooth[which(rownames(Ctrl_Mean)==gene.name[j]),])}), 
+         unlist(Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]), 
+         Ctrl_Mean_Smooth[which(rownames(Ctrl_Mean)==gene.name[j]), unlist(Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name[j]),])], 
          lwd=3,col=col[1],lty=2)}
   
-if(Loc.Max == T & Ctrl == T & !is.null(unlist(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))]))) {
-segments(unlist(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))]), 
+if(Loc.Max == T & Ctrl == T & !is.null(unlist(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))]))) {
+segments(unlist(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))]), 
          -0.1 * max(
-  if(Ctrl == T) {max(Mean_Ctrl_Smooth[which(rownames(Mean_Ctrl)==gene.name[j]),])}, 
-  if(RNase == T) {max(Mean_RNase_Smooth[which(rownames(Mean_Ctrl)==gene.name[j]),])}), 
-         unlist(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))]), 
-         unlist(Mean_Ctrl_Smooth[which(rownames(Mean_Ctrl)==gene.name[j]), which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))]), 
+  if(Ctrl == T) {max(Ctrl_Mean_Smooth[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
+  if(RNase == T) {max(RNase_Mean_Smooth[which(rownames(Ctrl_Mean)==gene.name[j]),])}), 
+         unlist(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))]), 
+         unlist(Ctrl_Mean_Smooth[which(rownames(Ctrl_Mean)==gene.name[j]), which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))]), 
          lwd=3,col=col[1],lty=2)}
 
 if(Ctrl == T) {  
-lines(1:25, Mean_Ctrl_Smooth[which(rownames(Mean_Ctrl)==gene.name[j]),], type="l", lwd=3, col = col[1])}
+lines(1:25, Ctrl_Mean_Smooth[which(rownames(Ctrl_Mean)==gene.name[j]),], type="l", lwd=3, col = col[1])}
 
 if(Gbl.Max == T & RNase == T) {
-  segments(unlist(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name[j]),]), 
+  segments(unlist(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]),]), 
          -0.1 * max(
-  if(Ctrl == T) {max(Mean_Ctrl_Smooth[which(rownames(Mean_Ctrl)==gene.name[j]),])}, 
-  if(RNase == T) {max(Mean_RNase_Smooth[which(rownames(Mean_Ctrl)==gene.name[j]),])}), 
-         unlist(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name[j]),]), 
-         Mean_RNase_Smooth[which(rownames(Mean_RNase)==gene.name[j]), unlist(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name[j]),])], 
+  if(Ctrl == T) {max(Ctrl_Mean_Smooth[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
+  if(RNase == T) {max(RNase_Mean_Smooth[which(rownames(Ctrl_Mean)==gene.name[j]),])}), 
+         unlist(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]),]), 
+         RNase_Mean_Smooth[which(rownames(RNase_Mean)==gene.name[j]), unlist(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]),])], 
          lwd=3,col=col[2],lty=3)}
   
-if(Loc.Max == T & RNase == T & !is.null(unlist(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))]))) {
-segments(unlist(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))]), 
+if(Loc.Max == T & RNase == T & !is.null(unlist(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))]))) {
+segments(unlist(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))]), 
          -0.1 * max(
-  if(Ctrl == T) {max(Mean_Ctrl_Smooth[which(rownames(Mean_Ctrl)==gene.name[j]),])}, 
-  if(RNase == T) {max(Mean_RNase_Smooth[which(rownames(Mean_Ctrl)==gene.name[j]),])}), 
-         unlist(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))]), 
-         unlist(Mean_RNase_Smooth[which(rownames(Mean_RNase)==gene.name[j]), which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))]), 
+  if(Ctrl == T) {max(Ctrl_Mean_Smooth[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
+  if(RNase == T) {max(RNase_Mean_Smooth[which(rownames(Ctrl_Mean)==gene.name[j]),])}), 
+         unlist(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))]), 
+         unlist(RNase_Mean_Smooth[which(rownames(RNase_Mean)==gene.name[j]), which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))]), 
          lwd=3,col=col[2],lty=3)}
 
 if(RNase == T) {
-lines(1:25, Mean_RNase_Smooth[which(rownames(Mean_RNase)==gene.name[j]),], type="l", lwd=3, col = col[2])}
+lines(1:25, RNase_Mean_Smooth[which(rownames(RNase_Mean)==gene.name[j]),], type="l", lwd=3, col = col[2])}
 
 if(Gbl.Max == T & Ctrl == T) {
-points(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name[j]), ], Mean_Ctrl_Smooth[which(rownames(Mean_Ctrl)==gene.name[j]),unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name[j]),])], pch=21, col="black", bg=col[1], cex=1.5)}
+points(Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name[j]), ], Ctrl_Mean_Smooth[which(rownames(Ctrl_Mean)==gene.name[j]),unlist(Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name[j]),])], pch=21, col="black", bg=col[1], cex=1.5)}
 
-if(Loc.Max == T & Ctrl == T & !is.null(unlist(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))]))) {
-points(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))], Mean_Ctrl_Smooth[which(rownames(Mean_Ctrl)==gene.name[j]), which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))], pch=24, col="black", bg=col[1], cex=1.2)}
+if(Loc.Max == T & Ctrl == T & !is.null(unlist(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))]))) {
+points(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))], Ctrl_Mean_Smooth[which(rownames(Ctrl_Mean)==gene.name[j]), which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))], pch=24, col="black", bg=col[1], cex=1.2)}
 
-if(Loc.Max == T & RNase == T & !is.null(unlist(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))]))) {
-points(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))], Mean_RNase_Smooth[which(rownames(Mean_RNase)==gene.name[j]), which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))], pch=24, col="black", bg=col[2], cex=1.2)}
+if(Loc.Max == T & RNase == T & !is.null(unlist(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))]))) {
+points(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))], RNase_Mean_Smooth[which(rownames(RNase_Mean)==gene.name[j]), which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))], pch=24, col="black", bg=col[2], cex=1.2)}
 
 if(Gbl.Max == T & RNase == T) {
-points(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name[j]), ], Mean_RNase_Smooth[which(rownames(Mean_RNase)==gene.name[j]),unlist(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name[j]),])], pch=21, col="black", bg=col[2], cex=1.5)}
+points(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]), ], RNase_Mean_Smooth[which(rownames(RNase_Mean)==gene.name[j]),unlist(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]),])], pch=21, col="black", bg=col[2], cex=1.5)}
 
 par(xpd=T)
 
@@ -1399,44 +1399,44 @@ if(Type[k] == "Raw" & (Ctrl == T | RNase == T)) {
 par(mar=c(5, 4, 4, 7), xpd=F)
   
 plot(1:25, rep(NA, 25),xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(gene.name[j], "(Raw Data)"), ylim=c(0, 1.1 * max(
-  if(Ctrl == T) {max(Mean_Ctrl[which(rownames(Mean_Ctrl)==gene.name[j]),])}, 
-  if(RNase == T) {max(Mean_RNase[which(rownames(Mean_Ctrl)==gene.name[j]),])})))
+  if(Ctrl == T) {max(Ctrl_Mean[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
+  if(RNase == T) {max(RNase_Mean[which(rownames(Ctrl_Mean)==gene.name[j]),])})))
 
 if(grid == T) {grid()}
 
-if(Loc.Max == T & Ctrl == T & !is.null(unlist(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))]))) {
-segments(unlist(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))]), - 0.07 * max(
-  if(Ctrl == T) {max(Mean_Ctrl[which(rownames(Mean_Ctrl)==gene.name[j]),])}, 
-  if(RNase == T) {max(Mean_RNase[which(rownames(Mean_Ctrl)==gene.name[j]),])}), unlist(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))]), 1.2 * max(
-  if(Ctrl == T) {max(Mean_Ctrl[which(rownames(Mean_Ctrl)==gene.name[j]),])}, 
-  if(RNase == T) {max(Mean_RNase[which(rownames(Mean_Ctrl)==gene.name[j]),])}), col = col[1], lty = 3, lwd = 3)}
+if(Loc.Max == T & Ctrl == T & !is.null(unlist(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))]))) {
+segments(unlist(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))]), - 0.07 * max(
+  if(Ctrl == T) {max(Ctrl_Mean[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
+  if(RNase == T) {max(RNase_Mean[which(rownames(Ctrl_Mean)==gene.name[j]),])}), unlist(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))]), 1.2 * max(
+  if(Ctrl == T) {max(Ctrl_Mean[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
+  if(RNase == T) {max(RNase_Mean[which(rownames(Ctrl_Mean)==gene.name[j]),])}), col = col[1], lty = 3, lwd = 3)}
 
-if(Loc.Max == T & RNase == T & !is.null(unlist(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))]))) {
-segments(unlist(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))]), -0.8 * max(
-  if(Ctrl == T) {max(Mean_Ctrl[which(rownames(Mean_Ctrl)==gene.name[j]),])}, 
-  if(RNase == T) {max(Mean_RNase[which(rownames(Mean_Ctrl)==gene.name[j]),])}), unlist(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))]), 1.2 * max(
-  if(Ctrl == T) {max(Mean_Ctrl[which(rownames(Mean_Ctrl)==gene.name[j]),])}, 
-  if(RNase == T) {max(Mean_RNase[which(rownames(Mean_Ctrl)==gene.name[j]),])}), col = col[2], lty = 3, lwd = 3)}
+if(Loc.Max == T & RNase == T & !is.null(unlist(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))]))) {
+segments(unlist(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))]), -0.8 * max(
+  if(Ctrl == T) {max(Ctrl_Mean[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
+  if(RNase == T) {max(RNase_Mean[which(rownames(Ctrl_Mean)==gene.name[j]),])}), unlist(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))]), 1.2 * max(
+  if(Ctrl == T) {max(Ctrl_Mean[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
+  if(RNase == T) {max(RNase_Mean[which(rownames(Ctrl_Mean)==gene.name[j]),])}), col = col[2], lty = 3, lwd = 3)}
 
 if(Gbl.Max == T & Ctrl == T) {
-segments(unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]), - 0.93 * max(
-  if(Ctrl == T) {max(Mean_Ctrl[which(rownames(Mean_Ctrl)==gene.name[j]),])}, 
-  if(RNase == T) {max(Mean_RNase[which(rownames(Mean_Ctrl)==gene.name[j]),])}), unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]), 1.2 * max(
-  if(Ctrl == T) {max(Mean_Ctrl[which(rownames(Mean_Ctrl)==gene.name[j]),])}, 
-  if(RNase == T) {max(Mean_RNase[which(rownames(Mean_Ctrl)==gene.name[j]),])}), col = col[1], lty = 2, lwd = 3)}
+segments(unlist(Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]), - 0.93 * max(
+  if(Ctrl == T) {max(Ctrl_Mean[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
+  if(RNase == T) {max(RNase_Mean[which(rownames(Ctrl_Mean)==gene.name[j]),])}), unlist(Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]), 1.2 * max(
+  if(Ctrl == T) {max(Ctrl_Mean[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
+  if(RNase == T) {max(RNase_Mean[which(rownames(Ctrl_Mean)==gene.name[j]),])}), col = col[1], lty = 2, lwd = 3)}
 
 if(Ctrl == T) {  
-lines(1:25, Mean_Ctrl[which(rownames(Mean_Ctrl)==gene.name[j]),], type="l", lwd=3, col = col[1])}
+lines(1:25, Ctrl_Mean[which(rownames(Ctrl_Mean)==gene.name[j]),], type="l", lwd=3, col = col[1])}
 
 if(Gbl.Max == T & RNase == T) {
-segments(unlist(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name[j]),]), - 0.7 * max(
-  if(Ctrl == T) {max(Mean_Ctrl[which(rownames(Mean_Ctrl)==gene.name[j]),])}, 
-  if(RNase == T) {max(Mean_RNase[which(rownames(Mean_Ctrl)==gene.name[j]),])}), unlist(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name[j]),]), 1.2 * max(
-  if(Ctrl == T) {max(Mean_Ctrl[which(rownames(Mean_Ctrl)==gene.name[j]),])}, 
-  if(RNase == T) {max(Mean_RNase[which(rownames(Mean_Ctrl)==gene.name[j]),])}), col = col[2], lty = 2, lwd = 3)}
+segments(unlist(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]),]), - 0.7 * max(
+  if(Ctrl == T) {max(Ctrl_Mean[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
+  if(RNase == T) {max(RNase_Mean[which(rownames(Ctrl_Mean)==gene.name[j]),])}), unlist(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]),]), 1.2 * max(
+  if(Ctrl == T) {max(Ctrl_Mean[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
+  if(RNase == T) {max(RNase_Mean[which(rownames(Ctrl_Mean)==gene.name[j]),])}), col = col[2], lty = 2, lwd = 3)}
 
 if(RNase == T) {
-lines(1:25, Mean_RNase[which(rownames(Mean_RNase)==gene.name[j]),], type="l", lwd=3, col = col[2])}
+lines(1:25, RNase_Mean[which(rownames(RNase_Mean)==gene.name[j]),], type="l", lwd=3, col = col[2])}
 
 par(xpd=T)
 
@@ -1454,69 +1454,69 @@ if(Type[k] == "Compare" & (Ctrl == T | RNase == T)) {
 par(mar=c(5, 4, 4, 10), xpd=F)
   
 plot(1:25, rep(NA, 25),xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(gene.name[j], "(Norm/Smooth v. Norm)"), ylim=c(0, 1.1 * max(
-  if(Ctrl == T) {max(Mean_Ctrl_Norm_100[which(rownames(Mean_Ctrl)==gene.name[j]),])}, 
-  if(RNase == T) {max(Mean_RNase_Norm_100[which(rownames(Mean_Ctrl)==gene.name[j]),])}, 
-  if(Ctrl == T) {max(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name[j]),])}, 
-  if(RNase == T) {max(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name[j]),])}
+  if(Ctrl == T) {max(Ctrl_Mean_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
+  if(RNase == T) {max(RNase_Mean_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
+  if(Ctrl == T) {max(Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
+  if(RNase == T) {max(RNase_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])}
   )))
 
 if(grid == T) {grid()}
 
 if(Gbl.Max == T & Ctrl == T) {
-segments(unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]), 
+segments(unlist(Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]), 
          -1, 
-         unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]), 
-         Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name[j]), unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name[j]),])], 
+         unlist(Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]), 
+         Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]), unlist(Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name[j]),])], 
          lwd=3,col=col[1],lty=2)}
   
-if(Loc.Max == T & Ctrl == T & !is.null(unlist(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))]))) {
-segments(unlist(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))]), 
+if(Loc.Max == T & Ctrl == T & !is.null(unlist(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))]))) {
+segments(unlist(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))]), 
          -1, 
-         unlist(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))]), 
-         unlist(Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name[j]), which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))]), 
+         unlist(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))]), 
+         unlist(Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]), which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))]), 
          lwd=3,col=col[1],lty=2)}
 
 if(Ctrl == T) {
-lines(1:25, Mean_Ctrl_Norm_100[which(rownames(Mean_Ctrl)==gene.name[j]),], type="l", lwd=3, col = alpha(col[1], 0.35))
+lines(1:25, Ctrl_Mean_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),], type="l", lwd=3, col = alpha(col[1], 0.35))
 
-lines(1:25, Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name[j]),], type="l", lwd=3, col = col[1])}
+lines(1:25, Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),], type="l", lwd=3, col = col[1])}
   
 if(Gbl.Max == T & RNase == T) {
-  segments(unlist(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name[j]),]), 
+  segments(unlist(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]),]), 
          -1, 
-         unlist(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name[j]),]), 
-         Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name[j]), unlist(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name[j]),])], 
+         unlist(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]),]), 
+         RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name[j]), unlist(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]),])], 
          lwd=3,col=col[2],lty=3)}
   
-if(Loc.Max == T & RNase == T & !is.null(unlist(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))]))) {
-segments(unlist(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))]), 
+if(Loc.Max == T & RNase == T & !is.null(unlist(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))]))) {
+segments(unlist(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))]), 
          -1, 
-         unlist(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))]), 
-         unlist(Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name[j]), which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))]), 
+         unlist(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))]), 
+         unlist(RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name[j]), which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))]), 
          lwd=3,col=col[2],lty=3)}
 
 if(RNase == T) {
-lines(1:25, Mean_RNase_Norm_100[which(rownames(Mean_RNase)==gene.name[j]),], type="l", lwd=3, col = alpha(col[2], 0.35))
+lines(1:25, RNase_Mean_Norm100[which(rownames(RNase_Mean)==gene.name[j]),], type="l", lwd=3, col = alpha(col[2], 0.35))
 
-lines(1:25, Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name[j]),], type="l", lwd=3, col = col[2])}
+lines(1:25, RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name[j]),], type="l", lwd=3, col = col[2])}
 
 if(Gbl.Max == T & Ctrl == T) {
-points(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name[j]), ], Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name[j]),unlist(Mean_Ctrl_Gbl_Max[which(rownames(Mean_Ctrl)==gene.name[j]),])], pch=21, col="black", bg=col[1], cex=1.5)}
+points(Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name[j]), ], Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),unlist(Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name[j]),])], pch=21, col="black", bg=col[1], cex=1.5)}
 
-if(Loc.Max == T & Ctrl == T & !is.null(unlist(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))]))) {
-points(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))], Mean_Ctrl_Smooth_Norm_100[which(rownames(Mean_Ctrl)==gene.name[j]), which(!is.na(Mean_Ctrl_Loc_Max[which(rownames(Mean_Ctrl)==gene.name[j]),]))], pch=24, col="black", bg=col[1], cex=1.2)}
+if(Loc.Max == T & Ctrl == T & !is.null(unlist(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))]))) {
+points(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))], Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]), which(!is.na(Ctrl_Mean_Loc_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]))], pch=24, col="black", bg=col[1], cex=1.2)}
 
-if(Loc.Max == T & RNase == T & !is.null(unlist(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))]))) {
-points(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))], Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name[j]), which(!is.na(Mean_RNase_Loc_Max[which(rownames(Mean_RNase)==gene.name[j]),]))], pch=24, col="black", bg=col[2], cex=1.2)}
+if(Loc.Max == T & RNase == T & !is.null(unlist(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))]))) {
+points(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))], RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name[j]), which(!is.na(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),]))], pch=24, col="black", bg=col[2], cex=1.2)}
 
 if(Gbl.Max == T & RNase == T) {
-points(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name[j]), ], Mean_RNase_Smooth_Norm_100[which(rownames(Mean_RNase)==gene.name[j]),unlist(Mean_RNase_Gbl_Max[which(rownames(Mean_RNase)==gene.name[j]),])], pch=21, col="black", bg=col[2], cex=1.5)}
+points(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]), ], RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name[j]),unlist(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]),])], pch=21, col="black", bg=col[2], cex=1.5)}
 
 if(Gauss == T & Ctrl == T) {
-curve(Gaussian_Fit_Ctrl[which(rownames(Mean_Ctrl)==gene.name[j]), 3]*(1/(Gaussian_Fit_Ctrl[which(rownames(Mean_Ctrl)==gene.name[j]), 2]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((x-Gaussian_Fit_Ctrl[which(rownames(Mean_Ctrl)==gene.name[j]), 1])/Gaussian_Fit_Ctrl[which(rownames(Mean_Ctrl)==gene.name[j]), 2])^2), add = T, lwd = 3, col = alpha(col[3], 0.5))}
+curve(Ctrl_Gauss_Fit[which(rownames(Ctrl_Mean)==gene.name[j]), 3]*(1/(Ctrl_Gauss_Fit[which(rownames(Ctrl_Mean)==gene.name[j]), 2]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((x-Ctrl_Gauss_Fit[which(rownames(Ctrl_Mean)==gene.name[j]), 1])/Ctrl_Gauss_Fit[which(rownames(Ctrl_Mean)==gene.name[j]), 2])^2), add = T, lwd = 3, col = alpha(col[3], 0.5))}
 
 if(Gauss == T & RNase == T) {
-curve(Gaussian_Fit_RNase[which(rownames(Mean_RNase)==gene.name[j]), 3]*(1/(Gaussian_Fit_RNase[which(rownames(Mean_RNase)==gene.name[j]), 2]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((x-Gaussian_Fit_RNase[which(rownames(Mean_RNase)==gene.name[j]), 1])/Gaussian_Fit_RNase[which(rownames(Mean_RNase)==gene.name[j]), 2])^2), add = T, lwd = 3, col = alpha(col[4], 0.5))}
+curve(RNase_Gauss_Fit[which(rownames(RNase_Mean)==gene.name[j]), 3]*(1/(RNase_Gauss_Fit[which(rownames(RNase_Mean)==gene.name[j]), 2]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((x-RNase_Gauss_Fit[which(rownames(RNase_Mean)==gene.name[j]), 1])/RNase_Gauss_Fit[which(rownames(RNase_Mean)==gene.name[j]), 2])^2), add = T, lwd = 3, col = alpha(col[4], 0.5))}
 
 par(xpd=T)
 
