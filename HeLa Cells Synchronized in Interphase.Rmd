@@ -219,6 +219,16 @@ RDeeP_HeLa_Interphase_RNase[which(Rep_Cor_RNase[, 2] == Rep_Cor_RNase[, 3] & row
 
 
 # ---> Zum Schluss ersetzen wir jeweils ein Replikat mit NA-values, wenn eine der Korrelationen unter 0.95 liegt
+#test = apply(Cor_Ctrl[which(Rep_Cor_Ctrl[, 1] == 0 & rowSums(Rep_Cor_Ctrl) == 2), ], 1, function(n) {which(max(n) == n)})
+#Rep1 = c(sapply(seq(0,72,3), function(k) {1 + k}))
+#Rep2 = c(sapply(seq(0,72,3), function(k) {2 + k}))
+#Rep3 = c(sapply(seq(0,72,3), function(k) {3 + k}))
+
+
+# RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 1] == 0 & rowSums(Rep_Cor_Ctrl) == 2), sapply(seq(1, length(test), 1), function(k) { 
+ # if(test[k] == 2) {Rep2} else {Rep3}}
+#  )] = NA
+
 RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 1] == 0 & rowSums(Rep_Cor_Ctrl) == 2), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
 
 RDeeP_HeLa_Interphase_Ctrl[which(Rep_Cor_Ctrl[, 2] == 0 & rowSums(Rep_Cor_Ctrl) == 2), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
@@ -443,6 +453,8 @@ Mean_Ctrl_Gbl_Max[
 ## If 3 fraction positions contain the maximum protein amount, we determine the mean of these 3 fraction positions
 Mean_Ctrl_Gbl_Max[which(sapply(seq(1,nrow(RDeeP_HeLa_Interphase_Ctrl),1),function(i) {length(which(Mean_Ctrl_Smooth_Norm_100[i,] == max(Mean_Ctrl_Smooth_Norm_100[i,]) ))}) == 3),1] = apply(matrix(unlist(Mean_Ctrl_Gbl_Max[which(sapply(seq(1,nrow(RDeeP_HeLa_Interphase_Ctrl),1),function(i) {length(which(Mean_Ctrl_Smooth_Norm_100[i,] == max(Mean_Ctrl_Smooth_Norm_100[i,]) ))}) == 3),1]), ncol=3, byrow=T), 1, function(x) {mean(x)})
 
+Mean_Ctrl_Gbl_Max = as.data.frame(unlist(Mean_Ctrl_Gbl_Max))
+
 colnames(Mean_Ctrl_Gbl_Max) = c("Ctrl_Gbl_Max")
 rownames(Mean_Ctrl_Gbl_Max) = rownames(Mean_Ctrl_Smooth_Norm_100)
 
@@ -452,6 +464,8 @@ Mean_RNase_Gbl_Max = as.matrix(sapply(seq(1,nrow(RDeeP_HeLa_Interphase_RNase),1)
 Mean_RNase_Gbl_Max[which(sapply(seq(1,nrow(RDeeP_HeLa_Interphase_RNase),1),function(i) {length(which(Mean_RNase_Smooth_Norm_100[i,] == max(Mean_RNase_Smooth_Norm_100[i,]) ))}) == 2),1] = apply(matrix(unlist(Mean_RNase_Gbl_Max[which(sapply(seq(1,nrow(RDeeP_HeLa_Interphase_RNase),1),function(i) {length(which(Mean_RNase_Smooth_Norm_100[i,] == max(Mean_RNase_Smooth_Norm_100[i,]) ))}) == 2),1]), ncol=2, byrow=T), 1, function(x) {mean(x)})
 
 Mean_RNase_Gbl_Max[which(sapply(seq(1,nrow(RDeeP_HeLa_Interphase_RNase),1),function(i) {length(which(Mean_RNase_Smooth_Norm_100[i,] == max(Mean_RNase_Smooth_Norm_100[i,]) ))}) == 3),1] = apply(matrix(unlist(Mean_RNase_Gbl_Max[which(sapply(seq(1,nrow(RDeeP_HeLa_Interphase_RNase),1),function(i) {length(which(Mean_RNase_Smooth_Norm_100[i,] == max(Mean_RNase_Smooth_Norm_100[i,]) ))}) == 3),1]), ncol=3, byrow=T), 1, function(x) {mean(x)})
+
+Mean_RNase_Gbl_Max = as.data.frame(unlist(Mean_RNase_Gbl_Max))
 
 colnames(Mean_RNase_Gbl_Max) = c("RNase_Gbl_Max")
 rownames(Mean_RNase_Gbl_Max) = rownames(Mean_RNase_Smooth_Norm_100)
