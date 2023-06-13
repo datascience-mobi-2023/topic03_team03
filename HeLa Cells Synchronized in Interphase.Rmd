@@ -1155,7 +1155,10 @@ RNase_Gauss_Fit[, 5] = overlap
 rm(g1, g2, g3, g4, g5, g6, g7, g8, g9, u1, u2, a, b, c, x, x1, x2, overlap)
 ```
 
-##### 3.5 Summary of Collected Data in one Dataframe
+
+#### 4. Selection Criteria and Identification of RNA-Dependent Proteins
+
+##### 4.1 Summary of Collected Data in one Dataframe
 
 We will now summarize all this collected data (global and local peak positions, gaussian fit and overlap) in one dataframe "**Sel_Crit**" (for *Selection Criteria*). 
 
