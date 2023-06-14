@@ -11,12 +11,14 @@ Fragen:
 
 Antworten:  
 1. Berechnung ob shift no shift und alles was wir untersuchen wollen => Endergebnis speichern
-  - er schaut sich aber nochmal an, ob es Alternativen gibt
+  - er schaut sich aber nochmal an, ob es Alternativen gibt => keine Alternative
+  - parallel laufen lassen
+  - number of course, darauf parallel Operation laufen lassen => auf die 4 cores vom laptop laufen lassen
 2. Outliers sind mit correlation Test rausgefallen
 3. Generell die 5% Hürde, Maiwen bei pearson correlation: von allen Proteinen den Mittelwert der 2 besten Replikate für das dritte Replikat nehmen; findet Fabio nicht so gut
 Gauß: T-Test anwenden, ob er signifikant sein => p-Value muss maximal 0,05 sein (sagt nur an wie viele Prozent falsch positive Werte zugelassen werden => 5% = Fehlerquote) => Überlappungsfläche ist p-Value
 (t-test sagt nur aus, ob RNA-dependent oder nicht)
-4. Er sucht uns den Befehl raus, um eine Schnittmenge zu berechnen
+4. Er sucht uns den Befehl raus, um eine Schnittmenge zu berechnen => uniroot
 5.- PDF abgeben, die aus Markdown generiert werden => können entscheiden, welche Chunks angezeigt werden, welche ausgeführt werden sollen; 
   - Introduction, Methods, Results, Discussion; 
   - keine Schriftgröße kleiner als 9, nicht mehr als 10 Seiten; wie ein normales Protokoll; 
