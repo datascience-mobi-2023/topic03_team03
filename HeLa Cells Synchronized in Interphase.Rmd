@@ -182,8 +182,8 @@ RNase_Cor_Rep[which(RNase_Cor < 0.95)] = 0
 RNase_Cor_Rep = matrix(RNase_Cor_Rep, ncol = 3)
 
 # ---> wir wollen zuerst alle Gene löschen, die in einer condition für alle drei Korrelationen unter 0.95 liegen (werden aber auch separat in den Dataframes "Ctrl_Weird" und "RNase_Weird" abgespeichert)
-# ---> Note: only the second row has < 0.95 both in RNase and Control for all 3 replicates (therefore the [-1])
-Gene.Pos = c(which(rowSums(Ctrl_Cor_Rep) == 0)[-1], which(rowSums(RNase_Cor_Rep) == 0))
+# ---> Note: theres a overlap of 250 genes
+Gene.Pos = c(which(rowSums(Ctrl_Cor_Rep) == 0)[-which(which(rowSums(Ctrl_Cor_Rep) == 0) %in% which(rowSums(RNase_Cor_Rep) == 0))], which(rowSums(RNase_Cor_Rep) == 0))
 
 Ctrl_Weird <- Ctrl_RDeep[which(rowSums(Ctrl_Cor_Rep) == 0), ]
 
