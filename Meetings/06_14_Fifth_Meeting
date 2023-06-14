@@ -7,8 +7,10 @@ Fragen:
 6. Wie greifen wir auf die Datenbanken zurück?
 
 Antworten:
-1. 
-2. 
+1. solange wir nicht alle 3 Replikate brauchen, können alle Schritte für alle Proteine durchgeführt werden und dann nur aus dem Endergebniss genommen werden, dann müssen Proteine nicht gestrichen werden
+2. kmeans mit anderen Datenpunkten -- welchen? - partial shift, no shift, complete shifter 2 Variablen: Entfernung in Fraktion & unterschiedlicher Protein amount => Vergleich von Proteinamount in bestimmter Fraktion, Vergleich von RNAse und Control
+  - hierarchisches Cluster
+  - DV Scan, keine Punkte, sondern basierend darauf, wie dicht Datenpunkte liegen werden die Cluster bestimmt
 3. 
 4. 
 5. 
