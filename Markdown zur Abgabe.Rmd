@@ -1,6 +1,28 @@
 ---
-title: "Topic 3: Proteome-wide Screen for RNA-dependent Proteins; Subtopic 3: HeLa synchronized in Interphase"
-author: "Hannah, Johann, Kira, Viktor"
-output: html_document
+title: "Proteome-wide Screen for RNA-dependent Proteins in HeLa cells synchronized in Interphase"
+subtitle: "Data Analysis Project 2023"
+author: "Hannah Brehm, Johann Blakytny, Kira Hoffmann, Viktor Bonin"
 date: "2023-06-14"
+output:
+  pdf_document: default
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Introduction
+sdfghjklöä
+```{r}
+#test chunk
+```
+
+# Material and Methods
+sdfghjkl
+
+# Results
+sdfghjkl
+
+# Discussion
+asdfghjk
