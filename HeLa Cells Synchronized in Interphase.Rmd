@@ -1174,6 +1174,91 @@ Sel_Crit = cbind(
 colnames(Sel_Crit) <- c("Ctrl_Gbl_Max", "RNase_Gbl_Max", "Ctrl_mu", "Ctrl_sd", "Ctrl_h", "Ctrl_prt_amount", "RNase_mu", "RNase_sd", "RNase_h", "RNase_prt_amount", "overlap", "Ctrl_Loc_Max", "RNase_Loc_Max")
 ```
 
+#### 4.2 Dataframe with all three selection criteria in comparison 
+
+In order to determine which proteins are significantly RNA-dependent, we will apply three selection criteria comparing different characteristics of the Gaussian curves fitted to the Ctrl and RNase global maxima:
+
+  *Shift of global maximum/mu by at least 1 bin
+  *The height of the global maximum should be at least twice as large as the height of the respective other curve at the same position (and if latter is larger than former, the sample is discarded completely)
+  *Overlap of the curves of less than 75% 
+
+
+```{r}
+#First, a dataframe is created which includes all parameters we want to test for in the next step.
+
+Sel_Crit_compare = as.data.frame(matrix(rep(NA, nrow(Sel_Crit)*6), ncol = 6))
+colnames(Sel_Crit_compare) = c("delta_mu", "Ctrl_heightprop", "RNAse_heightprop", "overlap", "Ctr_heightprop_compare", "RNase_heightprop_compare")
+rownames(Sel_Crit_compare) = rownames(Sel_Crit)
+
+Sel_Crit_compare[,1] <- round(abs(Sel_Crit[,3] - Sel_Crit[,7]), digits = 3) 
+
+Sel_Crit_compare[,2] <- round(Sel_Crit[,5]/(Sel_Crit[,9]*(1/(Sel_Crit[,8]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((Sel_Crit[,3]-Sel_Crit[,7])/Sel_Crit[,8])^2)), digits = 3)
+
+Sel_Crit_compare[,3] <- round(Sel_Crit[,9]/(Sel_Crit[,5]*(1/(Sel_Crit[,4]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((Sel_Crit[,7])-Sel_Crit[,3]/Sel_Crit[,4])^2)), digits = 3)
+
+Sel_Crit_compare[,4] <- round(Sel_Crit[,11], digits = 3)
+
+Sel_Crit_compare[,5] <- round(Ctrl_Mean_Smooth_Norm100[,Mean_Gbl_Max[,1]]/RNase_Mean_Smooth_Norm100[,Mean_Gbl_Max[,1]], digits = 3)
+
+Sel_Crit_compare[,6] <- round(RNase_Mean_Smooth_Norm100[,Mean_Gbl_Max[,2]]/Ctrl_Mean_Smooth_Norm100[,Mean_Gbl_Max[,2]], digits = 3)
+
+```
+
+The proteins where the height proportion is smaller than 1 are discarded completely.
+
+```{r}
+#Delete rows where at least one of the height proportions is smaller than one 
+
+which(Sel_Crit_compare[,2] < 1)
+#No samples need to be deleted
+which(Sel_Crit_compare[,3] < 1)
+#No samples need to be deleted
+
+```
+
+Now we will create a copy of the dataframe and remove all proteins which do not satisfy the selection criteria, and add these to a new dataframe (i.e. non-RDPs), to be left with a dataframe containing all RDPs evaluated by our analysis. 
+
+```{r}
+#Delete rows where the selection criteria do not apply in the "RDPs"-dataframe, and add these rows to a "non-RDPs"-dataframe to be left with a dataframe containing all RDPs, and another dataframe with all non-RDPs.
+
+RDPs <- Sel_Crit_compare
+non_RDPs <- Sel_Crit_compare
+
+#Criterion 1: mu >= 1 
+
+non_RDPs <- non_RDPs[-which(RDPs[,1] >= 1),]
+RDPs <- RDPs[which(RDPs[,1] >= 1),]
+
+#Criterion 2: height proportion >= 2
+
+non_RDPs <- rbind(non_RDPs, RDPs[-which(RDPs[,2] >= 2),])
+RDPs <- RDPs[which(RDPs[,2] >= 2),]
+
+non_RDPs <- rbind(non_RDPs, RDPs[-which(RDPs[,3] >= 2),])
+RDPs <- RDPs[which(RDPs[,3] >= 2),]
+
+#Criterion 3: overlap <= 0.75
+
+non_RDPs <- rbind(non_RDPs, RDPs[-which(RDPs[,4] <= 0.75),])
+RDPs <- RDPs[which(RDPs[,4] <= 0.75),]
+
+RDPs
+non_RDPs
+
+```
+
+#### 5.1 k means clustering 
+
+```{r}
+
+plot(Sel_Crit[,3], Sel_Crit[,7], main = "Shifting behavior", xlab = "Peak of Ctrl", ylab = "Peak of RNase")
+
+shift_behavior <- cbind(Sel_Crit[,3], Sel_Crit[,7])
+
+kmeans(shift_behavior, 4, iter.max = 10, nstart = 1)
+
+```
+
 
 #### Extra: Automatic Graph Plotter
 
