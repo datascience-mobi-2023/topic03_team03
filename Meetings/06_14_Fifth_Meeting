@@ -1,9 +1,10 @@
 Fragen:
 1. Ergibt es Sinn wie wir die Gene rausgeworfen und dann die Mittelwerte berechnet haben?
 2. Welche Clustering-Methode? (kmeans ist ein terafail)
-3. Optional: Wie führt men diese Clustering-Methode durch?
+3. Optional: Wie führt man diese Clustering-Methode durch?
 4. Auf welche Variable sollen wir den t-Test anwenden? Ergibt mu als Varible Sinn?
 5. Ist der Threshhold für unsere RDPs so gut gesetzt? Es fliegen halt bei 5% sehr viele Proteine raus.
+6. Wie greifen wir auf die Datenbanken zurück?
 
 Antworten:
 1. 
@@ -11,3 +12,4 @@ Antworten:
 3. 
 4. 
 5. 
+6. 
