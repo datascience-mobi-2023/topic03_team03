@@ -13,16 +13,18 @@ Antworten:
 2. kmeans mit anderen Datenpunkten -- welchen? - partial shift, no shift, complete shifter 2 Variablen: Entfernung in Fraktion & unterschiedlicher Protein amount => Vergleich von Proteinamount in bestimmter Fraktion, Vergleich von RNAse und Control
   - hierarchisches Cluster
   - DV Scan, keine Punkte, sondern basierend darauf, wie dicht Datenpunkte liegen werden die Cluster bestimmt
+  - Maiwens Abbildung kein Clustering, sondern Kategorien vorher rechnerisch erstellt
+  
 3. --
 
-4. einfach irgendwo einbauen...
+4. einfach irgendwo einbauen... ("t-test relativ latte")
 - wie gut passt Gaußkurve auf Ursprungsdaten
 - ob shift stattfindet => Proteinamounts (2 unterschiedliche max peaks in unterschiedlichen Fraktionen => testet ob partial shift, no shift ...)
 
 5. einfach weiterrechnen
 - wie generiert man Sinnvolle selection criteria
 - hight shift kann weniger Streng sein, kann weniger als 3 sein
-- Overlap Kriterium passt so
+- Overlap Kriterium passt so ("ah ne, das fine")
 - wenige RBPs ist nicht Schlimm
 
 6. keine Packages oder so, um auf Datenbanken zuzugreifen
@@ -38,6 +40,13 @@ in Teilen Chunks
 nach Cleanup sehen Daten so aus
 nach Gauß so
 - Discussion besonders wichtig
-- 2 Proteine reichen zur Darstellung aus
+- 2 Proteine reichen zur Darstellung aus (möglichst diverse Proteine nehmen (bspw. CTCF_HUMAN)) (no overly fancy plots)
+
+Letzte Woche: 
+  - keine Alternative zu optimize (einzige Idee: parallel laufen zu lassen (library "parallel"))
+  - Berechnung des overlaps bei den Gaußkurven: library "uniroot" -> Schnittpunkte und dann Integrale berechnen
+  - Zeitmessung in Chunks: "microbenchmark" (schaut, wie effizient eine Funktion läuft) 
+  
+---> Übernächste Woche Tut (wegen Biochemie-Praktikum): eventuell donnerstags online nach Klausur?
 
 
