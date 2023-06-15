@@ -1246,8 +1246,9 @@ RDPs
 non_RDPs
 
 ```
+#### 5. Further Analysis
 
-#### 5.1 k means clustering 
+##### 5.1 k-Means clustering 
 
 ```{r}
 
@@ -1304,6 +1305,177 @@ shift_behavior[which(shift_behavior[,3] == 9), 3] = "black"
 shift_behavior[which(shift_behavior[,3] == 10), 3] = "darkred"
 
 plot(Sel_Crit[,3], Sel_Crit[,7], main = "Shifting behavior", xlab = "Peak of Ctrl", ylab = "Peak of RNase", col = c(shift_behavior[,3]))
+
+
+plot(Sel_Crit_compare[,1], Sel_Crit_compare[,4])
+
+shift_behavior <- cbind(Sel_Crit[,1], Sel_Crit[,4])
+
+shift_behavior = cbind(shift_behavior, kmeans(shift_behavior, 3, iter.max = 10, nstart = 1)$cluster)
+
+shift_behavior[which(shift_behavior[,3] == 1), 3] = "yellow"
+shift_behavior[which(shift_behavior[,3] == 2), 3] = "red"
+shift_behavior[which(shift_behavior[,3] == 3), 3] = "blue"
+
+plot(Sel_Crit_compare[,1], Sel_Crit_compare[,4], col = c(shift_behavior[,3]))
+```
+##### 5.2 Principal Component Analysis
+
+```{r}
+Sel_Crit_PCA = as.data.frame(rep(NA, nrow(Ctrl_RDeep)))
+Sel_Crit_PCA[, 1] = (Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1])/25
+Sel_Crit_PCA[, 2] = RNase_Gauss_Fit[, 2]/Ctrl_Gauss_Fit[, 2] - 1
+Sel_Crit_PCA[, 3] = RNase_Gauss_Fit[, 3]/Ctrl_Gauss_Fit[, 3] - 1
+
+
+Fra.Pos = sapply(seq(1, nrow(Ctrl_RDeep), 1), function(i) {which(Ctrl_Mean_Smooth_Norm100[i,] == max(Ctrl_Mean_Smooth_Norm100[i,]))})
+Fra.Val = sapply(seq(1, nrow(Ctrl_RDeep), 1), function(n) {RNase_Mean_Smooth_Norm100[n, Fra.Pos[[n]]]})
+Fra.Val = sapply(seq(1, nrow(Ctrl_RDeep), 1), function(n) {mean(unlist(Fra.Val[[n]]))})
+
+Sel_Crit_PCA[, 4] = Fra.Val/apply(Ctrl_Mean_Smooth_Norm100, 1, function(x) {max(x)}) - 1
+
+
+Fra.Pos = sapply(seq(1, nrow(Ctrl_RDeep), 1), function(i) {which(RNase_Mean_Smooth_Norm100[i,] == max(RNase_Mean_Smooth_Norm100[i,]))})
+Fra.Val = sapply(seq(1, nrow(Ctrl_RDeep), 1), function(n) {Ctrl_Mean_Smooth_Norm100[n, Fra.Pos[[n]]]})
+Fra.Val = sapply(seq(1, nrow(Ctrl_RDeep), 1), function(n) {mean(unlist(Fra.Val[[n]]))})
+
+Sel_Crit_PCA[, 5] = 1 - Fra.Val/apply(RNase_Mean_Smooth_Norm100, 1, function(x) {max(x)})
+rm(Fra.Pos, Fra.Val)
+
+
+Sel_Crit_PCA[, 6] = RNase_Gauss_Fit[, 4]/Ctrl_Gauss_Fit[, 4] - 1
+Sel_Crit_PCA[, 7] = Ctrl_Gauss_Fit[, 5]
+Sel_Crit_PCA[, 8] = rep(NA, nrow(Ctrl_RDeep))
+Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) > 1), 8] = "left"
+Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) < -1), 8] = "right"
+Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) <= 1 & (Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) >= -1), 8] = "no"
+
+rownames(Sel_Crit_PCA) = rownames(Sel_Crit)
+colnames(Sel_Crit_PCA) = c("delta mu [%]", "delta sd [%]", "delta h [%]", "Ctrl_h_prop [%]", "RNase_h_prop [%]", "delta prt_amount [%]", "overlap [%]", "shift")
+
+pca = prcomp(Sel_Crit_PCA[, 1:7])
+
+pca$sdev^2/(sum(pca$sdev^2))*100
+pca$rotation
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = densCols(pca$x[, 1], pca$x[, 2], colramp = colorRampPalette(c("blue", "cyan", "green", "yellow", "orange", "red"))), main = "Point Density", xlab = "PC1", ylab = "PC2")
+abline(h = 0, lty =3, col = "grey")
+abline(v = 0, lty = 3, col = "grey")
+
+col = rep(NA, nrow(Ctrl_RDeep))
+col[which(Sel_Crit_PCA[, 8] == "left")] = "blue"
+col[which(Sel_Crit_PCA[, 8] == "right")] = "red"
+col[which(Sel_Crit_PCA[, 8] == "no")] = "grey"
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Shifting Behaviour", xlab = "PC1", ylab = "PC2")
+legend("topright", legend = c("left", "right", "no"), pch = 16, col = c("blue", "red", "grey"))
+
+
+col = rep(NA, nrow(Ctrl_RDeep))
+col[which(rownames(Ctrl_Gauss_Fit) %in% rownames(RDPs))] = "blue"
+col[which(rownames(Ctrl_Gauss_Fit) %in% rownames(non_RDPs))] = "grey"
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "RDPs and non RDPs", xlab = "PC1", ylab = "PC2")
+legend("topright", legend = c("RDP", "non RDP"), pch = 16, col = c("blue", "grey"))
+
+#library(ggplot2)
+#library(factoextra)
+
+fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T, col.ind = Sel_Crit_PCA[,8])
+
+kmeans = kmeans(pca$x[,1:2], 3, iter.max = 10, nstart = 1)
+kmeans$size
+col = rep(NA, nrow(Ctrl_RDeep))
+col[which(kmeans$cluster == 1)] = "blue"
+col[which(kmeans$cluster == 2)] = "red"
+col[which(kmeans$cluster == 3)] = "orange"
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "k-Means Clustering (n = 3)", xlab = "PC1", ylab = "PC2")
+legend("topright", legend = c("1", "2", "3"), pch = 16, col = c("blue", "red", "orange"))
+
+plot(1:5, c(kmeans(pca$x[,1:2], 1, iter.max = 10, nstart = 1)$tot.withinss,
+            kmeans(pca$x[,1:2], 2, iter.max = 10, nstart = 1)$tot.withinss,
+            kmeans(pca$x[,1:2], 3, iter.max = 10, nstart = 1)$tot.withinss,
+            kmeans(pca$x[,1:2], 4, iter.max = 10, nstart = 1)$tot.withinss,
+            kmeans(pca$x[,1:2], 5, iter.max = 10, nstart = 1)$tot.withinss), type = "b", pch = 19, main = "Elbow Method", xlab = "Number of cluster", ylab = "Total within-cluster sum of squares")
+rm(col, pca)
+```
+
+```{r}
+Sel_Crit_PCA = as.data.frame(rep(NA, nrow(Ctrl_RDeep)))
+Sel_Crit_PCA[, 1] = (Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1])/25
+Sel_Crit_PCA[, 2] = RNase_Gauss_Fit[, 2]/Ctrl_Gauss_Fit[, 2] - 1
+Sel_Crit_PCA[, 3] = RNase_Gauss_Fit[, 3]/Ctrl_Gauss_Fit[, 3] - 1
+
+
+Fra.Pos = sapply(seq(1, nrow(Ctrl_RDeep), 1), function(i) {which(Ctrl_Mean_Smooth_Norm100[i,] == max(Ctrl_Mean_Smooth_Norm100[i,]))})
+Fra.Val = sapply(seq(1, nrow(Ctrl_RDeep), 1), function(n) {RNase_Mean_Smooth_Norm100[n, Fra.Pos[[n]]]})
+Fra.Val = sapply(seq(1, nrow(Ctrl_RDeep), 1), function(n) {mean(unlist(Fra.Val[[n]]))})
+
+Sel_Crit_PCA[, 4] = Fra.Val/apply(Ctrl_Mean_Smooth_Norm100, 1, function(x) {max(x)}) - 1
+
+
+Fra.Pos = sapply(seq(1, nrow(Ctrl_RDeep), 1), function(i) {which(RNase_Mean_Smooth_Norm100[i,] == max(RNase_Mean_Smooth_Norm100[i,]))})
+Fra.Val = sapply(seq(1, nrow(Ctrl_RDeep), 1), function(n) {Ctrl_Mean_Smooth_Norm100[n, Fra.Pos[[n]]]})
+Fra.Val = sapply(seq(1, nrow(Ctrl_RDeep), 1), function(n) {mean(unlist(Fra.Val[[n]]))})
+
+Sel_Crit_PCA[, 5] = 1 - Fra.Val/apply(RNase_Mean_Smooth_Norm100, 1, function(x) {max(x)})
+rm(Fra.Pos, Fra.Val)
+
+
+Sel_Crit_PCA[, 6] = RNase_Gauss_Fit[, 4]/Ctrl_Gauss_Fit[, 4] - 1
+Sel_Crit_PCA[, 7] = Ctrl_Gauss_Fit[, 5]
+Sel_Crit_PCA[, 8] = rep(NA, nrow(Ctrl_RDeep))
+Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) > 1), 8] = "left"
+Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) < -1), 8] = "right"
+Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) <= 1 & (Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) >= -1), 8] = "no"
+
+rownames(Sel_Crit_PCA) = rownames(Sel_Crit)
+colnames(Sel_Crit_PCA) = c("delta mu [%]", "delta sd [%]", "delta h [%]", "Ctrl_h_prop [%]", "RNase_h_prop [%]", "delta prt_amount [%]", "overlap [%]", "shift")
+
+pca = prcomp(Sel_Crit_PCA[, c(1,4,5,7)])
+
+pca$sdev^2/(sum(pca$sdev^2))*100
+pca$rotation
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = densCols(pca$x[, 1], pca$x[, 2], colramp = colorRampPalette(c("blue", "cyan", "green", "yellow", "orange", "red"))), main = "Point Density", xlab = "PC1", ylab = "PC2")
+abline(h = 0, lty =3, col = "grey")
+abline(v = 0, lty = 3, col = "grey")
+
+col = rep(NA, nrow(Ctrl_RDeep))
+col[which(Sel_Crit_PCA[, 8] == "left")] = "blue"
+col[which(Sel_Crit_PCA[, 8] == "right")] = "red"
+col[which(Sel_Crit_PCA[, 8] == "no")] = "grey"
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Shifting Behaviour", xlab = "PC1", ylab = "PC2")
+legend("topright", legend = c("left", "right", "no"), pch = 16, col = c("blue", "red", "grey"))
+
+
+col = rep(NA, nrow(Ctrl_RDeep))
+col[which(rownames(Ctrl_Gauss_Fit) %in% rownames(RDPs))] = "blue"
+col[which(rownames(Ctrl_Gauss_Fit) %in% rownames(non_RDPs))] = "grey"
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "RDPs and non RDPs", xlab = "PC1", ylab = "PC2")
+legend("topright", legend = c("RDP", "non RDP"), pch = 16, col = c("blue", "grey"))
+
+#library(ggplot2)
+#library(factoextra)
+
+fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T, col.ind = Sel_Crit_PCA[,8])
+
+kmeans = kmeans(pca$x[,1:2], 2, iter.max = 10, nstart = 1)
+kmeans$size
+col = rep(NA, nrow(Ctrl_RDeep))
+col[which(kmeans$cluster == 1)] = "blue"
+col[which(kmeans$cluster == 2)] = "red"
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "k-Means Clustering (n = 2)", xlab = "PC1", ylab = "PC2")
+legend("topright", legend = c("1", "2"), pch = 16, col = c("blue", "red"))
+
+plot(1:5, c(kmeans(pca$x[,1:2], 1, iter.max = 10, nstart = 1)$tot.withinss,
+            kmeans(pca$x[,1:2], 2, iter.max = 10, nstart = 1)$tot.withinss,
+            kmeans(pca$x[,1:2], 3, iter.max = 10, nstart = 1)$tot.withinss,
+            kmeans(pca$x[,1:2], 4, iter.max = 10, nstart = 1)$tot.withinss,
+            kmeans(pca$x[,1:2], 5, iter.max = 10, nstart = 1)$tot.withinss), type = "b", pch = 19,main = "Elbow Method", xlab = "Number of cluster", ylab = "Total within-cluster sum of squares")
+rm(col, pca)
 ```
 
 
@@ -1331,7 +1503,7 @@ But you can also specify the arguments to your liking:
 ## To-Do
   # ggplot Unterstützung
 
-Gene_Plotter <- function(gene.name, col = c("green", "red", "dodgerblue", "orange"), Ctrl = T, RNase = T, Gbl.Max = T, Loc.Max = T, Gauss = T, grid = T, Type = "Smooth and Norm" #, "Norm", "Smooth", "Raw", "Compare"
+Gene_Plotter <- function(gene.name, col = c("green", "red", "dodgerblue", "darkorange"), Ctrl = T, RNase = T, Gbl.Max = T, Loc.Max = T, Gauss = T, grid = T, Type = "Smooth and Norm" #, "Norm", "Smooth", "Raw", "Compare"
                           ) {
 library(scales)
   
