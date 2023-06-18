@@ -1705,7 +1705,7 @@ sd(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], na.rm = T)/sqrt(length(which(kme
 mean(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], na.rm = T)
 sd(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 2)))
 
-rm(pca, kmeans)
+rm(pca, kmeans, col)
 ```
 
 
@@ -1754,10 +1754,10 @@ plot(1:25, rep(NA, 25),xlab="Protein Fractions",ylab="Relative Protein Amount",m
 if(grid == T) {grid()}
 
 if(conf == T & Ctrl == T) {
-polygon(c(seq(1,25,1), seq(25,1,-1)), c(Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),] - Ctrl_Norm100_sd[which(rownames(Ctrl_Mean)==gene.name[j]),], rev(Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),] + Ctrl_Norm100_sd[which(rownames(Ctrl_Mean)==gene.name[j]),])), border = NA, col = alpha("grey", 0.6))}
+polygon(c(seq(1,25,1), seq(25,1,-1)), c(Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),] - 1.96 * Ctrl_Norm100_sd[which(rownames(Ctrl_Mean)==gene.name[j]),], rev(Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),] + 1.96 * Ctrl_Norm100_sd[which(rownames(Ctrl_Mean)==gene.name[j]),])), border = NA, col = alpha("grey", 0.5))}
 
 if(conf == T & RNase == T) {
-polygon(c(seq(1,25,1), seq(25,1,-1)), c(RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name[j]),] - RNase_Norm100_sd[which(rownames(RNase_Mean)==gene.name[j]),], rev(RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name[j]),] + RNase_Norm100_sd[which(rownames(RNase_Mean)==gene.name[j]),])), border = NA, col = alpha("grey", 0.6))}
+polygon(c(seq(1,25,1), seq(25,1,-1)), c(RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name[j]),] - 1.96 * RNase_Norm100_sd[which(rownames(RNase_Mean)==gene.name[j]),], rev(RNase_Mean_Smooth_Norm100[which(rownames(RNase_Mean)==gene.name[j]),] + 1.96 * RNase_Norm100_sd[which(rownames(RNase_Mean)==gene.name[j]),])), border = NA, col = alpha("grey", 0.5))}
 
 if(Gbl.Max == T & Ctrl == T) {
 segments(unlist(Ctrl_Mean_Gbl_Max[which(rownames(Ctrl_Mean)==gene.name[j]),]), 
@@ -2080,5 +2080,5 @@ legend("topright",inset = c(-0.39,0),
 
 Let us see if it works!
 ```{r gene plotter}
-Gene_Plotter("HNRPL_HUMAN")
+Gene_Plotter(c("HNRPL_HUMAN", "CTCF_HUMAN"))
 ```
