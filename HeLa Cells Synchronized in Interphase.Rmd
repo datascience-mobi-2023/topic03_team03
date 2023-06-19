@@ -1603,7 +1603,7 @@ Table_HS_Non_RBP = read.csv("https://www.dropbox.com/s/cgbrvponhw7arpt/Table_HS_
 Table_HS_Non_RBP = Table_HS_Non_RBP[order(row.names(Table_HS_Non_RBP)),]
 ```
 
-Next, we will compare our selection of RDPs with the RBP2GO databank: 
+Next, we expand our dataframe **Sel_Crit_PCA** with a ninth column containing the RBP2GO-Score for each gene: 
 
 ```{r}
 Sel_Crit_PCA[, 9] = NA
@@ -1612,8 +1612,11 @@ colnames(Sel_Crit_PCA) = c(colnames(Sel_Crit_PCA)[-9], "RBP2GO_Score")
 Sel_Crit_PCA[which(rownames(Sel_Crit_PCA) %in% rownames(Table_HS_RBP)), 9] = Table_HS_RBP[which(rownames(Table_HS_RBP) %in% rownames(Sel_Crit_PCA)), 3]
 
 Sel_Crit_PCA[which(rownames(Sel_Crit_PCA) %in% rownames(Table_HS_Non_RBP)), 9] = Table_HS_Non_RBP[which(rownames(Table_HS_Non_RBP) %in% rownames(Sel_Crit_PCA)), 3]
+```
 
+Now we can look again at our PCA results and compare our findings with the RBP2GO databank:
 
+```{r}
 pca = prcomp(Sel_Crit_PCA[, 1:7])
 
 col = rep(NA, nrow(Ctrl_RDeep))
@@ -1623,43 +1626,12 @@ col[which(rownames(Ctrl_Gauss_Fit) %in% rownames(non_RDPs))] = "grey"
 plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Our RDPs and non RDPs", xlab = "PC1", ylab = "PC2")
 legend("topright", legend = c("RDP", "non RDP"), pch = 16, col = c("blue", "grey"))
 
-
 col = rep(NA, nrow(Ctrl_RDeep))
 col[which(rownames(Ctrl_Gauss_Fit) %in% rownames(Table_HS_RBP))] = "blue"
 col[which(rownames(Ctrl_Gauss_Fit) %in% rownames(Table_HS_Non_RBP))] = "grey"
 
 plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "RBP2GO RDPs and non RDPs", xlab = "PC1", ylab = "PC2")
 legend("topright", legend = c("RDP", "non RDP"), pch = 16, col = c("blue", "grey"))
-
-
-col = rep(NA, nrow(Sel_Crit_PCA))
-col[which(is.na(Sel_Crit_PCA[, 9]))] = "grey"
-col[which(Sel_Crit_PCA[, 9] <= 1)] = "purple"
-col[which(1 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 2)] = "blue"
-col[which(2 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 3)] = "cyan"
-col[which(3 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 4)] = "green"
-col[which(4 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 5)] = "yellow"
-col[which(5 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 10)] = "orange"
-col[which(10 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 100)] = "red"
-
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "RBP2GO_Score", xlab = "PC1", ylab = "PC2")
-legend("topright", legend = c("RDP", "non RDP"), pch = 16, col = c("blue", "grey"))
-
-kmeans = kmeans(pca$x[,1:2], 3, iter.max = 10, nstart = 1)
-
-col = rep(NA, nrow(Ctrl_RDeep))
-col[which(kmeans$cluster == 1)] = "blue"
-col[which(kmeans$cluster == 2)] = "red"
-col[which(kmeans$cluster == 3)] = "orange"
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "k-Means Clustering (n = 3)", xlab = "PC1", ylab = "PC2")
-legend("topright", legend = c("1", "2", "3"), pch = 16, col = c("blue", "red", "orange"))
-
-mean(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], na.rm = T)
-sd(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 1)))
-mean(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], na.rm = T)
-sd(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 2)))
-mean(Sel_Crit_PCA[which(kmeans$cluster == 3), 9], na.rm = T)
-sd(Sel_Crit_PCA[which(kmeans$cluster == 3), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 3)))
 
 
 pca = prcomp(Sel_Crit_PCA[, c(1, 4, 5, 7)])
@@ -1671,7 +1643,6 @@ col[which(rownames(Ctrl_Gauss_Fit) %in% rownames(non_RDPs))] = "grey"
 plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Our RDPs and non RDPs", xlab = "PC1", ylab = "PC2")
 legend("topright", legend = c("RDP", "non RDP"), pch = 16, col = c("blue", "grey"))
 
-
 col = rep(NA, nrow(Ctrl_RDeep))
 col[which(rownames(Ctrl_Gauss_Fit) %in% rownames(Table_HS_RBP))] = "blue"
 col[which(rownames(Ctrl_Gauss_Fit) %in% rownames(Table_HS_Non_RBP))] = "grey"
@@ -1679,31 +1650,93 @@ col[which(rownames(Ctrl_Gauss_Fit) %in% rownames(Table_HS_Non_RBP))] = "grey"
 plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "RBP2GO RDPs and non RDPs", xlab = "PC1", ylab = "PC2")
 legend("topright", legend = c("RDP", "non RDP"), pch = 16, col = c("blue", "grey"))
 
-col = rep(NA, nrow(Sel_Crit_PCA))
-col[which(is.na(Sel_Crit_PCA[, 9]))] = "grey"
-col[which(Sel_Crit_PCA[, 9] <= 1)] = "purple"
-col[which(1 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 2)] = "blue"
-col[which(2 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 3)] = "cyan"
-col[which(3 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 4)] = "green"
-col[which(4 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 5)] = "yellow"
-col[which(5 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 10)] = "orange"
-col[which(10 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 100)] = "red"
+rm(pca, col)
+```
 
+Mmmmmh ... maybe we get more clear results if we color our points according to their RBP2GO-scores: we have 5970 genes with RBP2GO-scores (20 genes are not included in the RBP2GO databank ( = NA)). We want to obtain 6 ruffly equally sized groups (so 995 genes in each): 
+
+  RBP2-Score Range    Number of Genes
+  [0, 0.9]            1039
+  (0.9, 2.3]          1075
+  (2.3, 4]            993
+  (4, 6.9]            973
+  (6.9, 15.9]         995
+  (15.9, 100]         895
+  NA                  20
+
+```{r}
+pca = prcomp(Sel_Crit_PCA[, 1:7])
+
+col = rep(NA, nrow(Sel_Crit_PCA))
+col[which(is.na(Sel_Crit_PCA[, 9]))] = "grey" # 20
+col[which(Sel_Crit_PCA[, 9] <= 0.9)] = "purple" # 1039
+col[which(0.9 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 2.3)] = "blue" # 1075
+col[which(2.3 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 4)] = "green" # 993
+col[which(4 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 6.9)] = "yellow" # 973
+col[which(6.9 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 15.9)] = "orange" # 995
+col[which(15.9 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 100)] = "red" # 895
+
+par(mar=c(5, 4, 4, 7), xpd=F)
 plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "RBP2GO_Score", xlab = "PC1", ylab = "PC2")
-legend("topright", legend = c("RDP", "non RDP"), pch = 16, col = c("blue", "grey"))
+par(xpd=T)
+legend("topright", inset = c(-0.24,0), legend = c("[0, 0.9]", "(0.9, 2.3]", "(2.3, 4]", "(4, 6.9]", "(6.9, 15.9]", "(15.9, 100]", "NA"), pch = 16, col = c("purple", "blue", "green", "yellow", "orange", "red", "grey"))
+
+
+pca = prcomp(Sel_Crit_PCA[, c(1, 4, 5, 7)])
+
+col = rep(NA, nrow(Sel_Crit_PCA))
+col[which(is.na(Sel_Crit_PCA[, 9]))] = "grey" # 20
+col[which(Sel_Crit_PCA[, 9] <= 0.9)] = "purple" # 1039
+col[which(0.9 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 2.3)] = "blue" # 1075
+col[which(2.3 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 4)] = "green" # 993
+col[which(4 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 6.9)] = "yellow" # 973
+col[which(6.9 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 15.9)] = "orange" # 995
+col[which(15.9 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 100)] = "red" # 895
+
+par(mar=c(5, 4, 4, 7), xpd=F)
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "RBP2GO_Score", xlab = "PC1", ylab = "PC2")
+par(xpd=T)
+legend("topright", inset = c(-0.24,0), legend = c("[0, 0.9]", "(0.9, 2.3]", "(2.3, 4]", "(4, 6.9]", "(6.9, 15.9]", "(15.9, 100]", "NA"), pch = 16, col = c("purple", "blue", "green", "yellow", "orange", "red", "grey"))
+
+rm(pca, col)
+```
+
+Still no clear results :( 
+Maybe we can go back to our k-means clustering. By calculating the **mean RBP2GO-score** for each cluster, we can estimate how RNA-dependent a cluster is. 
+Furthermore, we can use a t-Test to calculate how significant the differences between the mean values are (H0: *The mean values are not significantly different from each other*, H1: *The mean values are significantly different from each other* (two-sided t-test)):
+
+```{r}
+pca = prcomp(Sel_Crit_PCA[, 1:7])
+
+kmeans = kmeans(pca$x[,1:2], 3, iter.max = 10, nstart = 1)
+
+col = rep(NA, nrow(Ctrl_RDeep))
+col[which(kmeans$cluster == 1)] = "blue"
+col[which(kmeans$cluster == 2)] = "red"
+col[which(kmeans$cluster == 3)] = "orange"
+
+par(mar=c(4, 4, 4, 11), xpd=F)
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "k-Means Clustering (n = 3)", xlab = "PC1", ylab = "PC2")
+par(xpd=T)
+legend("topright", inset = c(-0.5,0), legend = c(paste("Cluster 1 (n = ", length(Sel_Crit_PCA[which(kmeans$cluster == 1), 9]), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 1))), 2), ")", sep = ""), paste("Cluster 2 (n = ", length(Sel_Crit_PCA[which(kmeans$cluster == 2), 9]), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 2))), 2), ")", sep = ""), paste("Cluster 3 (n = ", length(Sel_Crit_PCA[which(kmeans$cluster == 3), 9]), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit_PCA[which(kmeans$cluster == 3), 9], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit_PCA[which(kmeans$cluster == 3), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 3))), 2), ")", sep = ""), "", paste("p(1&2) = ", signif(t.test(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], Sel_Crit_PCA[which(kmeans$cluster == 2), 9], alternative = "two.sided")$p.value, 3), sep = ""), paste("p(1&3) = ", signif(t.test(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], Sel_Crit_PCA[which(kmeans$cluster == 3), 9], alternative = "two.sided")$p.value, 3), sep = ""), paste("p(2&3) = ", signif(t.test(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], Sel_Crit_PCA[which(kmeans$cluster == 3), 9], alternative = "two.sided")$p.value, 3), sep = "")), pch = 16, col = c("blue", NA, "red", NA, "orange", NA, NA, NA, NA, NA))
+
+
+pca = prcomp(Sel_Crit_PCA[, c(1, 4, 5, 7)])
 
 kmeans = kmeans(pca$x[,1:2], 2, iter.max = 10, nstart = 1)
 
 col = rep(NA, nrow(Ctrl_RDeep))
 col[which(kmeans$cluster == 1)] = "blue"
 col[which(kmeans$cluster == 2)] = "red"
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "k-Means Clustering (n = 2)", xlab = "PC1", ylab = "PC2")
-legend("topright", legend = c("1", "2"), pch = 16, col = c("blue", "red"))
 
-mean(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], na.rm = T)
-sd(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 1)))
-mean(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], na.rm = T)
-sd(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 2)))
+par(mar=c(4, 4, 4, 11), xpd=F)
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "k-Means Clustering (n = 2)", xlab = "PC1", ylab = "PC2")
+par(xpd=T)
+legend("topright", 
+       inset = c(-0.475,0), 
+       legend = c(paste("Cluster 1 (n = ", length(Sel_Crit_PCA[which(kmeans$cluster == 1), 9]), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 1))), 2), ")", sep = ""), paste("Cluster 2 (n = ", length(Sel_Crit_PCA[which(kmeans$cluster == 2), 9]), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 2))), 2), ")", sep = ""), "", paste("p(1&2) = ", signif(t.test(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], Sel_Crit_PCA[which(kmeans$cluster == 2), 9], alternative = "two.sided")$p.value, 3), sep = "")), 
+       pch = 16, 
+       col = c("blue", NA, "red", NA, NA, NA))
 
 rm(pca, kmeans, col)
 ```
