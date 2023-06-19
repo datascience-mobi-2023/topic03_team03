@@ -2,7 +2,7 @@
 title: "Proteome-wide Screen for RNA-dependent Proteins in HeLa cells synchronized in Interphase"
 subtitle: "Data Analysis Project 2023"
 author: "Hannah Brehm, Johann Blakytny, Kira Hoffmann, Viktor Bonin"
-date: "2023-06-14"
+date: "XX.07.2023"
 output:
   pdf_document: default
 ---
@@ -11,18 +11,48 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+***
+# Abstract
+
+
+***
 
 # Introduction
-sdfghjklöä
+
 ```{r}
 #test chunk
 ```
 
+
 # Material and Methods
-sdfghjkl
+
+## Receipt of the Data
+
+## Data Cleanup and Normalization
+
+### NA Values and Zero Rows
+### Pearson Correlation
+### Mean of Replicates
+### Normalization of Rows to 100
+### Data Exploration
+
+## Smoothing and Determination of Maxima
+
+### Smoothing the Data
+### Determination of Maxima
+#### Global Maxima
+#### Local Maxima
+
+## Gaussian Fitting
+### Gaussian Overlap
+
+## Selection Criteria for Identification of RNA-Dependent Proteins
+
+## Clustering
+### k means Clustering
+
 
 # Results
-sdfghjkl
+
 
 # Discussion
-asdfghjk
