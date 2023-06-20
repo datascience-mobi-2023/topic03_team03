@@ -1491,10 +1491,11 @@ We can also visualize our PCA results by plotting the first 2 PCs (**Note**: *re
 col = rep(NA, nrow(Ctrl_RDeep))
 col[which(Sel_Crit_PCA[, 8] == "left")] = "blue"
 col[which(Sel_Crit_PCA[, 8] == "right")] = "red"
+col[which(Sel_Crit_PCA[, 8] == "precipitated")] = "orange"
 col[which(Sel_Crit_PCA[, 8] == "no")] = "grey"
 
 plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Shifting Behavior", xlab = "PC1", ylab = "PC2")
-legend("topright", legend = c("left", "right", "no"), pch = 16, col = c("blue", "red", "grey"))
+legend("topright", legend = c("left", "right", "precipitated", "no"), pch = 16, col = c("blue", "red", "orange", "grey"))
 
 
 # ---> Plot, der die Datenpunkte je nach Kategorisierung in "RDP" oder "non RDP" einfärbt (nimmt Einteilung aus den Berechnungen aus "4.2 Dataframe with all three selection criteria in comparison")
@@ -1520,7 +1521,7 @@ fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T
 
 
 # ---> kmeans-Clustering
-kmeans = kmeans(pca$x[,1:2], 3, iter.max = 10, nstart = 1)
+kmeans = kmeans(pca$x, 3, iter.max = 10, nstart = 1)
 
 col = rep(NA, nrow(Ctrl_RDeep))
 col[which(kmeans$cluster == 1)] = "blue"
@@ -1550,10 +1551,11 @@ pca = prcomp(Sel_Crit_PCA[, c(1, 4, 5, 7)])
 col = rep(NA, nrow(Ctrl_RDeep))
 col[which(Sel_Crit_PCA[, 8] == "left")] = "blue"
 col[which(Sel_Crit_PCA[, 8] == "right")] = "red"
+col[which(Sel_Crit_PCA[, 8] == "precipitated")] = "orange"
 col[which(Sel_Crit_PCA[, 8] == "no")] = "grey"
 
 plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Shifting Behavior", xlab = "PC1", ylab = "PC2")
-legend("topright", legend = c("left", "right", "no"), pch = 16, col = c("blue", "red", "grey"))
+legend("topright", legend = c("left", "right", "precipitated", "no"), pch = 16, col = c("blue", "red", "orange", "grey"))
 
 
 # ---> Plot, der die Datenpunkte je nach Kategorisierung in "RDP" oder "non RDP" einfärbt (nimmt Einteilung aus den Berechnungen aus "4.2 Dataframe with all three selection criteria in comparison")
@@ -1579,7 +1581,7 @@ fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T
 
 
 # ---> kmeans-Clustering
-kmeans = kmeans(pca$x[,1:2], 2, iter.max = 10, nstart = 1)
+kmeans = kmeans(pca$x, 2, iter.max = 10, nstart = 1)
 
 col = rep(NA, nrow(Ctrl_RDeep))
 col[which(kmeans$cluster == 1)] = "blue"
@@ -1720,7 +1722,7 @@ Furthermore, we can use a t-Test to calculate how significant the differences be
 ```{r}
 pca = prcomp(Sel_Crit_PCA[, 1:7])
 
-kmeans = kmeans(pca$x[,1:2], 3, iter.max = 10, nstart = 1)
+kmeans = kmeans(pca$x, 3, iter.max = 10, nstart = 1)
 
 col = rep(NA, nrow(Ctrl_RDeep))
 col[which(kmeans$cluster == 1)] = "blue"
@@ -1730,12 +1732,12 @@ col[which(kmeans$cluster == 3)] = "orange"
 par(mar=c(4, 4, 4, 11), xpd=F)
 plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "k-Means Clustering (n = 3)", xlab = "PC1", ylab = "PC2")
 par(xpd=T)
-legend("topright", inset = c(-0.5,0), legend = c(paste("Cluster 1 (n = ", length(Sel_Crit_PCA[which(kmeans$cluster == 1), 9]), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 1))), 2), ")", sep = ""), paste("Cluster 2 (n = ", length(Sel_Crit_PCA[which(kmeans$cluster == 2), 9]), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 2))), 2), ")", sep = ""), paste("Cluster 3 (n = ", length(Sel_Crit_PCA[which(kmeans$cluster == 3), 9]), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit_PCA[which(kmeans$cluster == 3), 9], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit_PCA[which(kmeans$cluster == 3), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 3))), 2), ")", sep = ""), "", paste("p(1&2) = ", signif(t.test(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], Sel_Crit_PCA[which(kmeans$cluster == 2), 9], alternative = "two.sided")$p.value, 3), sep = ""), paste("p(1&3) = ", signif(t.test(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], Sel_Crit_PCA[which(kmeans$cluster == 3), 9], alternative = "two.sided")$p.value, 3), sep = ""), paste("p(2&3) = ", signif(t.test(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], Sel_Crit_PCA[which(kmeans$cluster == 3), 9], alternative = "two.sided")$p.value, 3), sep = "")), pch = 16, col = c("blue", NA, "red", NA, "orange", NA, NA, NA, NA, NA))
+legend("topright", inset = c(-0.5,0), legend = c(paste("Cluster 1 (n = ", length(which(kmeans$cluster == 1)), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 1))), 2), ")", sep = ""), paste("Cluster 2 (n = ", length(which(kmeans$cluster == 2)), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 2))), 2), ")", sep = ""), paste("Cluster 3 (n = ", length(which(kmeans$cluster == 3)), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit_PCA[which(kmeans$cluster == 3), 9], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit_PCA[which(kmeans$cluster == 3), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 3))), 2), ")", sep = ""), "", paste("p(1&2) = ", signif(t.test(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], Sel_Crit_PCA[which(kmeans$cluster == 2), 9], alternative = "two.sided")$p.value, 3), sep = ""), paste("p(1&3) = ", signif(t.test(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], Sel_Crit_PCA[which(kmeans$cluster == 3), 9], alternative = "two.sided")$p.value, 3), sep = ""), paste("p(2&3) = ", signif(t.test(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], Sel_Crit_PCA[which(kmeans$cluster == 3), 9], alternative = "two.sided")$p.value, 3), sep = "")), pch = 16, col = c("blue", NA, "red", NA, "orange", NA, NA, NA, NA, NA))
 
 
 pca = prcomp(Sel_Crit_PCA[, c(1, 4, 5, 7)])
 
-kmeans = kmeans(pca$x[,1:2], 2, iter.max = 10, nstart = 1)
+kmeans = kmeans(pca$x, 2, iter.max = 10, nstart = 1)
 
 col = rep(NA, nrow(Ctrl_RDeep))
 col[which(kmeans$cluster == 1)] = "blue"
@@ -1746,7 +1748,7 @@ plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "k-Means Clustering (n 
 par(xpd=T)
 legend("topright", 
        inset = c(-0.475,0), 
-       legend = c(paste("Cluster 1 (n = ", length(Sel_Crit_PCA[which(kmeans$cluster == 1), 9]), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 1))), 2), ")", sep = ""), paste("Cluster 2 (n = ", length(Sel_Crit_PCA[which(kmeans$cluster == 2), 9]), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 2))), 2), ")", sep = ""), "", paste("p(1&2) = ", signif(t.test(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], Sel_Crit_PCA[which(kmeans$cluster == 2), 9], alternative = "two.sided")$p.value, 3), sep = "")), 
+       legend = c(paste("Cluster 1 (n = ", length(which(kmeans$cluster == 1)), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 1))), 2), ")", sep = ""), paste("Cluster 2 (n = ", length(which(kmeans$cluster == 2)), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 2))), 2), ")", sep = ""), "", paste("p(1&2) = ", signif(t.test(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], Sel_Crit_PCA[which(kmeans$cluster == 2), 9], alternative = "two.sided")$p.value, 3), sep = "")), 
        pch = 16, 
        col = c("blue", NA, "red", NA, NA, NA))
 
