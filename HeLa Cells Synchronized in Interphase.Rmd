@@ -1375,7 +1375,7 @@ The data set **Sel_Crit_PCA** (which will be used for PCA) contains the followin
   * **RNase_h_prop [%]**: how much percent of protein amount under the RNase peak is gained upon RNase treatment? (1 - prt1/prt2)
   * **delta_prt_amount [%]**: percentage of change between the protein amount under the Ctrl and RNase peaks (peak_prt2/peak_prt1 - 1)
   * **overlap [%]**: percentage of overlap between the gaussian curves of Ctrl and RNase 
-  * **shift**: character variable that states whether a protein is left, right or non shifting (shifting defined as delta mu over 1 fraction) (not used directly in PCA but for visualizing the results)
+  * **shift**: character variable that states whether a protein is **left**, **right** or **non** shifting (shifting defined as delta mu over 1 fraction) or **precipitated** (if one of the global peaks are over 24) (not used directly in PCA but for visualizing the results)
   
 **Note**: *All variables are calculated as percentages so that they are comparable to each other.*
 
@@ -1443,20 +1443,32 @@ Sel_Crit_PCA[, 6] = RNase_Gauss_Fit[, 4]/Ctrl_Gauss_Fit[, 4] - 1
 # ---> "overlap [%]": Hinzufügen der prozentualen Überlappung der Gaußkurven von Ctrl und RNase (Berechnung: s. "3.4 Calculation of Gaussian Overlap")
 Sel_Crit_PCA[, 7] = Ctrl_Gauss_Fit[, 5]
 
-# ---> "shift": Kategorisieren der Gene in "left", "right" and "no" shifting anhand der Mittelwerte der gefitteten Gaußkurven (wir gehen erst von einem Shift aus, wenn die Differenz der Mittelwerte größer als 1 Fraktion ist)
+# ---> "shift": Kategorisieren der Gene in "left", "right" and "no" shifting und "precipitated" anhand der Mittelwerte der gefitteten Gaußkurven (wir gehen erst von einem Shift aus, wenn die Differenz der Mittelwerte größer als 1 Fraktion ist)
 Sel_Crit_PCA[, 8] = rep(NA, nrow(Ctrl_RDeep))
-Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) > 1), 8] = "left"
-Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) < -1), 8] = "right"
-Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) <= 1 & (Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) >= -1), 8] = "no"
+Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) > 1 & !(Ctrl_Gauss_Fit[, 1] > 24 | RNase_Gauss_Fit[, 1] > 24)), 8] = "left"
+Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) < -1 & !(Ctrl_Gauss_Fit[, 1] > 24 | RNase_Gauss_Fit[, 1] > 24)), 8] = "right"
+Sel_Crit_PCA[which(Ctrl_Gauss_Fit[, 1] > 24 | RNase_Gauss_Fit[, 1] > 24), 8] = "precipitated"
+Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) <= 1 & (Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) >= -1 & !(Ctrl_Gauss_Fit[, 1] > 24 | RNase_Gauss_Fit[, 1] > 24)), 8] = "no"
 
 # ---> Benennung der Zeilen und Spalten des Dataframes
 rownames(Sel_Crit_PCA) = rownames(Sel_Crit)
 colnames(Sel_Crit_PCA) = c("delta_mu [%]", "delta_sd [%]", "delta_h [%]", "Ctrl_h_prop [%]", "RNase_h_prop [%]", "delta_prt_amount [%]", "overlap [%]", "shift")
 
-# ---> Entfernung erstellter Variablen
-rm(Fra.Pos, x1, x2, Ctrl_prt_amount, RNase_prt_amount)
-
+# ---> Wie sieht der Datensatz aus?
 head(Sel_Crit_PCA)
+
+# ---> Plotten der peak positions und Einfärben nach "left", "right", "precipitated" und "no" shifting
+col = rep(NA, nrow(Ctrl_RDeep))
+col[which(Sel_Crit_PCA[, 8] == "left")] = "blue"
+col[which(Sel_Crit_PCA[, 8] == "right")] = "red"
+col[which(Sel_Crit_PCA[, 8] == "precipitated")] = "orange"
+col[which(Sel_Crit_PCA[, 8] == "no")] = "grey"
+
+plot(Ctrl_Gauss_Fit[, 1], RNase_Gauss_Fit[, 1], pch = 16, col = col, main = "Shifting Behavior", xlab = "Ctrl Gbl Peak Position", ylab = "RNase Gbl Peak Position")
+legend("topleft", legend = c("left", "right", "precipitated", "no"), pch = 16, col = c("blue", "red", "orange", "grey"))
+
+# ---> Entfernung erstellter Variablen
+rm(Fra.Pos, x1, x2, Ctrl_prt_amount, RNase_prt_amount, col)
 ```
 
 We will now use PCA to determine new (non-correlating) variables (**Principal Components** (**PC**)) for our dataframe:
