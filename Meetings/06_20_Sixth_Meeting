@@ -1,7 +1,7 @@
 Fragen:
 1. Welchen Termin für das nächste Tutorium? (Wir haben Praktikum...)
-2. T-Test-Signifikanz. Whyyy? (Extrem unterschiedliche p-Values bei Zufallsverteilung)
-3. RBP2GO-Score: Beispiel CTCF_HUMAN 15,4 aber bekannt, dass RBP. Wie können wir mit diesen und unseren Daten umgehen?
+2. T-Test-Signifikanz. Whyyy? (Extrem unterschiedliche p-Values bei Zufallsverteilung) - ist bisheriger T-test ausreichend oder muss separater T-test durchgeführt werden? Ergebnis mehr oder weniger signifikant
+3. RBP2GO-Score: Beispiel CTCF_HUMAN 15,4 aber bekannt, dass RBP. Wie können wir mit diesen und unseren Daten umgehen? Wie berechnet er sich?
 4. Können wir Zugang zu Maiwens Daten aus unserem Datensatz bekommen? Ist nicht von der Platform pullbar...
 5. Kann man in den Code integrieren, dass ein bestimmtes Environment aus dem Repository geladen wird? (Wie ein Dropbox-Link)
 
