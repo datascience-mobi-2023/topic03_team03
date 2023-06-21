@@ -43,15 +43,16 @@ The pearson correlation can not be calculated for replicates only containing zer
 
 Because these replicates contained very little information, we replaced these replicates with the value NA in our dataframes *Ctrl_RDeep* and *RNase_RDeep*. If two replicates of one gene and condition contained only zeros, we removed the entire gene from the dataframes because there is no proficient analysis with only one replicate for a condition. If all three correlation coefficients for a gene and condition were under 0.95, the entire gene was removed from the dataframes. If two correlation coefficients are under 0.95, the associated replicate will be replaced with NA values. If only one correlation coefficient is under 0.95, the replicate is replaced for which the remaining correlation is lower.
 ### 2.2.3 Mean of Replicates
-### 2.2.4 Normalization of Rows to 100
-### 2.2.5 Data Exploration
+### 2.2.4 Data Exploration
 
 ## 2.3 Smoothing and Determination of Maxima
 
 ### 2.3.1 Smoothing the Data
-### 2.3.2 Determination of Maxima
-#### 2.3.2.1 Global Maxima
-#### 2.3.2.2 Local Maxima
+### 2.3.2 Nomralization of smoothed data
+
+### 2.3.3 Determination of Maxima
+#### 2.3.3.1 Global Maxima
+#### 2.3.3.2 Local Maxima
 
 ## 2.4 Gaussian Fitting
 ### 2.4.1 Gaussian Overlap
