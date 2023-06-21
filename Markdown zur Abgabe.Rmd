@@ -9,6 +9,8 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+load("Environment_with_RDP.RData")
+# Environment clearen und dann Neues hinzufügen, mit allen nötigen Dataframes für die Graphen
 ```
 
 ***
@@ -17,42 +19,67 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ***
 
-# Introduction
+# 1. Introduction
 
 ```{r}
 #test chunk
 ```
 
 
-# Material and Methods
+# 2. Material and Methods
 
-## Receipt of the Data
+## 2.1 Receipt of the Data
 
-## Data Cleanup and Normalization
+## 2.2 Data Cleanup and Normalization
+Divide dataframe into RNAse and Ctrl...
 
-### NA Values and Zero Rows
-### Pearson Correlation
-### Mean of Replicates
-### Normalization of Rows to 100
-### Data Exploration
+### 2.2.1 NA Values and Zero Rows
+### 2.2.2 Pearson Correlation
+To test the reproducibility of the dataset the pearson correlation between the 3 replicates for each gene was calculated. The threshold for reproducibility is a correlation coefficient over or equal to 0.95. Genes for which all correlation coefficients were under 0.95 were removed from the data frames. 
+If all three correlation coefficients for a gene and condition were under 0.95, the entire gene was removed from the dataframes. If two correlation coefficients are under 0.95, the associated replicate will be replaced with NA values. If only one correlation coefficient is under 0.95, the replicate is replaced for which the remaining correlation is lower.
 
-## Smoothing and Determination of Maxima
+The pearson correlation can not be calculated for replicates only containing zeros (sd = 0; 1/sd = NaN); thus, for genes containing only one replicate of zero the replicate was replaced with the NA value. 
+. Similarly, for genes with two replicates containing only zeros those genes were excluded from the dataset
 
-### Smoothing the Data
-### Determination of Maxima
-#### Global Maxima
-#### Local Maxima
+Because these replicates contained very little information, we replaced these replicates with the value NA in our dataframes *Ctrl_RDeep* and *RNase_RDeep*. If two replicates of one gene and condition contained only zeros, we removed the entire gene from the dataframes because there is no proficient analysis with only one replicate for a condition. If all three correlation coefficients for a gene and condition were under 0.95, the entire gene was removed from the dataframes. If two correlation coefficients are under 0.95, the associated replicate will be replaced with NA values. If only one correlation coefficient is under 0.95, the replicate is replaced for which the remaining correlation is lower.
+### 2.2.3 Mean of Replicates
+### 2.2.4 Normalization of Rows to 100
+### 2.2.5 Data Exploration
 
-## Gaussian Fitting
-### Gaussian Overlap
+## 2.3 Smoothing and Determination of Maxima
 
-## Selection Criteria for Identification of RNA-Dependent Proteins
+### 2.3.1 Smoothing the Data
+### 2.3.2 Determination of Maxima
+#### 2.3.2.1 Global Maxima
+#### 2.3.2.2 Local Maxima
 
-## Clustering
-### k means Clustering
+## 2.4 Gaussian Fitting
+### 2.4.1 Gaussian Overlap
+
+## 2.5 Selection Criteria for Identification of RNA-Dependent Proteins
+
+## 2.6 Further Analysis
+### 2.6.1 Principal Componant Analysis
+### 2.6.2 k means Clustering
+### 2.6.3 Linear Regression
+### 2.6.4 Comparison with the RBP2GO Database
+
+# 3. Results
+
+```{r}
+load("Environment_with_RDP.RData")
+
+col = rep(NA, nrow(Ctrl_RDeep))
+col[which(Sel_Crit_PCA[, 8] == "left")] = "blue"
+col[which(Sel_Crit_PCA[, 8] == "right")] = "red"
+col[which(Sel_Crit_PCA[, 8] == "precipitated")] = "orange"
+col[which(Sel_Crit_PCA[, 8] == "no")] = "grey"
+
+plot(Ctrl_Gauss_Fit[, 1], RNase_Gauss_Fit[, 1], pch = 16, col = col, main = "Shifting Behavior", xlab = "Ctrl Gbl Peak Position", ylab = "RNase Gbl Peak Position")
+legend("topleft", legend = c("left", "right", "precipitated", "no"), pch = 16, col = c("blue", "red", "orange", "grey"))
+rm(col)
+```
 
 
-# Results
 
-
-# Discussion
+# 4. Discussion
