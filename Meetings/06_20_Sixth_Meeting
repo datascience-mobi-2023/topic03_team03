@@ -3,9 +3,9 @@ Fragen:
 2. T-Test-Signifikanz. Whyyy? (Extrem unterschiedliche p-Values bei Zufallsverteilung) - ist bisheriger T-test ausreichend oder muss separater T-test durchgeführt werden? Ergebnis mehr oder weniger signifikant
 3. RBP2GO-Score: Beispiel CTCF_HUMAN 15,4 aber bekannt, dass RBP. Wie können wir mit diesen und unseren Daten umgehen? Wie berechnet er sich?
 4. Was genau bedeutet precipitated? -  wir dachten, wenn sowohl in control als auch in RNAse der Proteinamount in der 25 Fraktion liegt und deshalb keine Aussage über shift getroffen werden kann
-4. Können wir Zugang zu Maiwens Daten aus unserem Datensatz bekommen? Ist nicht von der Platform pullbar...
-5. Kann man in den Code integrieren, dass ein bestimmtes Environment aus dem Repository geladen wird? (Wie ein Dropbox-Link)
-6. In welchen Zeiten wird das Markdown geschrieben? Simple past oder present? Aktiv oder Passiv?
+5. Können wir Zugang zu Maiwens Daten aus unserem Datensatz bekommen? Ist nicht von der Platform pullbar...
+6. Kann man in den Code integrieren, dass ein bestimmtes Environment aus dem Repository geladen wird? (Wie ein Dropbox-Link)
+7. In welchen Zeiten wird das Markdown geschrieben? Simple past oder present? Aktiv oder Passiv?
 
 Antworten:
 1. 
@@ -13,4 +13,5 @@ Antworten:
 3. 
 4. 
 5.
-6. Methods: , Results:
+6.
+7. Methods: , Results:
