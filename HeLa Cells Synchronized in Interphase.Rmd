@@ -1445,10 +1445,10 @@ Sel_Crit_PCA[, 7] = Ctrl_Gauss_Fit[, 5]
 
 # ---> "shift": Kategorisieren der Gene in "left", "right" and "no" shifting und "precipitated" anhand der Mittelwerte der gefitteten Gaußkurven (wir gehen erst von einem Shift aus, wenn die Differenz der Mittelwerte größer als 1 Fraktion ist)
 Sel_Crit_PCA[, 8] = rep(NA, nrow(Ctrl_RDeep))
-Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) > 1 & !(Ctrl_Gauss_Fit[, 1] > 24 | RNase_Gauss_Fit[, 1] > 24)), 8] = "left"
-Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) < -1 & !(Ctrl_Gauss_Fit[, 1] > 24 | RNase_Gauss_Fit[, 1] > 24)), 8] = "right"
-Sel_Crit_PCA[which(Ctrl_Gauss_Fit[, 1] > 24 | RNase_Gauss_Fit[, 1] > 24), 8] = "precipitated"
-Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) <= 1 & (Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) >= -1 & !(Ctrl_Gauss_Fit[, 1] > 24 | RNase_Gauss_Fit[, 1] > 24)), 8] = "no"
+Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) > 1 & !(Ctrl_Gauss_Fit[, 1] > 24 & RNase_Gauss_Fit[, 1] > 24)), 8] = "left"
+Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) < -1 & !(Ctrl_Gauss_Fit[, 1] > 24 & RNase_Gauss_Fit[, 1] > 24)), 8] = "right"
+Sel_Crit_PCA[which(Ctrl_Gauss_Fit[, 1] > 24 & RNase_Gauss_Fit[, 1] > 24), 8] = "precipitated"
+Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) <= 1 & (Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) >= -1 & !(Ctrl_Gauss_Fit[, 1] > 24 & RNase_Gauss_Fit[, 1] > 24)), 8] = "no"
 
 # ---> Benennung der Zeilen und Spalten des Dataframes
 rownames(Sel_Crit_PCA) = rownames(Sel_Crit)
