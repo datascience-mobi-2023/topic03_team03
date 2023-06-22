@@ -1,0 +1,26 @@
+Fragen:
+1. Welchen Termin für das nächste Tutorium? (Wir haben Praktikum...)
+2. T-Test-Signifikanz. Whyyy? (Extrem unterschiedliche p-Values bei Zufallsverteilung) - ist bisheriger T-test ausreichend oder muss separater T-test durchgeführt werden? Ergebnis mehr oder weniger signifikant
+  - unterschiedliche p-values für Anzahl der Selektionskriterien (also unterschiedliches p-Value bei 7 PC und 4 PC)?
+3. RBP2GO-Score: Beispiel CTCF_HUMAN 15,4 aber bekannt, dass RBP. Wie können wir mit diesen und unseren Daten umgehen? Wie berechnet er sich?
+4. Was genau bedeutet precipitated? -  wir dachten, wenn sowohl in control als auch in RNAse der Proteinamount in der 25 Fraktion liegt und deshalb keine Aussage über shift getroffen werden kann
+5. Können wir Zugang zu Maiwens Daten aus unserem Datensatz bekommen? Ist nicht von der Platform pullbar...
+6. Kann man in den Code integrieren, dass ein bestimmtes Environment aus dem Repository geladen wird? (Wie ein Dropbox-Link)
+7. In welchen Zeiten wird das Markdown geschrieben? Simple past oder present? Aktiv oder Passiv?
+8. PCA passt das so?
+
+Antworten:
+1. Donnerstag, den 29.06.23 um 17:30 über Discord
+2.- T-Test bei Auswahlkriterien für shifts (Statt einfach anzunhemen, dass Shift bei größer als einer Fraktion) - zweiseitiger Stichprobentest
+  - T-Test so ist nicht Aussagekräftig
+3.- Berechnung des Scores: 2 Komponenten: 50% Listencount durch Anzahl der Datensätze, 50% Datenbank String, Daten welches Protein mit welchem anderen Protein interagiert => Score, wie stark Interaktion ist; mean von Listingcount der 10 stärksten Interaktionspartner
+  - gäbe Theoretisch auch den Composite score, ist aber auf RDP2go nicht drin
+4. Sobald eins in 25 ist, ist es precipitated => man kann darüber keine Aussage treffen
+5. Maiwens Daten sind in RDeep in einer Spalte drin; müssten in Maiwens Paper auch in den supplementary data sein
+6. Funktioniert mit load, muss nur bei uns funktionieren, da wir es als PDF abgeben
+  - Enviroment kann als RData gespeichert werden und ins git hochladen, dann kann jeder drauf zugreifen
+7. Methods: Vergangenheit passiv, Results: Vergangenheit, passiv
+8. schönes UFO - passt eig soweit
+
+- kann auch Reinschreiben, was nicht fuktioniert
+
