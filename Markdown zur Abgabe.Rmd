@@ -1,10 +1,13 @@
 ---
-title: "Proteome-wide Screen for RNA-dependent Proteins in HeLa cells synchronized in Interphase"
-subtitle: "Data Analysis Project 2023"
+title: "Proteome-wide Screen for RNA-dependent Proteins in HeLa cells synchronized
+  in Interphase"
 author: "Hannah Brehm, Johann Blakytny, Kira Hoffmann, Viktor Bonin"
 date: "XX.07.2023"
 output:
+  word_document: default
   pdf_document: default
+subtitle: Data Analysis Project 2023
+fontsize: 11pt
 ---
 
 ```{r setup, include=FALSE}
@@ -35,24 +38,36 @@ Divide dataframe into RNAse and Ctrl...
 
 ### 2.2.1 NA Values and Zero Rows
 ### 2.2.2 Pearson Correlation
-To test the reproducibility of the dataset the pearson correlation between the 3 replicates for each gene was calculated. The threshold for reproducibility is a correlation coefficient over or equal to 0.95. Genes for which all correlation coefficients were under 0.95 were removed from the data frames. 
-If all three correlation coefficients for a gene and condition were under 0.95, the entire gene was removed from the dataframes. If two correlation coefficients are under 0.95, the associated replicate will be replaced with NA values. If only one correlation coefficient is under 0.95, the replicate is replaced for which the remaining correlation is lower.
 
-The pearson correlation can not be calculated for replicates only containing zeros (sd = 0; 1/sd = NaN); thus, for genes containing only one replicate of zero the replicate was replaced with the NA value. 
-. Similarly, for genes with two replicates containing only zeros those genes were excluded from the dataset
-
-Because these replicates contained very little information, we replaced these replicates with the value NA in our dataframes *Ctrl_RDeep* and *RNase_RDeep*. If two replicates of one gene and condition contained only zeros, we removed the entire gene from the dataframes because there is no proficient analysis with only one replicate for a condition. If all three correlation coefficients for a gene and condition were under 0.95, the entire gene was removed from the dataframes. If two correlation coefficients are under 0.95, the associated replicate will be replaced with NA values. If only one correlation coefficient is under 0.95, the replicate is replaced for which the remaining correlation is lower.
 ### 2.2.3 Mean of Replicates
 ### 2.2.4 Data Exploration
 
 ## 2.3 Smoothing and Determination of Maxima
 
 ### 2.3.1 Smoothing the Data
-### 2.3.2 Nomralization of smoothed data
+To determine the global and local maxima of the dataset, the dataframes *Ctrl_Mean* and *RNAse_Mean* first had to be smoothed. Otherwise the determination would be influenced by outliers and wrong peaks.  
+For this the mean value of each fraction was calculated in a defined neighborhood of one with following formula for all fractions between 2 and 24: $y = \frac{f(x-1)+f(x)+f(x-1)}{3}$    
+*$x$: fraction position ($2  \leq  x  \geq  24$);* $\quad$ *$f(x)$: mass spectrometry value at fraction position $x$;* $\quad$ *$y$: smoothed value for fraction position $x$*  
+  
+For fraction position 1 and 25 the mean was of fraction 1 and 2 and 24 and 25 were calculated: $y = \frac{f(1)+f(2)}{2};\qquad y = \frac{f(24)+f(25)}{2}$  
+*$f(1), f(2)$ and $f(24), f(25)$: mass spectrometry value at fraction positions 1, 2 and 24, 25;* $\quad$ *$y$: smoothed value for fraction position 1 and 25*  
+  
+This was done separately for the *Ctrl_Mean* dataframe and the *RNAse_Mean* dataframe and the smoothed data was then stored in following two dataframes: *Ctrl_Mean_Smooth* and *RNAse_Mean_Smooth*
+
+### 2.3.2 Normalization of Smoothed data
+For comparison of the different protein amounts, the dataframes *Ctrl_Mean_Smooth* and *RNAse_Mean_Smooth* had to be normalized to 100. This means, that the sum of the mass spectrometry data in the different fractions for one protein had to add up to 100: $y = \frac{f(x)}{\sum_{x=1}^{25}f(x)} *100$     
+*$x$: fraction position ($1 \leq x \geq 25$);* $\quad$ *$f(X)$: mass spectrometry value at fraction position $x$;* $\quad$ *$y$: normalized value at fraction position $x$*  
+  
+The normalized and smoothed values were then stored in the dataframes *Ctrl_Mean_Smooth_Norm100* and *RNAse_Mean_Smooth_Norm100*  
 
 ### 2.3.3 Determination of Maxima
-#### 2.3.3.1 Global Maxima
-#### 2.3.3.2 Local Maxima
+If a protein is an RNA dependent protein, the maximum amount of protein is in a significantly different fraction in the RNAse sample compared to the Control sample. To determine for which proteins this is the case, the global and local maximua of the mass spectrometry data was determined.  
+  
+#### 2.3.3.1 Global Maxima  
+  
+The global maximum for the dataframes *Ctrl_Mean_Smooth_Norm100* and *RNAse_Mean_Smooth_Norm100* were determined by identifying the fraction of the largest mass spectrometry value in each dataframe. For proteins that had 2 or 3 fractions with the same mass spectrometry value, the mean fraction position was calculated.  
+
+#### 2.3.3.2 Local Maximum
 
 ## 2.4 Gaussian Fitting
 ### 2.4.1 Gaussian Overlap
@@ -68,17 +83,17 @@ Because these replicates contained very little information, we replaced these re
 # 3. Results
 
 ```{r}
-load("Environment_with_RDP.RData")
+#load("Environment_with_RDP.RData")
 
-col = rep(NA, nrow(Ctrl_RDeep))
-col[which(Sel_Crit_PCA[, 8] == "left")] = "blue"
-col[which(Sel_Crit_PCA[, 8] == "right")] = "red"
-col[which(Sel_Crit_PCA[, 8] == "precipitated")] = "orange"
-col[which(Sel_Crit_PCA[, 8] == "no")] = "grey"
+#col = rep(NA, nrow(Ctrl_RDeep))
+#col[which(Sel_Crit_PCA[, 8] == "left")] = "blue"
+#col[which(Sel_Crit_PCA[, 8] == "right")] = "red"
+#col[which(Sel_Crit_PCA[, 8] == "precipitated")] = "orange"
+#col[which(Sel_Crit_PCA[, 8] == "no")] = "grey"
 
-plot(Ctrl_Gauss_Fit[, 1], RNase_Gauss_Fit[, 1], pch = 16, col = col, main = "Shifting Behavior", xlab = "Ctrl Gbl Peak Position", ylab = "RNase Gbl Peak Position")
-legend("topleft", legend = c("left", "right", "precipitated", "no"), pch = 16, col = c("blue", "red", "orange", "grey"))
-rm(col)
+#plot(Ctrl_Gauss_Fit[, 1], RNase_Gauss_Fit[, 1], pch = 16, col = col, main = "Shifting Behavior", xlab = "Ctrl Gbl Peak Position", ylab = "RNase Gbl Peak Position")
+#legend("topleft", legend = c("left", "right", "precipitated", "no"), pch = 16, col = c("blue", "red", "orange", "grey"))
+#rm(col)
 ```
 
 
