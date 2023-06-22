@@ -1445,10 +1445,10 @@ Sel_Crit_PCA[, 7] = Ctrl_Gauss_Fit[, 5]
 
 # ---> "shift": Kategorisieren der Gene in "left", "right" and "no" shifting und "precipitated" anhand der Mittelwerte der gefitteten Gaußkurven (wir gehen erst von einem Shift aus, wenn die Differenz der Mittelwerte größer als 1 Fraktion ist)
 Sel_Crit_PCA[, 8] = rep(NA, nrow(Ctrl_RDeep))
-Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) > 1 & !(Ctrl_Gauss_Fit[, 1] > 24 & RNase_Gauss_Fit[, 1] > 24)), 8] = "left"
-Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) < -1 & !(Ctrl_Gauss_Fit[, 1] > 24 & RNase_Gauss_Fit[, 1] > 24)), 8] = "right"
-Sel_Crit_PCA[which(Ctrl_Gauss_Fit[, 1] > 24 & RNase_Gauss_Fit[, 1] > 24), 8] = "precipitated"
-Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) <= 1 & (Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) >= -1 & !(Ctrl_Gauss_Fit[, 1] > 24 & RNase_Gauss_Fit[, 1] > 24)), 8] = "no"
+Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) > 1 & !(Ctrl_Gauss_Fit[, 1] > 24 | RNase_Gauss_Fit[, 1] > 24)), 8] = "left"
+Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) < -1 & !(Ctrl_Gauss_Fit[, 1] > 24 | RNase_Gauss_Fit[, 1] > 24)), 8] = "right"
+Sel_Crit_PCA[which(Ctrl_Gauss_Fit[, 1] > 24 | RNase_Gauss_Fit[, 1] > 24), 8] = "precipitated"
+Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) <= 1 & (Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) >= -1 & !(Ctrl_Gauss_Fit[, 1] > 24 | RNase_Gauss_Fit[, 1] > 24)), 8] = "no"
 
 # ---> Benennung der Zeilen und Spalten des Dataframes
 rownames(Sel_Crit_PCA) = rownames(Sel_Crit)
@@ -1628,6 +1628,8 @@ Sel_Crit_PCA[which(rownames(Sel_Crit_PCA) %in% rownames(Table_HS_RBP)), 9] = Tab
 Sel_Crit_PCA[which(rownames(Sel_Crit_PCA) %in% rownames(Table_HS_Non_RBP)), 9] = Table_HS_Non_RBP[which(rownames(Table_HS_Non_RBP) %in% rownames(Sel_Crit_PCA)), 3]
 ```
 
+###### 5.4.1 Direct Comparison
+
 Now we can look again at our PCA results and compare our findings with the RBP2GO databank:
 
 ```{r}
@@ -1666,6 +1668,8 @@ legend("topright", legend = c("RDP", "non RDP"), pch = 16, col = c("blue", "grey
 
 rm(pca, col)
 ```
+
+###### 5.4.2 Comparison with RBP2GO-Score
 
 Mmmmmh ... maybe we get more clear results if we color our points according to their RBP2GO-scores: we have 5970 genes with RBP2GO-scores (20 genes are not included in the RBP2GO databank ( = NA)). We want to obtain 6 ruffly equally sized groups (so 995 genes in each): 
 
@@ -1715,6 +1719,22 @@ legend("topright", inset = c(-0.24,0), legend = c("[0, 0.9]", "(0.9, 2.3]", "(2.
 rm(pca, col)
 ```
 
+```{r}
+pca = prcomp(Sel_Crit_PCA[, 1:7])
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = alpha("blue", Sel_Crit_PCA[, 9]/100), main = "RBP2GO_Score", xlab = "PC1", ylab = "PC2")
+
+
+
+pca = prcomp(Sel_Crit_PCA[, c(1, 4, 5, 7)])
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = alpha("blue", Sel_Crit_PCA[, 9]/100), main = "RBP2GO_Score", xlab = "PC1", ylab = "PC2")
+
+rm(pca)
+```
+
+###### 5.4.3 Cluster Comparison with t-Test
+
 Still no clear results :( 
 Maybe we can go back to our k-means clustering. By calculating the **mean RBP2GO-score** for each cluster, we can estimate how RNA-dependent a cluster is. 
 Furthermore, we can use a t-Test to calculate how significant the differences between the mean values are (H0: *The mean values are not significantly different from each other*, H1: *The mean values are significantly different from each other* (two-sided t-test)):
@@ -1753,6 +1773,95 @@ legend("topright",
        col = c("blue", NA, "red", NA, NA, NA))
 
 rm(pca, kmeans, col)
+```
+
+###### 5.4.4 Venn-Diagram
+
+Maybe this is not the right approach. Let us just compare the number of RDPs and non RDPs between the datasets using venn diagrams:
+
+```{r}
+library("VennDiagram")
+
+grid.newpage()
+
+draw.triple.venn(
+  area1 = nrow(RDPs),   # Our identified RDPs
+  area2 = nrow(Table_HS_RBP),  # RBPs in RBP2GO-Databank
+  area3 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),   # RDPs from the R-Deep-Databank
+  n12 = length(which(rownames(Table_HS_RBP) %in% rownames(RDPs))), 
+  n23 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),
+  n13 = length(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(RDPs))), 
+  n123 = length(which(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(RDPs)) %in% which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Table_HS_RBP)))),
+  fill = c("dodgerblue", "darkorange", "red"),
+  lwd = 1,
+  category = c(paste("Our RDPs (", nrow(RDPs), ")", sep = ""), paste("RBP2GO RBPs (", nrow(Table_HS_RBP), ")", sep =""), paste("R-Deep (", length(which(Table_HS_RBP$R.DeeP_HeLa == "X")), ")", sep = "")),
+  fontfamily = "plain",
+  cat.fontfamily = "plain",
+  cat.fontface = "bold",
+  cat.dist = c(0.09, 0.085, 0.08),
+  cat.pos = c(-25, 24, 150),
+  cat.col = c("dodgerblue", "darkorange", "red")
+)
+
+
+grid.newpage()
+
+draw.triple.venn(
+  area1 = nrow(non_RDPs),   # Our identified non RDPs
+  area2 = nrow(Table_HS_RBP),  # RBPs in RBP2GO-Databank
+  area3 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),   # RDPs from the R-Deep-Databank
+  n12 = length(which(rownames(Table_HS_RBP) %in% rownames(non_RDPs))), 
+  n23 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),
+  n13 = length(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(non_RDPs))), 
+  n123 = length(which(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(non_RDPs)) %in% which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Table_HS_RBP)))),
+  fill = c("dodgerblue", "darkorange", "red"),
+  lwd = 1,
+  category = c(paste("Our non RDPs (", nrow(non_RDPs), ")", sep = ""), paste("RBP2GO RBPs (", nrow(Table_HS_RBP), ")", sep =""), paste("R-Deep (", length(which(Table_HS_RBP$R.DeeP_HeLa == "X")), ")", sep = "")),
+  fontfamily = "plain",
+  cat.fontfamily = "plain",
+  cat.fontface = "bold",
+  cat.dist = c(0.09, 0.085, 0.08),
+  cat.pos = c(-25, 24, 150),
+  cat.col = c("dodgerblue", "darkorange", "red")
+)
+
+
+grid.newpage()
+
+draw.triple.venn(
+  area1 = nrow(Sel_Crit),   # Our Genes
+  area2 = nrow(Table_HS_RBP),  # RBPs in RBP2GO-Databank
+  area3 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),   # RDPs from the R-Deep-Databank
+  n12 = length(which(rownames(Table_HS_RBP) %in% rownames(Sel_Crit))), 
+  n23 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),
+  n13 = length(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Sel_Crit))), 
+  n123 = length(which(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Sel_Crit)) %in% which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Table_HS_RBP)))),
+  fill = c("dodgerblue", "darkorange", "red"),
+  lwd = 1,
+  category = c(paste("Our Genes (", nrow(Sel_Crit), ")", sep = ""), paste("RBP2GO RBPs (", nrow(Table_HS_RBP), ")", sep =""), paste("R-Deep (", length(which(Table_HS_RBP$R.DeeP_HeLa == "X")), ")", sep = "")),
+  fontfamily = "plain",
+  cat.fontfamily = "plain",
+  cat.fontface = "bold",
+  cat.dist = c(0.09, 0.085, 0.08),
+  cat.pos = c(-25, 24, 150),
+  cat.col = c("dodgerblue", "darkorange", "red")
+)
+
+par(mar=c(1, 3, 1, 7.5))
+barplot(matrix(c(
+  length(which(rownames(non_RDPs) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(non_RDPs))),
+  length(which(rownames(non_RDPs) %in% rownames(Table_HS_RBP))),
+  length(which(rownames(RDPs) %in% rownames(Table_HS_RBP))),
+  length(which(rownames(RDPs) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(RDPs))),
+  rep(NA, 4)),
+  nrow = 4),
+  axes = F,
+  col = c("red", "orange", "yellow", "green"), 
+  legend.text = c(paste("Non RDPs (", length(which(rownames(non_RDPs) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(non_RDPs))), ")", sep = ""), 
+                  paste("RDPs (only RBP2GO) (", length(which(rownames(non_RDPs) %in% rownames(Table_HS_RBP))), ")", sep = ""), 
+                  paste("RDPS (", length(which(rownames(RDPs) %in% rownames(Table_HS_RBP))), ")", sep = ""), 
+                  paste("New RDPs (", length(which(rownames(RDPs) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(RDPs))), ")", sep = "")),
+  )
 ```
 
 
