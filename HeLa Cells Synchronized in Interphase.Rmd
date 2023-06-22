@@ -1775,7 +1775,7 @@ legend("topright",
 rm(pca, kmeans, col)
 ```
 
-###### 5.4.4 Venn-Diagram
+###### 5.4.4 Venn-Diagram & Barplot
 
 Maybe this is not the right approach. Let us just compare the number of RDPs and non RDPs between the datasets using venn diagrams:
 
