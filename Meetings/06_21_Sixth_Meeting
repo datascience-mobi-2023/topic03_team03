@@ -10,7 +10,7 @@ Fragen:
 8. PCA passt das so?
 
 Antworten:
-1. Donnerstag, den 29.06.23 um 17:30 über Discord
+1. Donnerstag, den 29.06.23 um **16:30** über Discord
 2.- T-Test bei Auswahlkriterien für shifts (Statt einfach anzunhemen, dass Shift bei größer als einer Fraktion) - zweiseitiger Stichprobentest
   - T-Test so ist nicht Aussagekräftig
 3.- Berechnung des Scores: 2 Komponenten: 50% Listencount durch Anzahl der Datensätze, 50% Datenbank String, Daten welches Protein mit welchem anderen Protein interagiert => Score, wie stark Interaktion ist; mean von Listingcount der 10 stärksten Interaktionspartner
