@@ -1200,227 +1200,128 @@ rm(g1, g2, g3, g4, g5, g6, g7, g8, g9, u1, u2, a, b, c, x, x1, x2, overlap)
 
 #### 4. Selection Criteria and Identification of RNA-Dependent Proteins
 
+
 ##### 4.1 Summary of Collected Data in one Dataframe
 
-We will now summarize all this collected data (global and local peak positions, gaussian fit and overlap) in one dataframe "**Sel_Crit**" (for *Selection Criteria*). 
+We will now summarize all our collected data (*global* and *local peak positions*, *gaussian fit* and *overlap*) in one dataframe called  "**Summary**": 
 
 ```{r}
-Sel_Crit = cbind(
-  Mean_Gbl_Max,
-  Ctrl_Gauss_Fit[, 1:4],
-  RNase_Gauss_Fit,
-  as.matrix(sapply(seq(1, nrow(Ctrl_Mean_Loc_Max), 1), function(k) {unlist(Ctrl_Mean_Loc_Max[k, which(!is.na(Ctrl_Mean_Loc_Max[k,]))], use.names = F)})),
-  as.matrix(sapply(seq(1, nrow(RNase_Mean_Loc_Max), 1), function(k) {unlist(RNase_Mean_Loc_Max[k, which(!is.na(RNase_Mean_Loc_Max[k,]))], use.names = F)}))
-  )
+Summary = as.data.frame(cbind(
+  Mean_Gbl_Max,   # ---> Global peak positions for Ctrl and RNase
+  as.matrix(sapply(seq(1, nrow(Ctrl_Mean_Loc_Max), 1), function(k) {unlist(Ctrl_Mean_Loc_Max[k, which(!is.na(Ctrl_Mean_Loc_Max[k,]))], use.names = F)})),   # ---> all local peak positions for Ctrl 
+  as.matrix(sapply(seq(1, nrow(RNase_Mean_Loc_Max), 1), function(k) {unlist(RNase_Mean_Loc_Max[k, which(!is.na(RNase_Mean_Loc_Max[k,]))], use.names = F)})),   # ---> all local peak positions for RNase
+  Ctrl_Gauss_Fit[, 1],   # ---> Gaussian Fitting Ctrl: mu
+  RNase_Gauss_Fit[, 1],   # ---> Gaussian Fitting RNase: mu
+  Ctrl_Gauss_Fit[, 2],   # ---> Gaussian Fitting Ctrl: sd
+  RNase_Gauss_Fit[, 2],   # ---> Gaussian Fitting RNase: sd
+  Ctrl_Gauss_Fit[, 3],   # ---> Gaussian Fitting Ctrl: h
+  RNase_Gauss_Fit[, 3],   # ---> Gaussian Fitting RNase: h
+  Ctrl_Gauss_Fit[, 4],   # ---> Gaussian Fitting Ctrl: prt_amount
+  RNase_Gauss_Fit[, 4],   # ---> Gaussian Fitting RNase: prt_amount
+  RNase_Gauss_Fit[, 5]   # ---> Gaussian Fitting: overlap
+  ))
 
-colnames(Sel_Crit) <- c("Ctrl_Gbl_Max", "RNase_Gbl_Max", "Ctrl_mu", "Ctrl_sd", "Ctrl_h", "Ctrl_prt_amount", "RNase_mu", "RNase_sd", "RNase_h", "RNase_prt_amount", "overlap", "Ctrl_Loc_Max", "RNase_Loc_Max")
+colnames(Summary) <- c("Ctrl_Gbl_Max", "RNase_Gbl_Max", "Ctrl_Loc_Max", "RNase_Loc_Max", "Ctrl_mu", "RNase_mu", "Ctrl_sd", "RNase_sd", "Ctrl_h", "RNase_h", "Ctrl_prt_amount", "RNase_prt_amount", "overlap")
+
+head(Summary)
 ```
 
-##### 4.2 Dataframe with all three selection criteria in comparison 
 
-In order to determine which proteins are significantly RNA-dependent, we will apply three selection criteria comparing different characteristics of the Gaussian curves fitted to the Ctrl and RNase global maxima:
+##### 4.2 Comparison between Ctrl and RNase Samples & Categorization
 
-  *Shift of global maximum/mu by at least 1 bin
-  *The height of the global maximum should be at least twice as large as the height of the respective other curve at the same position (and if latter is larger than former, the sample is discarded completely)
-  *Overlap of the curves of less than 75% 
+Based on the variables collected in the dataframe **Summary** we can now calculate the absolute and relative changes between the Ctrl and RNase samples for each gene. The resulting variables are stored in the dataframe "**Sel_Crit**" (for *"Selection Criteria"*).
 
+The variables are the following:
 
-```{r}
-#First, a dataframe is created which includes all parameters we want to test for in the next step.
-
-Sel_Crit_compare = as.data.frame(matrix(rep(NA, nrow(Sel_Crit)*6), ncol = 6))
-colnames(Sel_Crit_compare) = c("delta_mu", "Ctrl_heightprop", "RNase_heightprop", "overlap", "Ctrl_heightprop_compare", "RNase_heightprop_compare")
-rownames(Sel_Crit_compare) = rownames(Sel_Crit)
-
-Sel_Crit_compare[,1] <- round(abs(Sel_Crit[,3] - Sel_Crit[,7]), digits = 3) 
-
-Sel_Crit_compare[,2] <- round(Sel_Crit[,5]/(Sel_Crit[,9]*(1/(Sel_Crit[,8]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((Sel_Crit[,3]-Sel_Crit[,7])/Sel_Crit[,8])^2)), digits = 3)
-
-Sel_Crit_compare[,3] <- round(Sel_Crit[,9]/(Sel_Crit[,5]*(1/(Sel_Crit[,4]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((Sel_Crit[,7])-Sel_Crit[,3]/Sel_Crit[,4])^2)), digits = 3)
-
-Sel_Crit_compare[,4] <- round(Sel_Crit[,11], digits = 3)
-
-Sel_Crit_compare[,5] <- round(Ctrl_Mean_Smooth_Norm100[,Mean_Gbl_Max[,1]]/RNase_Mean_Smooth_Norm100[,Mean_Gbl_Max[,1]], digits = 3)
-
-Sel_Crit_compare[,6] <- round(RNase_Mean_Smooth_Norm100[,Mean_Gbl_Max[,2]]/Ctrl_Mean_Smooth_Norm100[,Mean_Gbl_Max[,2]], digits = 3)
-
-```
-
-The proteins where the height proportion is smaller than 1 are discarded completely.
-
-```{r}
-#Delete rows where at least one of the height proportions is smaller than one 
-
-which(Sel_Crit_compare[,2] < 1)
-#No samples need to be deleted
-which(Sel_Crit_compare[,3] < 1)
-#No samples need to be deleted
-
-```
-
-Now we will create a copy of the dataframe and remove all proteins which do not satisfy the selection criteria, and add these to a new dataframe (i.e. non-RDPs), to be left with a dataframe containing all RDPs evaluated by our analysis. 
-
-```{r}
-#Delete rows where the selection criteria do not apply in the "RDPs"-dataframe, and add these rows to a "non-RDPs"-dataframe to be left with a dataframe containing all RDPs, and another dataframe with all non-RDPs.
-
-RDPs <- Sel_Crit_compare
-non_RDPs <- Sel_Crit_compare
-
-#Criterion 1: mu >= 1 
-
-non_RDPs <- non_RDPs[-which(RDPs[,1] >= 1),]
-RDPs <- RDPs[which(RDPs[,1] >= 1),]
-
-#Criterion 2: height proportion >= 2
-
-non_RDPs <- rbind(non_RDPs, RDPs[-which(RDPs[,2] >= 2),])
-RDPs <- RDPs[which(RDPs[,2] >= 2),]
-
-non_RDPs <- rbind(non_RDPs, RDPs[-which(RDPs[,3] >= 2),])
-RDPs <- RDPs[which(RDPs[,3] >= 2),]
-
-#Criterion 3: overlap <= 0.75
-
-non_RDPs <- rbind(non_RDPs, RDPs[-which(RDPs[,4] <= 0.75),])
-RDPs <- RDPs[which(RDPs[,4] <= 0.75),]
-
-RDPs
-non_RDPs
-
-```
-#### 5. Further Analysis
-
-##### 5.1 k-Means clustering 
-
-```{r}
-
-plot(Sel_Crit[,3], Sel_Crit[,7], main = "Shifting behavior", xlab = "Peak of Ctrl", ylab = "Peak of RNase")
-
-
-shift_behavior <- cbind(Sel_Crit[,3], Sel_Crit[,7])
-
-shift_behavior = cbind(shift_behavior, kmeans(shift_behavior, 2, iter.max = 10, nstart = 1)$cluster)
-
-shift_behavior[which(shift_behavior[,3] == 1), 3] = "yellow"
-shift_behavior[which(shift_behavior[,3] == 2), 3] = "red"
-
-plot(Sel_Crit[,3], Sel_Crit[,7], main = "Shifting behavior", xlab = "Peak of Ctrl", ylab = "Peak of RNase", col = c(shift_behavior[,3]))
-
-
-shift_behavior <- cbind(Sel_Crit[,3], Sel_Crit[,7])
-
-shift_behavior = cbind(shift_behavior, kmeans(shift_behavior, 3, iter.max = 10, nstart = 1)$cluster)
-
-shift_behavior[which(shift_behavior[,3] == 1), 3] = "yellow"
-shift_behavior[which(shift_behavior[,3] == 2), 3] = "red"
-shift_behavior[which(shift_behavior[,3] == 3), 3] = "blue"
-
-plot(Sel_Crit[,3], Sel_Crit[,7], main = "Shifting behavior", xlab = "Peak of Ctrl", ylab = "Peak of RNase", col = c(shift_behavior[,3]))
-
-
-shift_behavior <- cbind(Sel_Crit[,3], Sel_Crit[,7])
-
-shift_behavior = cbind(shift_behavior, kmeans(shift_behavior, 5, iter.max = 10, nstart = 1)$cluster)
-
-shift_behavior[which(shift_behavior[,3] == 1), 3] = "yellow"
-shift_behavior[which(shift_behavior[,3] == 2), 3] = "red"
-shift_behavior[which(shift_behavior[,3] == 3), 3] = "blue"
-shift_behavior[which(shift_behavior[,3] == 4), 3] = "green"
-shift_behavior[which(shift_behavior[,3] == 5), 3] = "magenta"
-
-plot(Sel_Crit[,3], Sel_Crit[,7], main = "Shifting behavior", xlab = "Peak of Ctrl", ylab = "Peak of RNase", col = c(shift_behavior[,3]))
-
-
-shift_behavior <- cbind(Sel_Crit[,3], Sel_Crit[,7])
-
-shift_behavior = cbind(shift_behavior, kmeans(shift_behavior, 10, iter.max = 10, nstart = 1)$cluster)
-
-shift_behavior[which(shift_behavior[,3] == 1), 3] = "yellow"
-shift_behavior[which(shift_behavior[,3] == 2), 3] = "red"
-shift_behavior[which(shift_behavior[,3] == 3), 3] = "blue"
-shift_behavior[which(shift_behavior[,3] == 4), 3] = "green"
-shift_behavior[which(shift_behavior[,3] == 5), 3] = "magenta"
-shift_behavior[which(shift_behavior[,3] == 6), 3] = "orange"
-shift_behavior[which(shift_behavior[,3] == 7), 3] = "pink"
-shift_behavior[which(shift_behavior[,3] == 8), 3] = "darkgreen"
-shift_behavior[which(shift_behavior[,3] == 9), 3] = "black"
-shift_behavior[which(shift_behavior[,3] == 10), 3] = "darkred"
-
-plot(Sel_Crit[,3], Sel_Crit[,7], main = "Shifting behavior", xlab = "Peak of Ctrl", ylab = "Peak of RNase", col = c(shift_behavior[,3]))
-
-
-plot(Sel_Crit_compare[,1], Sel_Crit_compare[,4])
-
-shift_behavior <- cbind(Sel_Crit[,1], Sel_Crit[,4])
-
-shift_behavior = cbind(shift_behavior, kmeans(shift_behavior, 3, iter.max = 10, nstart = 1)$cluster)
-
-shift_behavior[which(shift_behavior[,3] == 1), 3] = "yellow"
-shift_behavior[which(shift_behavior[,3] == 2), 3] = "red"
-shift_behavior[which(shift_behavior[,3] == 3), 3] = "blue"
-
-plot(Sel_Crit_compare[,1], Sel_Crit_compare[,4], col = c(shift_behavior[,3]))
-```
-
-##### 5.2 Principal Component Analysis (& k-Means clustering)
-
-We want to determine how good the selection criteria are that we have chosen. To do this we will use **Principal Component Analysis (PCA)**. The main idea is that we will use PCA to reduce the dimensions of a data set containing our selection criteria and additional information about the global peaks. If our selection criteria are sufficient to determine the RNA-dependency of a protein the points in our reduced data set should separate nicely along these criteria. 
-
-The data set **Sel_Crit_PCA** (which will be used for PCA) contains the following information for each gene:
-
-  * **delta_mu [%]**: percentage of peak shift between the Ctrl and RNase peaks (absolute shift/25)
-  * **delta_sd [%]**: percentage of change in the standard deviation between Ctrl and RNase (sd2/sd1 - 1)
-  * **delta_h [%]**: percentage of change in peak height between Ctrl and RNase (h2/h1 - 1)
-  * **Ctrl_h_prop [%]**: how much percent of protein amount under the Ctrl peak is lost upon RNase treatment? (prt2/prt1 - 1)
-  * **RNase_h_prop [%]**: how much percent of protein amount under the RNase peak is gained upon RNase treatment? (1 - prt1/prt2)
-  * **delta_prt_amount [%]**: percentage of change between the protein amount under the Ctrl and RNase peaks (peak_prt2/peak_prt1 - 1)
-  * **overlap [%]**: percentage of overlap between the gaussian curves of Ctrl and RNase 
+  * **delta_mu**: absolute peak shift between the Ctrl and RNase global peaks (mu1 - mu2)
+  * **delta_mu_%**: percentage of peak shift between the Ctrl and RNase global peaks (absolute shift/25)
+  
+  * **delta_sd**: absolute change in the standard deviation between Ctrl and RNase (sd2 - sd1)
+  * **delta_sd_%**: percentage of change in the standard deviation between Ctrl and RNase (sd2/sd1 - 1)
+  
+  * **delta_h**: absolute change in global peak height between Ctrl and RNase (h2 - h1)
+  * **delta_h_%**: percentage of change in peak height between Ctrl and RNase (h2/h1 - 1)
+  
+  * **delta_prt_amount**: absolute change between the protein amount under the gaussian curves of the Ctrl and RNase peaks (peak_prt2 - peak_prt1)
+  * **delta_prt_amount_%**: percentage of change between the protein amount under the gaussian curves of the Ctrl and RNase peaks (peak_prt2/peak_prt1 - 1)
+  
+  * **Ctrl_prt_prop**: absolute protein amount that is lost under the global peak of Ctrl after RNase treatment (prt1 - prt2)
+  * **Ctrl_prt_prop_%**: how much percent of protein amount under the Ctrl peak is lost upon RNase treatment? (1 - prt2/prt1)
+  
+  * **RNase_prt_prop**: absolute protein amount that is gained under the globak peak of RNase after RNase treatment (prt2 - prt1)
+  * **RNase_prt_prop_%**: how much percent of protein amount under the RNase peak is gained upon RNase treatment? (1 - prt1/prt2)
+  
+  * **overlap_%**: percentage of overlap between the gaussian curves of Ctrl and RNase 
+  
   * **shift**: character variable that states whether a protein is **left**, **right** or **non** shifting (shifting defined as delta mu over 1 fraction) or **precipitated** (if one of the global peaks are over 24) (not used directly in PCA but for visualizing the results)
   
-**Note**: *All variables are calculated as percentages so that they are comparable to each other.*
+
+**Note**: *"Ctrl_prt_prop"* and *"RNase_prt_prop"* are computed by calculating the x-values (x1 and x2) for which the fitted gaussian curves reach their half maximum y-value (max(y)/2) and then computing the area under the smoothed and normalized protein distributions of Ctrl and RNase in the interval [floor(x2), ceiling(x1)].
 
 ```{r}
 # ---> Erstellen eines leeren Dataframes (nur eine Spalte NA -> weiter Spalten können angefügt werden)
-Sel_Crit_PCA = as.data.frame(rep(NA, nrow(Ctrl_RDeep)))
+Sel_Crit = as.data.frame(rep(NA, nrow(Ctrl_RDeep)))
 
-# ---> "delta_mu [%]": Berechnung des prozentualen Peak Shifts über alle Gene
-Sel_Crit_PCA[, 1] = (Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1])/25
+# ---> "delta_mu": Berechnung des absoluten Peak Shifts über alle Gene
+Sel_Crit[, 1] = Summary[, 5] - Summary[, 6]
 
-# ---> "delta_sd [%]": Berechnung der prozentualen Veränderung der Standardabweichung zwischen Ctrl und RNase für alle Gene
-Sel_Crit_PCA[, 2] = RNase_Gauss_Fit[, 2]/Ctrl_Gauss_Fit[, 2] - 1
-
-# ---> "delta_h [%]": Berechnung der prozentualen Veränderung der Höhe zwischen Ctrl und RNase für alle Gene
-Sel_Crit_PCA[, 3] = RNase_Gauss_Fit[, 3]/Ctrl_Gauss_Fit[, 3] - 1
+# ---> "delta_mu_%": Berechnung des prozentualen Peak Shifts über alle Gene
+Sel_Crit[, 2] = (Summary[, 5] - Summary[, 6])/25
 
 
-# ---> "Ctrl_h_prop [%]": 1. Berechnung der Fraktions-Werte für die gilt, dass der y-Wert der Gausskurve für Ctrl bei 2 liegt 
-x1 = Ctrl_Gauss_Fit[, 2] * sqrt(-2 * log((2*sqrt(2*pi)*Ctrl_Gauss_Fit[, 2])/(Ctrl_Gauss_Fit[, 3]))) + Ctrl_Gauss_Fit[, 1]
-x2 = - Ctrl_Gauss_Fit[, 2] * sqrt(-2 * log((2*sqrt(2*pi)*Ctrl_Gauss_Fit[, 2])/(Ctrl_Gauss_Fit[, 3]))) + Ctrl_Gauss_Fit[, 1]
+# ---> "delta_sd": Berechnung der absoluten Veränderung der Standardabweichung zwischen Ctrl und RNase für alle Gene
+Sel_Crit[, 3] = Summary[, 8] - Summary[, 7]
 
-# ---> "Ctrl_h_prop [%]": 2. Ersetzen aller Werte über 25 mit 25 und unter 1 mit 1(Fraktion 0 existiert nicht im Datensatz)
+# ---> "delta_sd_%": Berechnung der prozentualen Veränderung der Standardabweichung zwischen Ctrl und RNase für alle Gene
+Sel_Crit[, 4] = Summary[, 8]/Summary[, 7] - 1
+
+
+# ---> "delta_h": Berechnung der absoluten Veränderung der Höhe zwischen Ctrl und RNase für alle Gene
+Sel_Crit[, 5] = Summary[, 10] - Summary[, 9] 
+
+# ---> "delta_h_%": Berechnung der prozentualen Veränderung der Höhe zwischen Ctrl und RNase für alle Gene
+Sel_Crit[, 6] = Summary[, 10]/Summary[, 9] - 1
+
+
+# ---> "delta_prt_amount": Berechnung der absoluten Veränderung des Protein-Anteils unter den Gaußkurven zwischen Ctrl und RNase
+Sel_Crit[, 7] = Summary[, 12] - Summary[, 11]
+
+# ---> "delta_prt_amount_%": Berechnung der prozentualen Veränderung des Protein-Anteils unter den Gaußkurven zwischen Ctrl und RNase
+Sel_Crit[, 8] = Summary[, 12]/Summary[, 11] - 1
+
+
+# ---> "Ctrl_prt_prop": Berechnung des Verlusts an Protein unter dem Ctrl peak nach Zugabe von RNase
+# ---> "Ctrl_prt_prop": 1. Berechnung der Fraktions-Werte für die gilt, dass der y-Wert der Gausskurve für Ctrl bei 2 liegt 
+x1 = sqrt(- Ctrl_Gauss_Fit[, 2] * log(0.5)) + Ctrl_Gauss_Fit[, 1]
+x2 = - sqrt(- Ctrl_Gauss_Fit[, 2] * log(0.5)) + Ctrl_Gauss_Fit[, 1]
+
+# ---> "Ctrl_prt_prop": 2. Ersetzen aller Werte über 25 mit 25 und unter 1 mit 1 (Fraktion 0 existiert nicht im Datensatz)
 x1[which(x1 > 25)] = 25
 x2[which(x2 < 1)] = 1 
 
-# ---> "Ctrl_h_prop [%]": 3. Runden der erhaltenen Fraktions-Werte auf ganze Zahlen (Note: x1 > x2 für alle Gene)
+# ---> "Ctrl_prt_prop": 3. Runden der erhaltenen Fraktions-Werte auf ganze Zahlen (Note: x1 > x2 für alle Gene)
 x1 = ceiling(x1)
 x2 = floor(x2)
 
-# ---> "Ctrl_h_prop [%]": 4. Erstellen einer Sequenz für jedes Gen, die von x2 bis x1 - 1 geht (für die Berechnung der Fläche unter der Kurve nur anhand der Daten aus "Ctrl_Mean_Smooth_Norm100" bzw. "RNase_Mean_Smooth_Norm100")
-Fra.Pos = sapply(seq(1, nrow(Ctrl_RDeep), 1), function(n) {seq(x2[n], x1[n] - 1, 1)})
+# ---> "Ctrl_prt_prop": 4. Erstellen einer Sequenz für jedes Gen, die von x2 bis x1 - 1 geht (für die Berechnung der Fläche unter der Kurve nur anhand der Daten aus "Ctrl_Mean_Smooth_Norm100" bzw. "RNase_Mean_Smooth_Norm100")
+Fra.Pos = sapply(seq(1, nrow(Sel_Crit), 1), function(n) {seq(x2[n], x1[n] - 1, 1)})
 
-# ---> "Ctrl_h_prop [%]": 5. Berechnung des Protein-Anteils unter der geglätteten und normalisierten Protein-Verteilung von Ctrl anhand von "Fra.Pos" (mathematische Flächenberechnung von Trapezen)
-Ctrl_prt_amount = sapply(seq(1, nrow(Ctrl_RDeep), 1), function(n) {sum(unlist(sapply(seq(1, length(Fra.Pos[[n]]), 1), function(i) {Ctrl_Mean_Smooth_Norm100[n, Fra.Pos[[n]][i]] + 1/2 * (Ctrl_Mean_Smooth_Norm100[n, Fra.Pos[[n]][i + 1]] - Ctrl_Mean_Smooth_Norm100[n, Fra.Pos[[n]][i]])})))})
+# ---> "Ctrl_prt_prop": 5. Berechnung des Protein-Anteils unter der geglätteten und normalisierten Protein-Verteilung von Ctrl anhand von "Fra.Pos" (mathematische Flächenberechnung von Trapezen)
+Ctrl_prt_amount = sapply(seq(1, nrow(Sel_Crit), 1), function(n) {sum(unlist(sapply(seq(1, length(Fra.Pos[[n]]), 1), function(i) {0.5 * (Ctrl_Mean_Smooth_Norm100[n, Fra.Pos[[n]][i]] + Ctrl_Mean_Smooth_Norm100[n, Fra.Pos[[n]][i] + 1])})))})
 
-# ---> "Ctrl_h_prop [%]": 6. Gleiche Berechnung für RNase (Note: hier an der Position des globalen Maximums der Ctrl-Verteilung)
-RNase_prt_amount = sapply(seq(1, nrow(RNase_RDeep), 1), function(n) {sum(unlist(sapply(seq(1, length(Fra.Pos[[n]]), 1), function(i) {RNase_Mean_Smooth_Norm100[n, Fra.Pos[[n]][i]] + 1/2 * (RNase_Mean_Smooth_Norm100[n, Fra.Pos[[n]][i + 1]] - RNase_Mean_Smooth_Norm100[n, Fra.Pos[[n]][i]])})))})
+# ---> "Ctrl_prt_prop": 6. Gleiche Berechnung für RNase (Note: hier an der Position des globalen Maximums der Ctrl-Verteilung)
+RNase_prt_amount = sapply(seq(1, nrow(Sel_Crit), 1), function(n) {sum(unlist(sapply(seq(1, length(Fra.Pos[[n]]), 1), function(i) {0.5 * (RNase_Mean_Smooth_Norm100[n, Fra.Pos[[n]][i]] + RNase_Mean_Smooth_Norm100[n, Fra.Pos[[n]][i] + 1])})))})
 
-# ---> "Ctrl_h_prop [%]": 7. Berechnung, um wie viel Prozent der Protein-Anteil unter dem globalen Maximums der Ctrl abnimmt nach Zugabe von RNase
-Sel_Crit_PCA[, 4] = RNase_prt_amount/Ctrl_prt_amount - 1
+# ---> "Ctrl_prt_prop": 7. Berechnung des absoluten Verlustes an Protein unter dem globalen Maximums der Ctrl Probe nach Zugabe von RNase
+Sel_Crit[, 9] = Ctrl_prt_amount - RNase_prt_amount
+
+# ---> "Ctrl_prt_prop_%": 8. Berechnung, um wie viel Prozent der Protein-Anteil unter dem globalen Maximums der Ctrl abnimmt nach Zugabe von RNase
+Sel_Crit[, 10] = 1 - RNase_prt_amount/Ctrl_prt_amount
 
 
-# ---> "RNase_h_prop [%]": Gleiche Berechnungen wie für "Ctrl_h_prop [%]" für RNase (Note: hier wird aber berechnet, um wie viel Prozent der Protein-Anteil unter dem globalen Maximum der RNase *zunimmt* nach RNase-Zugabe)
-x1 = RNase_Gauss_Fit[, 2] * sqrt(-2 * log((2*sqrt(2*pi)*RNase_Gauss_Fit[, 2])/(RNase_Gauss_Fit[, 3]))) + RNase_Gauss_Fit[, 1]
-x2 = - RNase_Gauss_Fit[, 2] * sqrt(-2 * log((2*sqrt(2*pi)*RNase_Gauss_Fit[, 2])/(RNase_Gauss_Fit[, 3]))) + RNase_Gauss_Fit[, 1]
+# ---> "RNase_prt_prop" und "RNase_prt_prop_%": Gleiche Berechnungen wie für "Ctrl_prt_prop" und "Ctrl_prt_prop_%" für RNase (Note: hier wird aber berechnet, um wie viel Prozent der Protein-Anteil unter dem globalen Maximum der RNase *zunimmt* nach RNase-Zugabe)
+x1 = sqrt(- RNase_Gauss_Fit[, 2] * log(0.5)) + RNase_Gauss_Fit[, 1]
+x2 = - sqrt(- RNase_Gauss_Fit[, 2] * log(0.5)) + RNase_Gauss_Fit[, 1]
 
 x1[which(x1 > 25)] = 25
 x2[which(x2 < 1)] = 1 
@@ -1428,83 +1329,98 @@ x2[which(x2 < 1)] = 1
 x1 = ceiling(x1)
 x2 = floor(x2)
 
-Fra.Pos = sapply(seq(1, nrow(RNase_RDeep), 1), function(n) {seq(x2[n], x1[n] - 1, 1)})
+Fra.Pos = sapply(seq(1, nrow(Sel_Crit), 1), function(n) {seq(x2[n], x1[n] - 1, 1)})
 
-Ctrl_prt_amount = sapply(seq(1, nrow(Ctrl_RDeep), 1), function(n) {sum(unlist(sapply(seq(1, length(Fra.Pos[[n]]), 1), function(i) {Ctrl_Mean_Smooth_Norm100[n, Fra.Pos[[n]][i]] + 1/2 * (Ctrl_Mean_Smooth_Norm100[n, Fra.Pos[[n]][i + 1]] - Ctrl_Mean_Smooth_Norm100[n, Fra.Pos[[n]][i]])})))})
+Ctrl_prt_amount = sapply(seq(1, nrow(Sel_Crit), 1), function(n) {sum(unlist(sapply(seq(1, length(Fra.Pos[[n]]), 1), function(i) {0.5 * (Ctrl_Mean_Smooth_Norm100[n, Fra.Pos[[n]][i]] + Ctrl_Mean_Smooth_Norm100[n, Fra.Pos[[n]][i] + 1])})))})
 
-RNase_prt_amount = sapply(seq(1, nrow(RNase_RDeep), 1), function(n) {sum(unlist(sapply(seq(1, length(Fra.Pos[[n]]), 1), function(i) {RNase_Mean_Smooth_Norm100[n, Fra.Pos[[n]][i]] + 1/2 * (RNase_Mean_Smooth_Norm100[n, Fra.Pos[[n]][i + 1]] - RNase_Mean_Smooth_Norm100[n, Fra.Pos[[n]][i]])})))})
+RNase_prt_amount = sapply(seq(1, nrow(Sel_Crit), 1), function(n) {sum(unlist(sapply(seq(1, length(Fra.Pos[[n]]), 1), function(i) {0.5 * (RNase_Mean_Smooth_Norm100[n, Fra.Pos[[n]][i]] + RNase_Mean_Smooth_Norm100[n, Fra.Pos[[n]][i] + 1])})))})
 
-Sel_Crit_PCA[, 5] = 1 - Ctrl_prt_amount/RNase_prt_amount
+# ---> "RNase_prt_prop"
+Sel_Crit[, 11] = RNase_prt_amount - Ctrl_prt_amount
+
+# ---> "RNase_prt_prop_%"
+Sel_Crit[, 12] = 1 - Ctrl_prt_amount/RNase_prt_amount
 
 
-# ---> "delta_prt_amount [%]": Berechnung der prozentualen Veränderung des Protein-Anteils unter den Gaußkurven zwischen Ctrl und RNase
-Sel_Crit_PCA[, 6] = RNase_Gauss_Fit[, 4]/Ctrl_Gauss_Fit[, 4] - 1
+# ---> "overlap_%": Hinzufügen der prozentualen Überlappung der Gaußkurven von Ctrl und RNase (Berechnung: s. "3.4 Calculation of Gaussian Overlap")
+Sel_Crit[, 13] = Summary[, 13]
 
-# ---> "overlap [%]": Hinzufügen der prozentualen Überlappung der Gaußkurven von Ctrl und RNase (Berechnung: s. "3.4 Calculation of Gaussian Overlap")
-Sel_Crit_PCA[, 7] = Ctrl_Gauss_Fit[, 5]
 
+## ---> Kategorisierung
 # ---> "shift": Kategorisieren der Gene in "left", "right" and "no" shifting und "precipitated" anhand der Mittelwerte der gefitteten Gaußkurven (wir gehen erst von einem Shift aus, wenn die Differenz der Mittelwerte größer als 1 Fraktion ist)
-Sel_Crit_PCA[, 8] = rep(NA, nrow(Ctrl_RDeep))
-Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) > 1 & !(Ctrl_Gauss_Fit[, 1] > 24 | RNase_Gauss_Fit[, 1] > 24)), 8] = "left"
-Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) < -1 & !(Ctrl_Gauss_Fit[, 1] > 24 | RNase_Gauss_Fit[, 1] > 24)), 8] = "right"
-Sel_Crit_PCA[which(Ctrl_Gauss_Fit[, 1] > 24 | RNase_Gauss_Fit[, 1] > 24), 8] = "precipitated"
-Sel_Crit_PCA[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) <= 1 & (Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) >= -1 & !(Ctrl_Gauss_Fit[, 1] > 24 | RNase_Gauss_Fit[, 1] > 24)), 8] = "no"
+Sel_Crit[, 14] = rep(NA, nrow(Sel_Crit))
+Sel_Crit[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) > 1 & !(Ctrl_Gauss_Fit[, 1] > 24 | RNase_Gauss_Fit[, 1] > 24)), 14] = "left"
+Sel_Crit[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) < -1 & !(Ctrl_Gauss_Fit[, 1] > 24 | RNase_Gauss_Fit[, 1] > 24)), 14] = "right"
+Sel_Crit[which(Ctrl_Gauss_Fit[, 1] > 24 | RNase_Gauss_Fit[, 1] > 24), 14] = "precipitated"
+Sel_Crit[which((Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) <= 1 & (Ctrl_Gauss_Fit[, 1] - RNase_Gauss_Fit[, 1]) >= -1 & !(Ctrl_Gauss_Fit[, 1] > 24 | RNase_Gauss_Fit[, 1] > 24)), 14] = "no"
+
 
 # ---> Benennung der Zeilen und Spalten des Dataframes
-rownames(Sel_Crit_PCA) = rownames(Sel_Crit)
-colnames(Sel_Crit_PCA) = c("delta_mu [%]", "delta_sd [%]", "delta_h [%]", "Ctrl_h_prop [%]", "RNase_h_prop [%]", "delta_prt_amount [%]", "overlap [%]", "shift")
+rownames(Sel_Crit) = rownames(Summary)
+colnames(Sel_Crit) = c("delta_mu", "delta_mu_%", "delta_sd", "delta_sd_%", "delta_h", "delta_h_%", "delta_prt_amount", "delta_prt_amount_%", "Ctrl_prt_prop", "Ctrl_prt_prop_%", "RNase_prt_prop", "RNase_prt_prop_%", "overlap_%", "shift")
+
+# ---> Entfernung erstellter Variablen
+rm(Fra.Pos, x1, x2, Ctrl_prt_amount, RNase_prt_amount)
 
 # ---> Wie sieht der Datensatz aus?
-head(Sel_Crit_PCA)
+head(Sel_Crit)
+```
 
+
+##### 4.3 Visualization of Shifting Behavior
+
+To visualize the shifting behavior of each gene, we plot the peak positions of the global peaks of the Control and RNase samples against each other (x: Ctrl peak positions; y: RNase peak positions). The genes will be colorized based on the column *"shift"* in the **Sel_Crit** dataframe according to their shifting behavior:
+
+```{r}
 # ---> Plotten der peak positions und Einfärben nach "left", "right", "precipitated" und "no" shifting
 col = rep(NA, nrow(Ctrl_RDeep))
-col[which(Sel_Crit_PCA[, 8] == "left")] = "blue"
-col[which(Sel_Crit_PCA[, 8] == "right")] = "red"
-col[which(Sel_Crit_PCA[, 8] == "precipitated")] = "orange"
-col[which(Sel_Crit_PCA[, 8] == "no")] = "grey"
+col[which(Sel_Crit[, 14] == "left")] = "blue"
+col[which(Sel_Crit[, 14] == "right")] = "red"
+col[which(Sel_Crit[, 14] == "precipitated")] = "orange"
+col[which(Sel_Crit[, 14] == "no")] = "grey"
 
 plot(Ctrl_Gauss_Fit[, 1], RNase_Gauss_Fit[, 1], pch = 16, col = col, main = "Shifting Behavior", xlab = "Ctrl Gbl Peak Position", ylab = "RNase Gbl Peak Position")
 legend("topleft", legend = c("left", "right", "precipitated", "no"), pch = 16, col = c("blue", "red", "orange", "grey"))
 
-# ---> Entfernung erstellter Variablen
-rm(Fra.Pos, x1, x2, Ctrl_prt_amount, RNase_prt_amount, col)
+rm(col)
 ```
 
-We will now use PCA to determine new (non-correlating) variables (**Principal Components** (**PC**)) for our dataframe:
+
+##### 4.4 Principal Component Analysis of the Selection Criteria
+
+We want to determine which selection criteria from the "**Sel_Crit**" dataframe separate our genes the best. To do this we will use **Principal Component Analysis (PCA)**. The main idea is that we will use PCA to reduce the dimensions of the dataframe "**Sel_Crit**". If our selection criteria are sufficient to determine the RNA-dependency of a protein the points in our reduced data set should separate nicely along these criteria. 
+
+PCA results in new (non-correlating) variables (**Principal Components** (**PC**)):
+
+**Note**: *Only the variables calculated in percent are used for PCA (so that they are comparable to each other).*
 
 ```{r}
 # ---> PCA mit dem "prcomp" Befehl
-pca = prcomp(Sel_Crit_PCA[, 1:7])
+pca = prcomp(Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
 
 # ---> "$sdev" gibt die Standardabweichungen der PCs aus, also erhalten wir durch Quadrieren die Varianz der einzelnen PCs und, wenn wir diese durch die Gesamtvarianz teilen, den prozentualen Anteil der einzelnen PCs an der Gesamtvarianz des Datensatzes "Sel_Crit_PCA"
 pca$sdev^2/(sum(pca$sdev^2))*100
 
 # ---> "$rotation" gibt die loadings der einzelnen originalen Variablen an den PCs aus 
 pca$rotation
+
+rm(pca)
 ```
 
 We can also visualize our PCA results by plotting the first 2 PCs (**Note**: *requires the packages "ggplot2" and "factoextra"*): 
 
 ```{r}
+pca = prcomp(Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
+
 # ---> Plot, der die Datenpunkte je nach Kategorisierung in "left", "right" und "no" shift einfärbt 
-col = rep(NA, nrow(Ctrl_RDeep))
-col[which(Sel_Crit_PCA[, 8] == "left")] = "blue"
-col[which(Sel_Crit_PCA[, 8] == "right")] = "red"
-col[which(Sel_Crit_PCA[, 8] == "precipitated")] = "orange"
-col[which(Sel_Crit_PCA[, 8] == "no")] = "grey"
+col = rep(NA, nrow(Sel_Crit))
+col[which(Sel_Crit[, 14] == "left")] = "blue"
+col[which(Sel_Crit[, 14] == "right")] = "red"
+col[which(Sel_Crit[, 14] == "precipitated")] = "orange"
+col[which(Sel_Crit[, 14] == "no")] = "grey"
 
 plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Shifting Behavior", xlab = "PC1", ylab = "PC2")
 legend("topright", legend = c("left", "right", "precipitated", "no"), pch = 16, col = c("blue", "red", "orange", "grey"))
-
-
-# ---> Plot, der die Datenpunkte je nach Kategorisierung in "RDP" oder "non RDP" einfärbt (nimmt Einteilung aus den Berechnungen aus "4.2 Dataframe with all three selection criteria in comparison")
-col = rep(NA, nrow(Ctrl_RDeep))
-col[which(rownames(Ctrl_Gauss_Fit) %in% rownames(RDPs))] = "blue"
-col[which(rownames(Ctrl_Gauss_Fit) %in% rownames(non_RDPs))] = "grey"
-
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "RDPs and non RDPs", xlab = "PC1", ylab = "PC2")
-legend("topright", legend = c("RDP", "non RDP"), pch = 16, col = c("blue", "grey"))
 
 
 # ---> Plot, der die Dichte der Punkteverteilung im Plot durch Farben anzeigt ("rot" = sehr dicht beieinander; "blau" = nicht dicht beieinander)
@@ -1519,17 +1435,141 @@ library(factoextra)
 
 fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T, col.ind = Sel_Crit_PCA[,8])
 
+rm(col, pca)
+```
+
+We can also repeat the PCA but this time we will only apply it to the selection criteria **delta_mu_%**, **Ctrl_prt_prop_%**, **RNase_prt_prop_%** and **overlap_%**: 
+
+```{r}
+# ---> PCA
+pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
+
+# ---> Plot, der die Datenpunkte je nach Kategorisierung in "left", "right" und "no" shift einfärbt 
+col = rep(NA, nrow(Sel_Crit))
+col[which(Sel_Crit[, 14] == "left")] = "blue"
+col[which(Sel_Crit[, 14] == "right")] = "red"
+col[which(Sel_Crit[, 14] == "precipitated")] = "orange"
+col[which(Sel_Crit[, 14] == "no")] = "grey"
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Shifting Behavior", xlab = "PC1", ylab = "PC2")
+legend("topright", legend = c("left", "right", "precipitated", "no"), pch = 16, col = c("blue", "red", "orange", "grey"))
+
+
+# ---> Plot, der die Dichte der Punkteverteilung im Plot durch Farben anzeigt ("rot" = sehr dicht beieinander; "blau" = nicht dicht beieinander)
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = densCols(pca$x[, 1], pca$x[, 2], colramp = colorRampPalette(c("blue", "cyan", "green", "yellow", "orange", "red"))), main = "Point Density", xlab = "PC1", ylab = "PC2")
+abline(h = 0, lty =3, col = "grey")
+abline(v = 0, lty = 3, col = "grey")
+
+
+# --> Erstellen eines "Biplots" der die ersten zwei PCs mit den loadings der Variablen zeigt
+library(ggplot2)
+library(factoextra)
+
+fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T, col.ind = Sel_Crit_PCA[,8])
+
+rm(col, pca)
+```
+
+
+##### 4.5 Application of the Selection Criteria
+
+Based on the PCA we can conclude that the selection criteria **delta_mu**, **Ctrl_prt_prop_%**, **RNase_prt_prop_%** and **overlap** are the most important to separate shifting and non shifting proteins from each other.
+Based on observations and experience we set the following thresholds for an RNA-dependent protein (RDP):
+
+  1. Global peak shift of more than **1 fraction**
+  2. Protein loss under Ctrl global peak of more than **20 %** after RNase treatment
+  3. Protein gain under RNase global peak of more than **20 %** after RNase treatment
+  4. Overlap the gaussian curves of less than **75 %**
+  
+Furthermore, we define a *partially* RNA-dependent proteins as a protein that satisfies 1. and 4. and either 2. or 3. (1. & 4. & (2. | 3.))
+
+```{r}
+# ---> Neue Spalte, die den RDP-Status ("yes", "no" oder "partial") angibt
+Sel_Crit[, 15] = rep(NA, nrow(Sel_Crit))
+colnames(Sel_Crit) = c(colnames(Sel_Crit)[-15], "RDP")
+
+# ---> Anwenden der Selection Criteria
+Sel_Crit[which(abs(Sel_Crit[, 1]) > 1 & Sel_Crit[, 10] > 0.2 & Sel_Crit[, 12] > 0.2 & Sel_Crit[, 13] < 0.75), 15] = "yes"
+Sel_Crit[which(!(abs(Sel_Crit[, 1]) > 1 & (Sel_Crit[, 10] > 0.2 | Sel_Crit[, 12] > 0.2) & Sel_Crit[, 13] < 0.75)), 15] = "no"
+Sel_Crit[which(abs(Sel_Crit[, 1]) > 1 & (Sel_Crit[, 10] > 0.2 | Sel_Crit[, 12] > 0.2) & Sel_Crit[, 13] < 0.75 & !(Sel_Crit[, 10] > 0.2 & Sel_Crit[, 12] > 0.2)), 15] = "partial"
+
+# ---> Wie viele Gene werden jeweils zugewiesen?
+length(which(abs(Sel_Crit[, 1]) > 1 & Sel_Crit[, 10] > 0.2 & Sel_Crit[, 12] > 0.2 & Sel_Crit[, 13] < 0.75))
+length(which(!(abs(Sel_Crit[, 1]) > 1 & (Sel_Crit[, 10] > 0.2 | Sel_Crit[, 12] > 0.2) & Sel_Crit[, 13] < 0.75)))
+length(which(abs(Sel_Crit[, 1]) > 1 & (Sel_Crit[, 10] > 0.2 | Sel_Crit[, 12] > 0.2) & Sel_Crit[, 13] < 0.75 & !(Sel_Crit[, 10] > 0.2 & Sel_Crit[, 12] > 0.2)))
+```
+
+
+##### 4.6 Visualization of RDPs, non RDPs and partial RDPs
+
+Using the PCA biplot from before we can colorize each gene based on whether or not it is an RDP, non RDP or partial RDP based on our analysis:
+
+```{r}
+pca = prcomp(Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
+
+# ---> Plot, der die Datenpunkte je nach Kategorisierung in "RDP" oder "non RDP" einfärbt 
+col = rep(NA, nrow(Sel_Crit))
+col[which(Sel_Crit[, 15] == "yes")] = "blue"
+col[which(Sel_Crit[, 15] == "partial")] = "orange"
+col[which(Sel_Crit[, 15] == "no")] = "grey"
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "RDPs and non RDPs", xlab = "PC1", ylab = "PC2")
+legend("topright", legend = c("RDP", "partial RDP", "non RDP"), pch = 16, col = c("blue","orange", "grey"))
+
+
+pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
+
+# ---> Plot, der die Datenpunkte je nach Kategorisierung in "RDP" oder "non RDP" einfärbt 
+col = rep(NA, nrow(Sel_Crit))
+col[which(Sel_Crit[, 15] == "yes")] = "blue"
+col[which(Sel_Crit[, 15] == "partial")] = "orange"
+col[which(Sel_Crit[, 15] == "no")] = "grey"
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "RDPs and non RDPs", xlab = "PC1", ylab = "PC2")
+legend("topright", legend = c("RDP", "partial RDP", "non RDP"), pch = 16, col = c("blue","orange", "grey"))
+
+rm(pca, col)
+```
+
+
+#### 5. Further Analysis
+
+
+##### 5.1 k-Means clustering 
+
+```{r}
+# ---> PCA
+pca = prcomp(Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
 
 # ---> kmeans-Clustering
 kmeans = kmeans(pca$x, 3, iter.max = 10, nstart = 1)
 
-col = rep(NA, nrow(Ctrl_RDeep))
+col = rep(NA, nrow(Sel_Crit))
 col[which(kmeans$cluster == 1)] = "blue"
 col[which(kmeans$cluster == 2)] = "red"
 col[which(kmeans$cluster == 3)] = "orange"
 plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "k-Means Clustering (n = 3)", xlab = "PC1", ylab = "PC2")
-legend("topright", legend = c("1", "2", "3"), pch = 16, col = c("blue", "red", "orange"))
+legend("topright", legend = c(paste("1 (n = ", length(which(kmeans$cluster == 1)), ")", sep =""), paste("2 (n = ", length(which(kmeans$cluster == 2)), ")", sep =""), paste("3 (n = ", length(which(kmeans$cluster == 3)), ")", sep ="")), pch = 16, col = c("blue", "red", "orange"))
 
+# ---> Erstellung eines Elbow-Plots
+plot(1:5, c(kmeans(pca$x[,1:2], 1, iter.max = 10, nstart = 1)$tot.withinss,
+            kmeans(pca$x[,1:2], 2, iter.max = 10, nstart = 1)$tot.withinss,
+            kmeans(pca$x[,1:2], 3, iter.max = 10, nstart = 1)$tot.withinss,
+            kmeans(pca$x[,1:2], 4, iter.max = 10, nstart = 1)$tot.withinss,
+            kmeans(pca$x[,1:2], 5, iter.max = 10, nstart = 1)$tot.withinss), type = "b", pch = 19, main = "Elbow Method", xlab = "Number of cluster", ylab = "Total within-cluster sum of squares")
+
+
+# ---> PCA
+pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
+
+# ---> kmeans-Clustering
+kmeans = kmeans(pca$x, 2, iter.max = 10, nstart = 1)
+
+col = rep(NA, nrow(Sel_Crit))
+col[which(kmeans$cluster == 1)] = "blue"
+col[which(kmeans$cluster == 2)] = "red"
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "k-Means Clustering (n = 2)", xlab = "PC1", ylab = "PC2")
+legend("topright", legend = c(paste("1 (n = ", length(which(kmeans$cluster == 1)), ")", sep =""), paste("2 (n = ", length(which(kmeans$cluster == 2)), ")", sep ="")), pch = 16, col = c("blue", "red"))
 
 # ---> Erstellung eines Elbow-Plots
 plot(1:5, c(kmeans(pca$x[,1:2], 1, iter.max = 10, nstart = 1)$tot.withinss,
@@ -1541,71 +1581,13 @@ plot(1:5, c(kmeans(pca$x[,1:2], 1, iter.max = 10, nstart = 1)$tot.withinss,
 rm(col, pca, kmeans)
 ```
 
-We can also repeat the PCA but this time we will only apply it to our selection criteria **delta_mu [%]**, **Ctrl_h_prop [%]**, **RNase_h_prop [%]** and **overlap [%]**: 
 
-```{r}
-# ---> PCA
-pca = prcomp(Sel_Crit_PCA[, c(1, 4, 5, 7)])
-
-# ---> Plot, der die Datenpunkte je nach Kategorisierung in "left", "right" und "no" shift einfärbt 
-col = rep(NA, nrow(Ctrl_RDeep))
-col[which(Sel_Crit_PCA[, 8] == "left")] = "blue"
-col[which(Sel_Crit_PCA[, 8] == "right")] = "red"
-col[which(Sel_Crit_PCA[, 8] == "precipitated")] = "orange"
-col[which(Sel_Crit_PCA[, 8] == "no")] = "grey"
-
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Shifting Behavior", xlab = "PC1", ylab = "PC2")
-legend("topright", legend = c("left", "right", "precipitated", "no"), pch = 16, col = c("blue", "red", "orange", "grey"))
+##### 5.2 Linear Regression
 
 
-# ---> Plot, der die Datenpunkte je nach Kategorisierung in "RDP" oder "non RDP" einfärbt (nimmt Einteilung aus den Berechnungen aus "4.2 Dataframe with all three selection criteria in comparison")
-col = rep(NA, nrow(Ctrl_RDeep))
-col[which(rownames(Ctrl_Gauss_Fit) %in% rownames(RDPs))] = "blue"
-col[which(rownames(Ctrl_Gauss_Fit) %in% rownames(non_RDPs))] = "grey"
+##### 5.3 Comparison with the RBP2GO Database
 
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "RDPs and non RDPs", xlab = "PC1", ylab = "PC2")
-legend("topright", legend = c("RDP", "non RDP"), pch = 16, col = c("blue", "grey"))
-
-
-# ---> Plot, der die Dichte der Punkteverteilung im Plot durch Farben anzeigt ("rot" = sehr dicht beieinander; "blau" = nicht dicht beieinander)
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = densCols(pca$x[, 1], pca$x[, 2], colramp = colorRampPalette(c("blue", "cyan", "green", "yellow", "orange", "red"))), main = "Point Density", xlab = "PC1", ylab = "PC2")
-abline(h = 0, lty =3, col = "grey")
-abline(v = 0, lty = 3, col = "grey")
-
-
-# --> Erstellen eines "Biplots" der die ersten zwei PCs mit den loadings der Variablen zeigt
-library(ggplot2)
-library(factoextra)
-
-fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T, col.ind = Sel_Crit_PCA[,8])
-
-
-# ---> kmeans-Clustering
-kmeans = kmeans(pca$x, 2, iter.max = 10, nstart = 1)
-
-col = rep(NA, nrow(Ctrl_RDeep))
-col[which(kmeans$cluster == 1)] = "blue"
-col[which(kmeans$cluster == 2)] = "red"
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "k-Means Clustering (n = 2)", xlab = "PC1", ylab = "PC2")
-legend("topright", legend = c("1", "2"), pch = 16, col = c("blue", "red"))
-
-
-# ---> Erstellung eines Elbow-Plots
-plot(1:5, c(kmeans(pca$x[,1:2], 1, iter.max = 10, nstart = 1)$tot.withinss,
-            kmeans(pca$x[,1:2], 2, iter.max = 10, nstart = 1)$tot.withinss,
-            kmeans(pca$x[,1:2], 3, iter.max = 10, nstart = 1)$tot.withinss,
-            kmeans(pca$x[,1:2], 4, iter.max = 10, nstart = 1)$tot.withinss,
-            kmeans(pca$x[,1:2], 5, iter.max = 10, nstart = 1)$tot.withinss), type = "b", pch = 19,main = "Elbow Method", xlab = "Number of cluster", ylab = "Total within-cluster sum of squares")
-
-rm(col, kmeans, pca)
-```
-
-##### 5.3 Linear Regression
-
-
-##### 5.4 Comparison with the RBP2GO Database
-
-First, we will load the data from the RBP2GO databank for *homo sapiens*. 
+First, we will load the data from the RBP2GO databank for *homo sapiens*: 
 
 ```{r}
 Table_HS_RBP = read.csv("https://www.dropbox.com/s/xpjob8g8flxl3ik/Table_HS_RBP.txt?dl=1", sep = "", header = T, row.names = 1)
@@ -1617,51 +1599,62 @@ Table_HS_Non_RBP = read.csv("https://www.dropbox.com/s/cgbrvponhw7arpt/Table_HS_
 Table_HS_Non_RBP = Table_HS_Non_RBP[order(row.names(Table_HS_Non_RBP)),]
 ```
 
-Next, we expand our dataframe **Sel_Crit_PCA** with a ninth column containing the RBP2GO-Score for each gene: 
+Next, we expand our dataframe **Sel_Crit** with a sixteenth column containing the RBP2GO-Score for each gene: 
 
 ```{r}
-Sel_Crit_PCA[, 9] = NA
-colnames(Sel_Crit_PCA) = c(colnames(Sel_Crit_PCA)[-9], "RBP2GO_Score")
+# ---> Erstellen der 16. Spalte (nur NA)
+Sel_Crit[, 16] = rep(NA, nrow(Sel_Crit))
+colnames(Sel_Crit) = c(colnames(Sel_Crit)[-16], "RBP2GO_Score")
 
-Sel_Crit_PCA[which(rownames(Sel_Crit_PCA) %in% rownames(Table_HS_RBP)), 9] = Table_HS_RBP[which(rownames(Table_HS_RBP) %in% rownames(Sel_Crit_PCA)), 3]
+# ---> Hinzufügen der RBP2GO-Scores aus dem Datensatz für RBPs
+Sel_Crit[which(rownames(Sel_Crit) %in% rownames(Table_HS_RBP)), 16] = Table_HS_RBP[which(rownames(Table_HS_RBP) %in% rownames(Sel_Crit)), 3]
 
-Sel_Crit_PCA[which(rownames(Sel_Crit_PCA) %in% rownames(Table_HS_Non_RBP)), 9] = Table_HS_Non_RBP[which(rownames(Table_HS_Non_RBP) %in% rownames(Sel_Crit_PCA)), 3]
+# ---> Hinzufügen der RBP2GO-Scores aus dem Datensatz für non RBPs
+Sel_Crit[which(rownames(Sel_Crit) %in% rownames(Table_HS_Non_RBP)), 16] = Table_HS_Non_RBP[which(rownames(Table_HS_Non_RBP) %in% rownames(Sel_Crit)), 3]
 ```
 
-###### 5.4.1 Direct Comparison
+
+###### 5.3.1 Direct Comparison
 
 Now we can look again at our PCA results and compare our findings with the RBP2GO databank:
 
 ```{r}
-pca = prcomp(Sel_Crit_PCA[, 1:7])
+# ---> PCA
+pca = prcomp(Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
 
-col = rep(NA, nrow(Ctrl_RDeep))
-col[which(rownames(Ctrl_Gauss_Fit) %in% rownames(RDPs))] = "blue"
-col[which(rownames(Ctrl_Gauss_Fit) %in% rownames(non_RDPs))] = "grey"
+# ---> Erstellen eines Farbenvektors basierend auf den Kategorien "yes", "partial" und "no" (bezogen auf RDP)
+col = rep(NA, nrow(Sel_Crit))
+col[which(Sel_Crit[, 15] == "yes")] = "blue"
+col[which(Sel_Crit[, 15] == "partial")] = "orange"
+col[which(Sel_Crit[, 15] == "no")] = "grey"
 
+# ---> Generieren des PCA biplots mit entsprechender Einfärbung
 plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Our RDPs and non RDPs", xlab = "PC1", ylab = "PC2")
-legend("topright", legend = c("RDP", "non RDP"), pch = 16, col = c("blue", "grey"))
+legend("topright", legend = c("RDP", "partial RDP", "non RDP"), pch = 16, col = c("blue","orange", "grey"))
 
-col = rep(NA, nrow(Ctrl_RDeep))
-col[which(rownames(Ctrl_Gauss_Fit) %in% rownames(Table_HS_RBP))] = "blue"
-col[which(rownames(Ctrl_Gauss_Fit) %in% rownames(Table_HS_Non_RBP))] = "grey"
+# ---> Vergleich mit RBP2GO Datenbank
+col = rep(NA, nrow(Sel_Crit))
+col[which(rownames(Sel_Crit) %in% rownames(Table_HS_RBP))] = "blue"
+col[which(rownames(Sel_Crit) %in% rownames(Table_HS_Non_RBP))] = "grey"
 
 plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "RBP2GO RDPs and non RDPs", xlab = "PC1", ylab = "PC2")
 legend("topright", legend = c("RDP", "non RDP"), pch = 16, col = c("blue", "grey"))
 
 
-pca = prcomp(Sel_Crit_PCA[, c(1, 4, 5, 7)])
+# ---> Gleiche Berechnungen für die 4 ausgewählten Selektionskriterien
+pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
 
-col = rep(NA, nrow(Ctrl_RDeep))
-col[which(rownames(Ctrl_Gauss_Fit) %in% rownames(RDPs))] = "blue"
-col[which(rownames(Ctrl_Gauss_Fit) %in% rownames(non_RDPs))] = "grey"
+col = rep(NA, nrow(Sel_Crit))
+col[which(Sel_Crit[, 15] == "yes")] = "blue"
+col[which(Sel_Crit[, 15] == "partial")] = "orange"
+col[which(Sel_Crit[, 15] == "no")] = "grey"
 
 plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Our RDPs and non RDPs", xlab = "PC1", ylab = "PC2")
-legend("topright", legend = c("RDP", "non RDP"), pch = 16, col = c("blue", "grey"))
+legend("topright", legend = c("RDP", "partial RDP", "non RDP"), pch = 16, col = c("blue","orange", "grey"))
 
-col = rep(NA, nrow(Ctrl_RDeep))
-col[which(rownames(Ctrl_Gauss_Fit) %in% rownames(Table_HS_RBP))] = "blue"
-col[which(rownames(Ctrl_Gauss_Fit) %in% rownames(Table_HS_Non_RBP))] = "grey"
+col = rep(NA, nrow(Sel_Crit))
+col[which(rownames(Sel_Crit) %in% rownames(Table_HS_RBP))] = "blue"
+col[which(rownames(Sel_Crit) %in% rownames(Table_HS_Non_RBP))] = "grey"
 
 plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "RBP2GO RDPs and non RDPs", xlab = "PC1", ylab = "PC2")
 legend("topright", legend = c("RDP", "non RDP"), pch = 16, col = c("blue", "grey"))
@@ -1669,9 +1662,9 @@ legend("topright", legend = c("RDP", "non RDP"), pch = 16, col = c("blue", "grey
 rm(pca, col)
 ```
 
-###### 5.4.2 Comparison with RBP2GO-Score
+###### 5.3.2 Comparison with RBP2GO-Score
 
-Mmmmmh ... maybe we get more clear results if we color our points according to their RBP2GO-scores: we have 5970 genes with RBP2GO-scores (20 genes are not included in the RBP2GO databank ( = NA)). We want to obtain 6 ruffly equally sized groups (so 995 genes in each): 
+Mmmmmh ... maybe we get more clear results if we color our points according to their RBP2GO-scores: we have 5970 genes with RBP2GO-scores (20 genes are not included in the RBP2GO databank (= NA)). We want to obtain 6 ruffly equally sized groups (so 995 genes in each): 
 
   RBP2-Score Range    Number of Genes
   [0, 0.9]            1039
@@ -1683,33 +1676,37 @@ Mmmmmh ... maybe we get more clear results if we color our points according to t
   NA                  20
 
 ```{r}
-pca = prcomp(Sel_Crit_PCA[, 1:7])
+# ---> PCA
+pca = prcomp(Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
 
-col = rep(NA, nrow(Sel_Crit_PCA))
-col[which(is.na(Sel_Crit_PCA[, 9]))] = "grey" # 20
-col[which(Sel_Crit_PCA[, 9] <= 0.9)] = "purple" # 1039
-col[which(0.9 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 2.3)] = "blue" # 1075
-col[which(2.3 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 4)] = "green" # 993
-col[which(4 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 6.9)] = "yellow" # 973
-col[which(6.9 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 15.9)] = "orange" # 995
-col[which(15.9 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 100)] = "red" # 895
+# ---> Erstellen eines Farbvektors anhand der RBP2GO-scores
+col = rep(NA, nrow(Sel_Crit))
+col[which(is.na(Sel_Crit[, 16]))] = "grey" # 20
+col[which(Sel_Crit[, 16] <= 0.9)] = "purple" # 1039
+col[which(0.9 < Sel_Crit[, 16] & Sel_Crit[, 16] <= 2.3)] = "blue" # 1075
+col[which(2.3 < Sel_Crit[, 16] & Sel_Crit[, 16] <= 4)] = "green" # 993
+col[which(4 < Sel_Crit[, 16] & Sel_Crit[, 16] <= 6.9)] = "yellow" # 973
+col[which(6.9 < Sel_Crit[, 16] & Sel_Crit[, 16] <= 15.9)] = "orange" # 995
+col[which(15.9 < Sel_Crit[, 16] & Sel_Crit[, 16] <= 100)] = "red" # 895
 
+# ---> Erstellen des entsprechend eingefärbten Biplots
 par(mar=c(5, 4, 4, 7), xpd=F)
 plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "RBP2GO_Score", xlab = "PC1", ylab = "PC2")
 par(xpd=T)
 legend("topright", inset = c(-0.24,0), legend = c("[0, 0.9]", "(0.9, 2.3]", "(2.3, 4]", "(4, 6.9]", "(6.9, 15.9]", "(15.9, 100]", "NA"), pch = 16, col = c("purple", "blue", "green", "yellow", "orange", "red", "grey"))
 
 
-pca = prcomp(Sel_Crit_PCA[, c(1, 4, 5, 7)])
+# ---> Gleiche Berechnungen für die 4 ausgewählten Selektionskriterien
+pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
 
-col = rep(NA, nrow(Sel_Crit_PCA))
-col[which(is.na(Sel_Crit_PCA[, 9]))] = "grey" # 20
-col[which(Sel_Crit_PCA[, 9] <= 0.9)] = "purple" # 1039
-col[which(0.9 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 2.3)] = "blue" # 1075
-col[which(2.3 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 4)] = "green" # 993
-col[which(4 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 6.9)] = "yellow" # 973
-col[which(6.9 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 15.9)] = "orange" # 995
-col[which(15.9 < Sel_Crit_PCA[, 9] & Sel_Crit_PCA[, 9] <= 100)] = "red" # 895
+col = rep(NA, nrow(Sel_Crit))
+col[which(is.na(Sel_Crit[, 16]))] = "grey" # 20
+col[which(Sel_Crit[, 16] <= 0.9)] = "purple" # 1039
+col[which(0.9 < Sel_Crit[, 16] & Sel_Crit[, 16] <= 2.3)] = "blue" # 1075
+col[which(2.3 < Sel_Crit[, 16] & Sel_Crit[, 16] <= 4)] = "green" # 993
+col[which(4 < Sel_Crit[, 16] & Sel_Crit[, 16] <= 6.9)] = "yellow" # 973
+col[which(6.9 < Sel_Crit[, 16] & Sel_Crit[, 16] <= 15.9)] = "orange" # 995
+col[which(15.9 < Sel_Crit[, 16] & Sel_Crit[, 16] <= 100)] = "red" # 895
 
 par(mar=c(5, 4, 4, 7), xpd=F)
 plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "RBP2GO_Score", xlab = "PC1", ylab = "PC2")
@@ -1719,47 +1716,57 @@ legend("topright", inset = c(-0.24,0), legend = c("[0, 0.9]", "(0.9, 2.3]", "(2.
 rm(pca, col)
 ```
 
+Maybe we have more success if we do not use different colors but give genes with a higher RBP2GO-Score more opacity: 
+
 ```{r}
-pca = prcomp(Sel_Crit_PCA[, 1:7])
+# ---> PCA
+pca = prcomp(Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
 
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = alpha("blue", Sel_Crit_PCA[, 9]/100), main = "RBP2GO_Score", xlab = "PC1", ylab = "PC2")
+# ---> Erstellen des Biplots mit einer Farbe, aber unterschiedlicher Deckungskraft je nach RBP2GO-Score
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = alpha("blue", Sel_Crit[, 16]/100), main = "RBP2GO_Score", xlab = "PC1", ylab = "PC2")
 
 
+# ---> Gleiche Berechnungen für die 4 ausgewählten Selektionskriterien
+pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
 
-pca = prcomp(Sel_Crit_PCA[, c(1, 4, 5, 7)])
-
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = alpha("blue", Sel_Crit_PCA[, 9]/100), main = "RBP2GO_Score", xlab = "PC1", ylab = "PC2")
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = alpha("blue", Sel_Crit[, 9]/100), main = "RBP2GO_Score", xlab = "PC1", ylab = "PC2")
 
 rm(pca)
 ```
 
-###### 5.4.3 Cluster Comparison with t-Test
+###### 5.3.3 Cluster Comparison with t-Test
 
-Still no clear results :( 
+It is interesting that in the second biplot the tail is gone but there are still no clear results :(
+
 Maybe we can go back to our k-means clustering. By calculating the **mean RBP2GO-score** for each cluster, we can estimate how RNA-dependent a cluster is. 
 Furthermore, we can use a t-Test to calculate how significant the differences between the mean values are (H0: *The mean values are not significantly different from each other*, H1: *The mean values are significantly different from each other* (two-sided t-test)):
 
 ```{r}
-pca = prcomp(Sel_Crit_PCA[, 1:7])
+# ---> PCA
+pca = prcomp(Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
 
+# ---> k-Means-Clustering für 3 Cluster
 kmeans = kmeans(pca$x, 3, iter.max = 10, nstart = 1)
 
-col = rep(NA, nrow(Ctrl_RDeep))
+# ---> Erstellen eines Farbenvektors basierend auf den Clustern
+col = rep(NA, nrow(Sel_Crit))
 col[which(kmeans$cluster == 1)] = "blue"
 col[which(kmeans$cluster == 2)] = "red"
 col[which(kmeans$cluster == 3)] = "orange"
 
+# ---> Erstellen des Biplots mit entsprechender Einfärbung und t-Test Berechnungen in der Legende
 par(mar=c(4, 4, 4, 11), xpd=F)
 plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "k-Means Clustering (n = 3)", xlab = "PC1", ylab = "PC2")
 par(xpd=T)
-legend("topright", inset = c(-0.5,0), legend = c(paste("Cluster 1 (n = ", length(which(kmeans$cluster == 1)), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 1))), 2), ")", sep = ""), paste("Cluster 2 (n = ", length(which(kmeans$cluster == 2)), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 2))), 2), ")", sep = ""), paste("Cluster 3 (n = ", length(which(kmeans$cluster == 3)), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit_PCA[which(kmeans$cluster == 3), 9], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit_PCA[which(kmeans$cluster == 3), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 3))), 2), ")", sep = ""), "", paste("p(1&2) = ", signif(t.test(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], Sel_Crit_PCA[which(kmeans$cluster == 2), 9], alternative = "two.sided")$p.value, 3), sep = ""), paste("p(1&3) = ", signif(t.test(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], Sel_Crit_PCA[which(kmeans$cluster == 3), 9], alternative = "two.sided")$p.value, 3), sep = ""), paste("p(2&3) = ", signif(t.test(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], Sel_Crit_PCA[which(kmeans$cluster == 3), 9], alternative = "two.sided")$p.value, 3), sep = "")), pch = 16, col = c("blue", NA, "red", NA, "orange", NA, NA, NA, NA, NA))
+legend("topright", inset = c(-0.5,0), legend = c(paste("Cluster 1 (n = ", length(which(kmeans$cluster == 1)), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit[which(kmeans$cluster == 1), 16], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit[which(kmeans$cluster == 1), 16], na.rm = T)/sqrt(length(which(kmeans$cluster == 1))), 2), ")", sep = ""), paste("Cluster 2 (n = ", length(which(kmeans$cluster == 2)), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit[which(kmeans$cluster == 2), 16], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit[which(kmeans$cluster == 2), 16], na.rm = T)/sqrt(length(which(kmeans$cluster == 2))), 2), ")", sep = ""), paste("Cluster 3 (n = ", length(which(kmeans$cluster == 3)), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit[which(kmeans$cluster == 3), 16], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit[which(kmeans$cluster == 3), 16], na.rm = T)/sqrt(length(which(kmeans$cluster == 3))), 2), ")", sep = ""), "", paste("p(1&2) = ", signif(t.test(Sel_Crit[which(kmeans$cluster == 1), 16], Sel_Crit[which(kmeans$cluster == 2), 16], alternative = "two.sided")$p.value, 3), sep = ""), paste("p(1&3) = ", signif(t.test(Sel_Crit[which(kmeans$cluster == 1), 16], Sel_Crit[which(kmeans$cluster == 3), 16], alternative = "two.sided")$p.value, 3), sep = ""), paste("p(2&3) = ", signif(t.test(Sel_Crit[which(kmeans$cluster == 2), 16], Sel_Crit[which(kmeans$cluster == 3), 16], alternative = "two.sided")$p.value, 3), sep = "")), pch = 16, col = c("blue", NA, "red", NA, "orange", NA, NA, NA, NA, NA))
 
 
-pca = prcomp(Sel_Crit_PCA[, c(1, 4, 5, 7)])
+# ---> Gleiche Berechnungen für die 4 ausgewählten Selektionskriterien
+pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
 
 kmeans = kmeans(pca$x, 2, iter.max = 10, nstart = 1)
 
-col = rep(NA, nrow(Ctrl_RDeep))
+col = rep(NA, nrow(Sel_Crit))
 col[which(kmeans$cluster == 1)] = "blue"
 col[which(kmeans$cluster == 2)] = "red"
 
@@ -1768,14 +1775,14 @@ plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "k-Means Clustering (n 
 par(xpd=T)
 legend("topright", 
        inset = c(-0.475,0), 
-       legend = c(paste("Cluster 1 (n = ", length(which(kmeans$cluster == 1)), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 1))), 2), ")", sep = ""), paste("Cluster 2 (n = ", length(which(kmeans$cluster == 2)), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit_PCA[which(kmeans$cluster == 2), 9], na.rm = T)/sqrt(length(which(kmeans$cluster == 2))), 2), ")", sep = ""), "", paste("p(1&2) = ", signif(t.test(Sel_Crit_PCA[which(kmeans$cluster == 1), 9], Sel_Crit_PCA[which(kmeans$cluster == 2), 9], alternative = "two.sided")$p.value, 3), sep = "")), 
+       legend = c(paste("Cluster 1 (n = ", length(which(kmeans$cluster == 1)), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit[which(kmeans$cluster == 1), 16], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit[which(kmeans$cluster == 1), 16], na.rm = T)/sqrt(length(which(kmeans$cluster == 1))), 2), ")", sep = ""), paste("Cluster 2 (n = ", length(which(kmeans$cluster == 2)), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit[which(kmeans$cluster == 2), 16], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit[which(kmeans$cluster == 2), 16], na.rm = T)/sqrt(length(which(kmeans$cluster == 2))), 2), ")", sep = ""), "", paste("p(1&2) = ", signif(t.test(Sel_Crit[which(kmeans$cluster == 1), 16], Sel_Crit[which(kmeans$cluster == 2), 16], alternative = "two.sided")$p.value, 3), sep = "")), 
        pch = 16, 
        col = c("blue", NA, "red", NA, NA, NA))
 
 rm(pca, kmeans, col)
 ```
 
-###### 5.4.4 Venn-Diagram & Barplot
+###### 5.3.4 Venn-Diagram & Barplot
 
 Maybe this is not the right approach. Let us just compare the number of RDPs and non RDPs between the datasets using venn diagrams:
 
@@ -1785,16 +1792,16 @@ library("VennDiagram")
 grid.newpage()
 
 draw.triple.venn(
-  area1 = nrow(RDPs),   # Our identified RDPs
+  area1 = length(which(Sel_Crit[, 15] == "yes" | Sel_Crit[, 15] == "partial")),   # Our identified RDPs
   area2 = nrow(Table_HS_RBP),  # RBPs in RBP2GO-Databank
   area3 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),   # RDPs from the R-Deep-Databank
-  n12 = length(which(rownames(Table_HS_RBP) %in% rownames(RDPs))), 
+  n12 = length(which(rownames(Table_HS_RBP) %in% rownames(Sel_Crit[which(Sel_Crit[, 15] == "yes" | Sel_Crit[, 15] == "partial"), ]))), 
   n23 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),
-  n13 = length(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(RDPs))), 
-  n123 = length(which(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(RDPs)) %in% which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Table_HS_RBP)))),
+  n13 = length(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Sel_Crit[which(Sel_Crit[, 15] == "yes" | Sel_Crit[, 15] == "partial"), ]))), 
+  n123 = length(which(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Sel_Crit[which(Sel_Crit[, 15] == "yes" | Sel_Crit[, 15] == "partial"), ])) %in% which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Table_HS_RBP)))),
   fill = c("dodgerblue", "darkorange", "red"),
   lwd = 1,
-  category = c(paste("Our RDPs (", nrow(RDPs), ")", sep = ""), paste("RBP2GO RBPs (", nrow(Table_HS_RBP), ")", sep =""), paste("R-Deep (", length(which(Table_HS_RBP$R.DeeP_HeLa == "X")), ")", sep = "")),
+  category = c(paste("Our RDPs (", length(which(Sel_Crit[, 15] == "yes" | Sel_Crit[, 15] == "partial")), ")", sep = ""), paste("RBP2GO RBPs (", nrow(Table_HS_RBP), ")", sep =""), paste("R-Deep (", length(which(Table_HS_RBP$R.DeeP_HeLa == "X")), ")", sep = "")),
   fontfamily = "plain",
   cat.fontfamily = "plain",
   cat.fontface = "bold",
@@ -1806,17 +1813,19 @@ draw.triple.venn(
 
 grid.newpage()
 
+grid.newpage()
+
 draw.triple.venn(
-  area1 = nrow(non_RDPs),   # Our identified non RDPs
+  area1 = length(which(Sel_Crit[, 15] == "no")),   # Our identified non RDPs
   area2 = nrow(Table_HS_RBP),  # RBPs in RBP2GO-Databank
   area3 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),   # RDPs from the R-Deep-Databank
-  n12 = length(which(rownames(Table_HS_RBP) %in% rownames(non_RDPs))), 
+  n12 = length(which(rownames(Table_HS_RBP) %in% rownames(Sel_Crit[which(Sel_Crit[, 15] == "no"), ]))), 
   n23 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),
-  n13 = length(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(non_RDPs))), 
-  n123 = length(which(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(non_RDPs)) %in% which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Table_HS_RBP)))),
+  n13 = length(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Sel_Crit[which(Sel_Crit[, 15] == "no"), ]))), 
+  n123 = length(which(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Sel_Crit[which(Sel_Crit[, 15] == "no"), ])) %in% which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Table_HS_RBP)))),
   fill = c("dodgerblue", "darkorange", "red"),
   lwd = 1,
-  category = c(paste("Our non RDPs (", nrow(non_RDPs), ")", sep = ""), paste("RBP2GO RBPs (", nrow(Table_HS_RBP), ")", sep =""), paste("R-Deep (", length(which(Table_HS_RBP$R.DeeP_HeLa == "X")), ")", sep = "")),
+  category = c(paste("Our non RDPs (", length(which(Sel_Crit[, 15] == "no")), ")", sep = ""), paste("RBP2GO RBPs (", nrow(Table_HS_RBP), ")", sep =""), paste("R-Deep (", length(which(Table_HS_RBP$R.DeeP_HeLa == "X")), ")", sep = "")),
   fontfamily = "plain",
   cat.fontfamily = "plain",
   cat.fontface = "bold",
@@ -1849,21 +1858,23 @@ draw.triple.venn(
 
 par(mar=c(1, 3, 1, 7.5))
 barplot(matrix(c(
-  length(which(rownames(non_RDPs) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(non_RDPs))),
-  length(which(rownames(non_RDPs) %in% rownames(Table_HS_RBP))),
-  length(which(rownames(RDPs) %in% rownames(Table_HS_RBP))),
-  length(which(rownames(RDPs) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(RDPs))),
+  length(which(rownames(Sel_Crit[which(Sel_Crit[, 15] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 15] == "no"), ]))),
+  length(which(rownames(Sel_Crit[which(Sel_Crit[, 15] == "no"), ]) %in% rownames(Table_HS_RBP))),
+  length(which(rownames(Sel_Crit[which(Sel_Crit[, 15] == "yes" | Sel_Crit[, 15] == "partial"), ]) %in% rownames(Table_HS_RBP))),
+  length(which(rownames(Sel_Crit[which(Sel_Crit[, 15] == "yes" | Sel_Crit[, 15] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 15] == "yes" | Sel_Crit[, 15] == "partial"), ]))),
   rep(NA, 4)),
   nrow = 4),
   axes = F,
   col = c("red", "orange", "yellow", "green"), 
-  legend.text = c(paste("Non RDPs (", length(which(rownames(non_RDPs) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(non_RDPs))), ")", sep = ""), 
-                  paste("RDPs (only RBP2GO) (", length(which(rownames(non_RDPs) %in% rownames(Table_HS_RBP))), ")", sep = ""), 
-                  paste("RDPS (", length(which(rownames(RDPs) %in% rownames(Table_HS_RBP))), ")", sep = ""), 
-                  paste("New RDPs (", length(which(rownames(RDPs) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(RDPs))), ")", sep = "")),
+  legend.text = c(paste("Non RDPs (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 15] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 15] == "no"), ]))), ")", sep = ""), 
+                  paste("RDPs (only RBP2GO) (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 15] == "no"), ]) %in% rownames(Table_HS_RBP))), ")", sep = ""), 
+                  paste("RDPS (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 15] == "yes" | Sel_Crit[, 15] == "partial"), ]) %in% rownames(Table_HS_RBP))), ")", sep = ""), 
+                  paste("New RDPs (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 15] == "yes" | Sel_Crit[, 15] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 15] == "yes" | Sel_Crit[, 15] == "partial"), ]))), ")", sep = "")),
   )
 ```
 
+
+#### 6. Weird Analysis
 
 #### Extra: Automatic Graph Plotter
 
@@ -2236,5 +2247,6 @@ legend("topright",inset = c(-0.39,0),
 
 Let us see if it works!
 ```{r gene plotter}
-Gene_Plotter(c("HNRPL_HUMAN", "CTCF_HUMAN"))
+Gene_Plotter(c("TCRG1_HUMAN"))
+Sel_Crit[which(rownames(Sel_Crit) == "TCRG1_HUMAN"), c(1, 10, 12)]
 ```
