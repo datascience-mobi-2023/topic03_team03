@@ -184,13 +184,13 @@ RNase_Cor_Rep = rep(1, nrow(RNase_Cor)*3)
 RNase_Cor_Rep[which(RNase_Cor < 0.95)] = 0
 RNase_Cor_Rep = matrix(RNase_Cor_Rep, ncol = 3)
 
-# ---> wir wollen zuerst alle Gene löschen, die in einer condition für alle drei Korrelationen unter 0.95 liegen (werden aber auch separat in den Dataframes "Ctrl_Weird" und "RNase_Weird" abgespeichert)
+# ---> wir wollen zuerst alle Gene löschen, die in einer condition für alle drei Korrelationen unter 0.95 liegen (werden aber auch separat in den Dataframes "Weird_Ctrl_RDeep" und "Weird_RNase_RDeep" abgespeichert)
 # ---> Note: theres a overlap of 250 genes
 Gene.Pos = c(which(rowSums(Ctrl_Cor_Rep) == 0)[-which(which(rowSums(Ctrl_Cor_Rep) == 0) %in% which(rowSums(RNase_Cor_Rep) == 0))], which(rowSums(RNase_Cor_Rep) == 0))
 
-Ctrl_Weird <- Ctrl_RDeep[which(rowSums(Ctrl_Cor_Rep) == 0), ]
+Weird_Ctrl_RDeep <- Ctrl_RDeep[which(rowSums(Ctrl_Cor_Rep) == 0 | rowSums(RNase_Cor_Rep) == 0), ]
 
-RNase_Weird <- RNase_RDeep[which(rowSums(RNase_Cor_Rep) == 0), ]
+Weird_RNase_RDeep <- RNase_RDeep[which(rowSums(Ctrl_Cor_Rep) == 0 | rowSums(RNase_Cor_Rep) == 0), ]
 
 Ctrl_RDeep <- Ctrl_RDeep[- Gene.Pos,]
 
@@ -1398,7 +1398,7 @@ PCA results in new (non-correlating) variables (**Principal Components** (**PC**
 # ---> PCA mit dem "prcomp" Befehl
 pca = prcomp(Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
 
-# ---> "$sdev" gibt die Standardabweichungen der PCs aus, also erhalten wir durch Quadrieren die Varianz der einzelnen PCs und, wenn wir diese durch die Gesamtvarianz teilen, den prozentualen Anteil der einzelnen PCs an der Gesamtvarianz des Datensatzes "Sel_Crit_PCA"
+# ---> "$sdev" gibt die Standardabweichungen der PCs aus, also erhalten wir durch Quadrieren die Varianz der einzelnen PCs und, wenn wir diese durch die Gesamtvarianz teilen, den prozentualen Anteil der einzelnen PCs an der Gesamtvarianz des Datensatzes "Sel_Crit"
 pca$sdev^2/(sum(pca$sdev^2))*100
 
 # ---> "$rotation" gibt die loadings der einzelnen originalen Variablen an den PCs aus 
@@ -1433,7 +1433,7 @@ abline(v = 0, lty = 3, col = "grey")
 library(ggplot2)
 library(factoextra)
 
-fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T, col.ind = Sel_Crit_PCA[,8])
+fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T, col.ind = Sel_Crit[,14])
 
 rm(col, pca)
 ```
@@ -1465,7 +1465,7 @@ abline(v = 0, lty = 3, col = "grey")
 library(ggplot2)
 library(factoextra)
 
-fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T, col.ind = Sel_Crit_PCA[,8])
+fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T, col.ind = Sel_Crit[,14])
 
 rm(col, pca)
 ```
@@ -1876,6 +1876,726 @@ barplot(matrix(c(
 
 #### 6. Weird Analysis
 
+
+##### 6.1 Analysis and Application of Selection Criteria
+
+Next, we want to do the same analysis for the genes for which all 3 pearson correlations were under 0.95 (in the dataframes "**Weird_Ctrl_RDeep**" and "**Weird_RNase_RDeep**"). This will yield the dataframes "**Weird_Summary**" and "**Weird_Sel_Crit**".
+
+**Note**: The mean is only calculated for the 2 highest correlating replicates for genes were the correlations are all under 0.95.
+
+```{r}
+# ---> 1. Pearson Correlation
+# ---> 1.1 Aufteilen der Replikate
+Rep1_Ctrl = Weird_Ctrl_RDeep[, c(sapply(seq(0,72,3), function(k) {1 + k}))]
+Rep2_Ctrl = Weird_Ctrl_RDeep[, c(sapply(seq(0,72,3), function(k) {2 + k}))]
+Rep3_Ctrl = Weird_Ctrl_RDeep[, c(sapply(seq(0,72,3), function(k) {3 + k}))]
+
+# ---> 1.2 Berechnung der Pearson Correlation zwischen den Replikaten
+Ctrl_Cor_Weird = as.data.frame(cbind(
+      sapply(seq(1, nrow(Weird_Ctrl_RDeep), 1), function(k) {cor(unlist(Rep1_Ctrl[k,]), unlist(Rep2_Ctrl[k,]), method = "pearson")}),
+      sapply(seq(1, nrow(Weird_Ctrl_RDeep), 1), function(k) {cor(unlist(Rep2_Ctrl[k,]), unlist(Rep3_Ctrl[k,]), method = "pearson")}),
+      sapply(seq(1, nrow(Weird_Ctrl_RDeep), 1), function(k) {cor(unlist(Rep1_Ctrl[k,]), unlist(Rep3_Ctrl[k,]), method = "pearson")})
+      ))
+
+# ---> 1.3 Erstellen eines Datensatzes zum vergleichen der Correlationen (>= 0.95 = 1; < 0.95 = 0)
+Ctrl_Cor_Rep = rep(1, nrow(Ctrl_Cor_Weird)*3)
+Ctrl_Cor_Rep[which(Ctrl_Cor_Weird < 0.95)] = 0
+Ctrl_Cor_Rep = matrix(Ctrl_Cor_Rep, ncol = 3)
+
+# ---> 1.4 Ersetzen der Replikate mit NA, bei denen 2 Correlationen unter 0.95 liegen
+Weird_Ctrl_RDeep[which(Ctrl_Cor_Rep[, 1] == Ctrl_Cor_Rep[, 3] & rowSums(Ctrl_Cor_Rep) == 1), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+Weird_Ctrl_RDeep[which(Ctrl_Cor_Rep[, 1] == Ctrl_Cor_Rep[, 2] & rowSums(Ctrl_Cor_Rep) == 1), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+Weird_Ctrl_RDeep[which(Ctrl_Cor_Rep[, 2] == Ctrl_Cor_Rep[, 3] & rowSums(Ctrl_Cor_Rep) == 1), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+# ---> 1.5 Ersetzen der Replikate mit NA, bei denen 1 Correlation unter 0.95 liegt
+Weird_Ctrl_RDeep[which(Ctrl_Cor_Rep[, 1] == 0 & rowSums(Ctrl_Cor_Rep) == 2 & Ctrl_Cor_Weird[, 2] > Ctrl_Cor_Weird[, 3]), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+Weird_Ctrl_RDeep[which(Ctrl_Cor_Rep[, 1] == 0 & rowSums(Ctrl_Cor_Rep) == 2 & Ctrl_Cor_Weird[, 2] < Ctrl_Cor_Weird[, 3]), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+
+Weird_Ctrl_RDeep[which(Ctrl_Cor_Rep[, 2] == 0 & rowSums(Ctrl_Cor_Rep) == 2 & Ctrl_Cor_Weird[, 1] > Ctrl_Cor_Weird[, 3]), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+Weird_Ctrl_RDeep[which(Ctrl_Cor_Rep[, 2] == 0 & rowSums(Ctrl_Cor_Rep) == 2 & Ctrl_Cor_Weird[, 1] < Ctrl_Cor_Weird[, 3]), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+
+Weird_Ctrl_RDeep[which(Ctrl_Cor_Rep[, 3] == 0 & rowSums(Ctrl_Cor_Rep) == 2 & Ctrl_Cor_Weird[, 1] > Ctrl_Cor_Weird[, 2]), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+Weird_Ctrl_RDeep[which(Ctrl_Cor_Rep[, 3] == 0 & rowSums(Ctrl_Cor_Rep) == 2 & Ctrl_Cor_Weird[, 1] < Ctrl_Cor_Weird[, 2]), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+# ---> 1.6 Wenn alle 3 Korrelationen unter 0.95 liegen, wird das Replikat mit der niedrigsten Korrelation ersetzt 
+Weird_Ctrl_RDeep[which(Ctrl_Cor_Weird[, 2] == apply(Ctrl_Cor_Weird, 1, function(x) {max(x)})), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+Weird_Ctrl_RDeep[which(Ctrl_Cor_Weird[, 3] == apply(Ctrl_Cor_Weird, 1, function(x) {max(x)})), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+Weird_Ctrl_RDeep[which(Ctrl_Cor_Weird[, 1] == apply(Ctrl_Cor_Weird, 1, function(x) {max(x)})), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+# ---> 1.7 Gleiche Berechnungen für RNase
+Rep1_RNase = Weird_RNase_RDeep[, c(sapply(seq(0,72,3), function(k) {1 + k}))]
+Rep2_RNase = Weird_RNase_RDeep[, c(sapply(seq(0,72,3), function(k) {2 + k}))]
+Rep3_RNase = Weird_RNase_RDeep[, c(sapply(seq(0,72,3), function(k) {3 + k}))]
+
+RNase_Cor_Weird = as.data.frame(cbind(
+      sapply(seq(1, nrow(Weird_RNase_RDeep), 1), function(k) {cor(unlist(Rep1_RNase[k,]), unlist(Rep2_RNase[k,]), method = "pearson")}),
+      sapply(seq(1, nrow(Weird_RNase_RDeep), 1), function(k) {cor(unlist(Rep2_RNase[k,]), unlist(Rep3_RNase[k,]), method = "pearson")}),
+      sapply(seq(1, nrow(Weird_RNase_RDeep), 1), function(k) {cor(unlist(Rep1_RNase[k,]), unlist(Rep3_RNase[k,]), method = "pearson")})
+      ))
+
+
+RNase_Cor_Rep = rep(1, nrow(RNase_Cor_Weird)*3)
+RNase_Cor_Rep[which(RNase_Cor_Weird < 0.95)] = 0
+RNase_Cor_Rep = matrix(RNase_Cor_Rep, ncol = 3)
+
+
+Weird_RNase_RDeep[which(RNase_Cor_Rep[, 1] == RNase_Cor_Rep[, 3] & rowSums(RNase_Cor_Rep) == 1), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+Weird_RNase_RDeep[which(RNase_Cor_Rep[, 1] == RNase_Cor_Rep[, 2] & rowSums(RNase_Cor_Rep) == 1), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+Weird_RNase_RDeep[which(RNase_Cor_Rep[, 2] == RNase_Cor_Rep[, 3] & rowSums(RNase_Cor_Rep) == 1), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+
+Weird_RNase_RDeep[which(RNase_Cor_Rep[, 1] == 0 & rowSums(RNase_Cor_Rep) == 2 & RNase_Cor_Weird[, 2] > RNase_Cor_Weird[, 3]), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+Weird_RNase_RDeep[which(RNase_Cor_Rep[, 1] == 0 & rowSums(RNase_Cor_Rep) == 2 & RNase_Cor_Weird[, 2] < RNase_Cor_Weird[, 3]), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+
+Weird_RNase_RDeep[which(RNase_Cor_Rep[, 2] == 0 & rowSums(RNase_Cor_Rep) == 2 & RNase_Cor_Weird[, 1] > RNase_Cor_Weird[, 3]), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+Weird_RNase_RDeep[which(RNase_Cor_Rep[, 2] == 0 & rowSums(RNase_Cor_Rep) == 2 & RNase_Cor_Weird[, 1] < RNase_Cor_Weird[, 3]), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+
+Weird_RNase_RDeep[which(RNase_Cor_Rep[, 3] == 0 & rowSums(RNase_Cor_Rep) == 2 & RNase_Cor_Weird[, 1] > RNase_Cor_Weird[, 2]), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+Weird_RNase_RDeep[which(RNase_Cor_Rep[, 3] == 0 & rowSums(RNase_Cor_Rep) == 2 & RNase_Cor_Weird[, 1] < RNase_Cor_Weird[, 2]), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+
+Weird_RNase_RDeep[which(RNase_Cor_Weird[, 2] == apply(RNase_Cor_Weird, 1, function(x) {max(x)})), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+Weird_RNase_RDeep[which(RNase_Cor_Weird[, 3] == apply(RNase_Cor_Weird, 1, function(x) {max(x)})), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+Weird_RNase_RDeep[which(RNase_Cor_Weird[, 1] == apply(RNase_Cor_Weird, 1, function(x) {max(x)})), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+
+rm(Rep1_Ctrl, Rep2_Ctrl, Rep3_Ctrl, Ctrl_Cor_Weird, Rep1_RNase, Rep2_RNase, Rep3_RNase, RNase_Cor_Weird, Ctrl_Cor_Rep, RNase_Cor_Rep)
+
+
+# ---> 2. Mean
+Weird_Ctrl_Mean = as.data.frame(
+  sapply(seq(0,72,3), function(i) {
+    apply(Weird_Ctrl_RDeep[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x, na.rm = T)})
+    }))
+
+colnames(Weird_Ctrl_Mean) = colnames(Ctrl_Mean)
+
+
+Weird_RNase_Mean = as.data.frame(
+  sapply(seq(0,72,3), function(i) {
+    apply(Weird_RNase_RDeep[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x, na.rm = T)})
+    }))
+
+colnames(Weird_RNase_Mean) = colnames(RNase_Mean)
+
+
+# ---> 3. Smoothing
+Weird_Ctrl_Mean = 
+  as.data.frame(
+cbind((Weird_Ctrl_Mean[,1]+Weird_Ctrl_Mean[,2])/2,
+      sapply(seq(0,22,1), function(i) {apply(Weird_Ctrl_Mean[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x)})}), 
+      (Weird_Ctrl_Mean[,24]+Weird_Ctrl_Mean[,25])/2)
+)
+
+
+Weird_RNase_Mean = 
+  as.data.frame(
+cbind((Weird_RNase_Mean[,1]+Weird_RNase_Mean[,2])/2,
+      sapply(seq(0,22,1), function(i) {apply(Weird_RNase_Mean[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x)})}), 
+      (Weird_RNase_Mean[,24]+Weird_RNase_Mean[,25])/2)
+)
+
+
+# ---> 4. Normalization to 100
+Weird_Ctrl_Mean = as.data.frame(sapply(Weird_Ctrl_Mean, function(i){(i/apply(Weird_Ctrl_Mean,1,sum))*100}))
+
+Weird_RNase_Mean = as.data.frame(sapply(Weird_RNase_Mean, function(i){(i/apply(Weird_RNase_Mean,1,sum))*100}))
+
+
+# ---> 5. Global Maxima
+# ---> 5.1 Berechnung der globalen Maxima
+Gbl1 = as.matrix(sapply(seq(1,nrow(Weird_Ctrl_RDeep),1),function(i) {which(Weird_Ctrl_Mean[i,] == max(Weird_Ctrl_Mean[i,]))}))
+rownames(Gbl1) = rownames(Weird_Ctrl_RDeep)
+
+# ---> 5.2 Zusammenfassen der Double Peaks
+Gbl1[which(sapply(seq(1,nrow(Weird_Ctrl_RDeep),1),function(i) {length(which(Weird_Ctrl_Mean[i,] == max(Weird_Ctrl_Mean[i,]) ))}) == 2),1] = apply(matrix(unlist(Gbl1[which(sapply(seq(1,nrow(Weird_Ctrl_RDeep),1),function(i) {length(which(Weird_Ctrl_Mean[i,] == max(Weird_Ctrl_Mean[i,]) ))}) == 2),1]), ncol=2, byrow=T), 1, function(x) {mean(x)})
+
+# ---> 5.3 Zusammenfassen der Triple Peaks
+Gbl1[which(sapply(seq(1,nrow(Weird_Ctrl_RDeep),1),function(i) {length(which(Weird_Ctrl_Mean[i,] == max(Weird_Ctrl_Mean[i,]) ))}) == 3),1] = apply(matrix(unlist(Gbl1[which(sapply(seq(1,nrow(Weird_Ctrl_RDeep),1),function(i) {length(which(Weird_Ctrl_Mean[i,] == max(Weird_Ctrl_Mean[i,]) ))}) == 3),1]), ncol=3, byrow=T), 1, function(x) {mean(x)})
+
+# ---> 5.4 Abspeichern als Dataframe
+Gbl1 = as.data.frame(unlist(Gbl1))
+
+# ---> 5.5 Gleiche Berechnungen für RNase
+Gbl2 = as.matrix(sapply(seq(1,nrow(Weird_RNase_RDeep),1),function(i) {which(Weird_RNase_Mean[i,] == max(Weird_RNase_Mean[i,]))}))
+rownames(Gbl2) = rownames(Weird_RNase_RDeep)
+
+Gbl2[which(sapply(seq(1,nrow(Weird_RNase_RDeep),1),function(i) {length(which(Weird_RNase_Mean[i,] == max(Weird_RNase_Mean[i,]) ))}) == 2),1] = apply(matrix(unlist(Gbl2[which(sapply(seq(1,nrow(Weird_RNase_RDeep),1),function(i) {length(which(Weird_RNase_Mean[i,] == max(Weird_RNase_Mean[i,]) ))}) == 2),1]), ncol=2, byrow=T), 1, function(x) {mean(x)})
+
+Gbl2[which(sapply(seq(1,nrow(Weird_RNase_RDeep),1),function(i) {length(which(Weird_RNase_Mean[i,] == max(Weird_RNase_Mean[i,]) ))}) == 3),1] = apply(matrix(unlist(Gbl2[which(sapply(seq(1,nrow(Weird_RNase_RDeep),1),function(i) {length(which(Weird_RNase_Mean[i,] == max(Weird_RNase_Mean[i,]) ))}) == 3),1]), ncol=3, byrow=T), 1, function(x) {mean(x)})
+
+Gbl2 = as.data.frame(unlist(Gbl2))
+
+
+# ---> 6. Local Maxima
+# ---> 6.1 Erstellen eines leeren Dataframes
+Loc1 = as.data.frame(matrix(NA, nrow = nrow(Weird_Ctrl_RDeep), ncol = 25))
+
+# ---> 6.2 In welchen Fraktionen gibt es lokale Maxima?
+Fra.Pos = sapply(seq(0,20,1), function(i) {which(seq(2*nrow(Weird_Ctrl_RDeep)+1,3*nrow(Weird_Ctrl_RDeep),1) %in% which(apply(Weird_Ctrl_Mean[,c(1:5)+c(i,i,i,i,i)], 1, function(x) {max(x)}) == Weird_Ctrl_Mean[,c(1:5)+c(i,i,i,i,i)] & apply(Weird_Ctrl_Mean[,c(1:5)+c(i,i,i,i,i)], 1, function(x) {max(x)}) != 0))})
+
+# ---> 6.3 Einspeichern der lokalen Maxima im leeren Dataframe
+Loc1[, 3:23] = sapply(seq(1,21,1), function(n) {
+  replace(
+        Loc1[, n+2], 
+        Fra.Pos[[n]], 
+        n+2)})
+
+# ---> 6.4 Gleiche Berechnungen für RNase
+Loc2 = as.data.frame(matrix(NA, nrow = nrow(Weird_RNase_RDeep), ncol = 25))
+
+Fra.Pos = sapply(seq(0,20,1), function(i) {which(seq(2*nrow(Weird_RNase_RDeep)+1,3*nrow(Weird_RNase_RDeep),1) %in% which(apply(Weird_RNase_Mean[,c(1:5)+c(i,i,i,i,i)], 1, function(x) {max(x)}) == Weird_RNase_Mean[,c(1:5)+c(i,i,i,i,i)] & apply(Weird_RNase_Mean[,c(1:5)+c(i,i,i,i,i)], 1, function(x) {max(x)}) != 0))})
+
+Loc2[, 3:23] = sapply(seq(1,21,1), function(n) {
+  replace(
+        Loc2[, n+2], 
+        Fra.Pos[[n]], 
+        n+2)})
+
+# ---> 6.5 Randbedingungen für lokale Maxima
+Loc1[which(Weird_Ctrl_Mean[,1] >= Weird_Ctrl_Mean[,2] & Weird_Ctrl_Mean[,1] >= Weird_Ctrl_Mean[,3] & Weird_Ctrl_Mean[,1] != 0),1] = 1
+Loc2[which(Weird_RNase_Mean[,1] >= Weird_RNase_Mean[,2] & Weird_RNase_Mean[,1] >= Weird_RNase_Mean[,3] & Weird_RNase_Mean[,1] != 0),1] = 1
+
+Loc1[which(Weird_Ctrl_Mean[,2] >= Weird_Ctrl_Mean[,3] & Weird_Ctrl_Mean[,2] >= Weird_Ctrl_Mean[,4] & Weird_Ctrl_Mean[,2] >= Weird_Ctrl_Mean[,1] & Weird_Ctrl_Mean[,1] != 0), 2] = 2
+Loc2[which(Weird_RNase_Mean[,2] >= Weird_RNase_Mean[,3] & Weird_RNase_Mean[,2] >= Weird_RNase_Mean[,4] & Weird_RNase_Mean[,2] >= Weird_RNase_Mean[,1] & Weird_RNase_Mean[,1] != 0), 2] = 2
+
+Loc1[which(Weird_Ctrl_Mean[,25] >= Weird_Ctrl_Mean[,24] & Weird_Ctrl_Mean[,25] >= Weird_Ctrl_Mean[,23] & Weird_Ctrl_Mean[,25] != 0), 25] = 25
+Loc2[which(Weird_RNase_Mean[,25] >= Weird_RNase_Mean[,24] & Weird_RNase_Mean[,25] >= Weird_RNase_Mean[,23] & Weird_RNase_Mean[,25] != 0), 25] = 25
+
+Loc1[which(Weird_Ctrl_Mean[,24] >= Weird_Ctrl_Mean[,23] & Weird_Ctrl_Mean[,24] >= Weird_Ctrl_Mean[,22] & Weird_Ctrl_Mean[,24] >= Weird_Ctrl_Mean[,25] & Weird_Ctrl_Mean[,24] != 0), 24] = 24
+Loc2[which(Weird_RNase_Mean[,24] >= Weird_RNase_Mean[,23] & Weird_RNase_Mean[,24] >= Weird_RNase_Mean[,22] & Weird_RNase_Mean[,24] >= Weird_RNase_Mean[,25] & Weird_RNase_Mean[,24] != 0), 24] = 24
+
+# ---> 6.6 Entfernung der globalen Maxima aus den Dataframes
+Crtl_Mask = matrix(1, nrow = nrow(Weird_Ctrl_RDeep)*25, ncol = 1)
+
+Crtl_Mask[which(apply(Weird_Ctrl_Mean, 1, function(x) {max(x)}) == Weird_Ctrl_Mean)] = NA
+
+Crtl_Mask = as.data.frame(matrix(unlist(Crtl_Mask), nrow=nrow(Weird_Ctrl_RDeep), ncol=25))
+
+Loc1 = Loc1 * Crtl_Mask
+
+rm(Crtl_Mask)
+
+
+RNase_Mask = matrix(1, nrow = nrow(Weird_RNase_RDeep)*25, ncol = 1)
+
+RNase_Mask[which(apply(Weird_RNase_Mean, 1, function(x) {max(x)}) == Weird_RNase_Mean)] = NA
+
+RNase_Mask = as.data.frame(matrix(unlist(RNase_Mask), nrow=nrow(Weird_RNase_RDeep), ncol=25))
+
+Loc2 = Loc2 * RNase_Mask
+
+rm(RNase_Mask)
+
+# ---> 6.7 Zusammenfassen der Double Peaks
+Fra.Pos = sapply(seq(0,21,1), function(i) {which(!(is.na(Loc1[,c(2)+c(i)])) & !(is.na(Loc1[,c(3)+c(i)])) & is.na(Loc1[,c(1)+c(i)]) & is.na(Loc1[,c(4)+c(i)]))})
+
+Loc1[, 2:23] = sapply(seq(1,22,1), function(n) {
+  replace(
+        Loc1[, n+1], 
+        Fra.Pos[[n]], 
+        n+1.5)})
+
+Loc1[, 3:24] = sapply(seq(1,22,1), function(n) {
+  replace(
+        Loc1[, n+2], 
+        Fra.Pos[[n]], 
+        NA)})
+
+
+Fra.Pos = sapply(seq(0,21,1), function(i) {which(!(is.na(Loc2[,c(2)+c(i)])) & !(is.na(Loc2[,c(3)+c(i)])) & is.na(Loc2[,c(1)+c(i)]) & is.na(Loc2[,c(4)+c(i)]))})
+
+Loc2[, 2:23] = sapply(seq(1,22,1), function(n) {
+  replace(
+        Loc2[, n+1], 
+        Fra.Pos[[n]], 
+        n+1.5)})
+
+Loc2[, 3:24] = sapply(seq(1,22,1), function(n) {
+  replace(
+        Loc2[, n+2], 
+        Fra.Pos[[n]], 
+        NA)})
+
+# ---> 6.8 Zusammenfassen der Triple Peaks
+Fra.Pos = sapply(seq(0,22,1), function(i) {which(!(is.na(Loc1[,c(1)+c(i)])) & !(is.na(Loc1[,c(2)+c(i)])) & !(is.na(Loc1[,c(3)+c(i)])))})
+
+Loc1[, 1:23] = sapply(seq(1,23,1), function(n) {
+  replace(
+        Loc1[, n], 
+        Fra.Pos[[n]], 
+        NA)})
+
+Loc1[, 3:25] = sapply(seq(1,23,1), function(n) {
+  replace(
+        Loc1[, n+2], 
+        Fra.Pos[[n]], 
+        NA)})
+
+
+Fra.Pos = sapply(seq(0,22,1), function(i) {which(!(is.na(Loc2[,c(1)+c(i)])) & !(is.na(Loc2[,c(2)+c(i)])) & !(is.na(Loc2[,c(3)+c(i)])))})
+
+Loc2[, 1:23] = sapply(seq(1,23,1), function(n) {
+  replace(
+        Loc2[, n], 
+        Fra.Pos[[n]], 
+        NA)})
+
+Loc2[, 3:25] = sapply(seq(1,23,1), function(n) {
+  replace(
+        Loc2[, n+2], 
+        Fra.Pos[[n]], 
+        NA)})
+
+# ---> 6.9 Erstellen des "Weird_Summary" Dataframes aus den bisher gesammelten Daten
+Weird_Summary = as.data.frame(cbind(Gbl1,
+                      Gbl2,
+                      as.matrix(sapply(seq(1, nrow(Loc1), 1), function(k) {unlist(Loc1[k, which(!is.na(Loc1[k,]))], use.names = F)})),
+                      as.matrix(sapply(seq(1, nrow(Loc2), 1), function(k) {unlist(Loc2[k, which(!is.na(Loc2[k,]))], use.names = F)}))))
+rownames(Weird_Summary) = rownames(Weird_Ctrl_RDeep)
+colnames(Weird_Summary) = c("Ctrl_Gbl_Max", "RNase_Gbl_Max", "Ctrl_Loc_Max", "RNase_Loc_Max")
+
+rm(Gbl1, Gbl2, Loc1, Loc2, Fra.Pos)
+
+
+# ---> 7. Gaussian Fitting 
+# ---> 7.1 Erstellen des Dataframes
+Gauss1 = as.data.frame(matrix(rep(NA, nrow(Weird_Ctrl_RDeep)*5), ncol = 5))
+colnames(Gauss1) = c("mu", "sd", "h", "prt_amount", "overlap")
+rownames(Gauss1) = rownames(Weird_Ctrl_RDeep)
+
+# ---> 7.2 Schätzung der Werte für das Gaussian Fitting
+Gauss1[,1] <- unlist(Weird_Summary[, 1])
+Gauss1[,2] <- sapply(seq(1, nrow(Weird_Ctrl_RDeep),1), function(k) {min(abs(unlist(Weird_Summary[k, 1]) - which(Weird_Ctrl_Mean[k,] <= max(Weird_Ctrl_Mean[k,])/2)))/sqrt(2*log(2))})
+Gauss1[,3] <- apply(Weird_Ctrl_Mean, 1, function(x) {max(x)})*sqrt(2*pi)*Gauss1[,2]
+
+# ---> 7.3 Optimieren der Werte für das Gaussian Fitting
+Gauss1[,1] <- sapply(seq(1, nrow(Weird_Ctrl_RDeep), 1), function(k) {
+  
+mu_finder <- function(mu = Gauss1[k,1]) {sum((sapply(seq(1,25,1), function(n) {Gauss1[k,3]*(1/(Gauss1[k,2]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-mu)/Gauss1[k,2])^2)}) - unlist(Weird_Ctrl_Mean[k,]))^2)}
+
+optimise(mu_finder, interval = c(Gauss1[k,1]-0.5, Gauss1[k,1]+0.5))$minimum})
+
+
+Gauss1[,2] <- sapply(seq(1, nrow(Weird_Ctrl_RDeep), 1), function(k) {
+
+sd_finder <- function(sd = Gauss1[k,2]) {sum((sapply(seq(1,25,1), function(n) {Gauss1[k,3]*(1/(sd*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-Gauss1[k,1])/sd)^2)}) - unlist(Weird_Ctrl_Mean[k,]))^2)}
+
+optimise(sd_finder, interval = c(0.8*Gauss1[k,2], 1.2*Gauss1[k,2]))$minimum})
+
+
+Gauss1[,3] <- sapply(seq(1, nrow(Weird_Ctrl_RDeep), 1), function(k) {
+
+h_finder <- function(h = Gauss1[k,3]) {sum((sapply(seq(1,25,1), function(n) {h*(1/(Gauss1[k,2]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-Gauss1[k,1])/Gauss1[k,2])^2)}) - unlist(Weird_Ctrl_Mean[k,]))^2)}
+
+optimise(h_finder, interval = c(Gauss1[k,3]-5, Gauss1[k,3]+5))$minimum})
+
+# ---> 7.4 Berechnung des Protein-Anteils unter den Gaußkurven
+Gauss1[,4] <- sapply(seq(1, nrow(Weird_Ctrl_RDeep),1), function(k) {Gauss1[k,3] * (pnorm(25, mean = Gauss1[k,1], sd = Gauss1[k,2]) - pnorm(0, mean = Gauss1[k,1], sd = Gauss1[k,2]))})
+
+# ---> 7.5 Gleiche Berechnungen für die RNase
+Gauss2 = as.data.frame(matrix(rep(NA, nrow(Weird_RNase_RDeep)*5), ncol = 5))
+colnames(Gauss2) = c("mu", "sd", "h", "prt_amount", "overlap")
+rownames(Gauss2) = rownames(Weird_RNase_RDeep)
+
+Gauss2[,1] <- unlist(Weird_Summary[, 2])
+Gauss2[,2] <- sapply(seq(1, nrow(Weird_RNase_RDeep),1), function(k) {min(abs(unlist(Weird_Summary[k, 2]) - which(Weird_RNase_Mean[k,] <= max(Weird_RNase_Mean[k,])/2)))/sqrt(2*log(2))})
+Gauss2[,3] <- apply(Weird_RNase_Mean, 1, function(x) {max(x)})*sqrt(2*pi)*Gauss2[,2]
+
+
+Gauss2[,1] <- sapply(seq(1, nrow(Weird_RNase_RDeep), 1), function(k) {
+  
+mu_finder <- function(mu = Gauss2[k,1]) {sum((sapply(seq(1,25,1), function(n) {Gauss2[k,3]*(1/(Gauss2[k,2]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-mu)/Gauss2[k,2])^2)}) - unlist(Weird_RNase_Mean[k,]))^2)}
+
+optimise(mu_finder, interval = c(Gauss2[k,1]-0.5, Gauss2[k,1]+0.5))$minimum})
+
+
+Gauss2[,2] <- sapply(seq(1, nrow(Weird_RNase_RDeep), 1), function(k) {
+
+sd_finder <- function(sd = Gauss2[k,2]) {sum((sapply(seq(1,25,1), function(n) {Gauss2[k,3]*(1/(sd*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-Gauss2[k,1])/sd)^2)}) - unlist(Weird_RNase_Mean[k,]))^2)}
+
+optimise(sd_finder, interval = c(0.8*Gauss2[k,2], 1.2*Gauss2[k,2]))$minimum})
+
+
+Gauss2[,3] <- sapply(seq(1, nrow(Weird_RNase_RDeep), 1), function(k) {
+
+h_finder <- function(h = Gauss2[k,3]) {sum((sapply(seq(1,25,1), function(n) {h*(1/(Gauss2[k,2]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((n-Gauss2[k,1])/Gauss2[k,2])^2)}) - unlist(Weird_RNase_Mean[k,]))^2)}
+
+optimise(h_finder, interval = c(Gauss2[k,3]-5, Gauss2[k,3]+5))$minimum})
+
+
+Gauss2[,4] <- sapply(seq(1, nrow(Weird_RNase_RDeep),1), function(k) {Gauss2[k,3] * (pnorm(25, mean = Gauss2[k,1], sd = Gauss2[k,2]) - pnorm(0, mean = Gauss2[k,1], sd = Gauss2[k,2]))})
+
+# ---> 7.6 Berechnung des prozentualen Überlaps zwischen den Gaußkurven
+overlap = rep(NA, nrow(Weird_Ctrl_RDeep))
+
+g1 = which(Gauss1[, 2] == Gauss2[, 2] & Gauss1[, 1] == Gauss2[, 1] & Gauss1[, 3] == Gauss2[, 3])
+
+overlap[g1] = 1
+
+g2 = which(Gauss1[, 2] == Gauss2[, 2] & Gauss1[, 1] > Gauss2[, 1])
+
+x = ((Gauss1[g2, 2])^(2) * log(Gauss1[g2, 3]/Gauss2[g2, 3]))/(Gauss2[g2, 1] -  Gauss1[g2, 1]) + (Gauss2[g2, 1] + Gauss1[g2, 1])/2
+
+overlap[g2] = sapply(seq(1,length(g2),1), function(k) {
+  (Gauss1[g2[k], 3] * (pnorm(x[k], mean = Gauss1[g2[k], 1], sd = Gauss1[g2[k], 2]) - pnorm(0, mean = Gauss1[g2[k], 1], sd = Gauss1[g2[k], 2])) + Gauss2[g2[k], 3] * (pnorm(25, mean = Gauss2[g2[k], 1], sd = Gauss2[g2[k], 2]) - pnorm(x[k], mean = Gauss2[g2[k], 1], sd = Gauss2[g2[k], 2])))/((Gauss1[g2[k], 4] + Gauss2[g2[k], 4])/2)
+})
+
+g3 = which(Gauss1[, 2] == Gauss2[, 2] & Gauss1[, 1] < Gauss2[, 1])
+
+x = ((Gauss1[g3, 2])^(2) * log(Gauss1[g3, 3]/Gauss2[g3, 3]))/(Gauss2[g3, 1] -  Gauss1[g3, 1]) + (Gauss2[g3, 1] + Gauss1[g3, 1])/2
+
+overlap[g3] = sapply(seq(1,length(g3),1), function(k) {
+  (Gauss2[g3[k], 3] * (pnorm(x[k], mean = Gauss2[g3[k], 1], sd = Gauss2[g3[k], 2]) - pnorm(0, mean = Gauss2[g3[k], 1], sd = Gauss2[g3[k], 2])) + Gauss1[g3[k], 3] * (pnorm(25, mean = Gauss1[g3[k], 1], sd = Gauss1[g3[k], 2]) - pnorm(x[k], mean = Gauss1[g3[k], 1], sd = Gauss1[g3[k], 2])))/((Gauss1[g3[k], 4] + Gauss2[g3[k], 4])/2)
+})
+
+g4 = which(Gauss1[, 2] == Gauss2[, 2] & Gauss1[, 1] == Gauss2[, 1] & Gauss1[, 3] > Gauss2[, 3])
+
+overlap[g4] = sapply(seq(1, length(g4), 1), function(k) {
+  (Gauss2[g4[k], 4])/((Gauss1[g4[k], 4] + Gauss2[g4[k], 4])/2)
+})
+
+g5 = which(Gauss1[, 2] == Gauss2[, 2] & Gauss1[, 1] == Gauss2[, 1] & Gauss1[, 3] < Gauss2[, 3])
+
+overlap[g5] = sapply(seq(1, length(g5), 1), function(k) {
+  (Gauss1[g5[k], 4])/((Gauss1[g5[k], 4] + Gauss2[g5[k], 4])/2)
+})
+
+g6 = which(Gauss1[, 2] > Gauss2[, 2] & Gauss1[, 3] <= Gauss2[, 3])
+
+a = (1/(Gauss1[g6,2])^2 - 1/(Gauss2[g6,2])^2)
+b = 2 * ((Gauss2[g6,1])/(Gauss2[g6,2])^2 - (Gauss1[g6,1])/(Gauss1[g6,2])^2)
+c = (Gauss1[g6,1]/Gauss1[g6,2])^2 - (Gauss2[g6,1]/Gauss2[g6,2])^2 - 2 * log((Gauss1[g6,3] * Gauss2[g6,2])/(Gauss2[g6,3] * Gauss1[g6,2]))
+
+x1 = (- b - sqrt(b^(2) - 4 * a * c))/(2 * a)
+x2 = (- b + sqrt(b^(2) - 4 * a * c))/(2 * a)
+
+u1 = g6[which(x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)]
+u2 = which(x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gauss2[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2]) - pnorm(0, mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2]) + pnorm(25, mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2])) + Gauss1[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2])))/((Gauss1[u1[k], 4] + Gauss2[u1[k], 4])/2)
+})
+
+u1 = g6[which(x1 > 25)]
+u2 = which(x1 > 25)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gauss2[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2]) - pnorm(0, mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2])) + Gauss1[u1[k], 3] * (pnorm(25, mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2])))/((Gauss1[u1[k], 4] + Gauss2[u1[k], 4])/2)
+})
+
+u1 = g6[which(x2 < 0)]
+u2 = which(x2 < 0)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gauss2[u1[k], 3] * (pnorm(25, mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2])) + Gauss1[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2]) - pnorm(0, mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2])))/((Gauss1[u1[k], 4] + Gauss2[u1[k], 4])/2)
+})
+
+g7 = which(Gauss1[, 2] > Gauss2[, 2] & Gauss1[, 3] > Gauss2[, 3])
+
+a = (1/(Gauss1[g7,2])^2 - 1/(Gauss2[g7,2])^2)
+b = 2 * ((Gauss2[g7,1])/(Gauss2[g7,2])^2 - (Gauss1[g7,1])/(Gauss1[g7,2])^2)
+c = (Gauss1[g7,1]/Gauss1[g7,2])^2 - (Gauss2[g7,1]/Gauss2[g7,2])^2 - 2 * log((Gauss1[g7,3] * Gauss2[g7,2])/(Gauss2[g7,3] * Gauss1[g7,2]))
+
+x1 = (- b - sqrt(b^(2) - 4 * a * c))/(2 * a)
+x2 = (- b + sqrt(b^(2) - 4 * a * c))/(2 * a)
+
+u1 = g7[which(!is.nan(x1) & x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)]
+u2 = which(!is.nan(x1) & x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gauss2[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2]) - pnorm(0, mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2]) + pnorm(25, mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2])) + Gauss1[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2])))/((Gauss1[u1[k], 4] + Gauss2[u1[k], 4])/2)
+})
+
+u1 = g7[which(!is.nan(x1) & x1 > 25)]
+u2 = which(!is.nan(x1) & x1 > 25)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gauss2[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2]) - pnorm(0, mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2])) + Gauss1[u1[k], 3] * (pnorm(25, mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2])))/((Gauss1[u1[k], 4] + Gauss2[u1[k], 4])/2)
+})
+
+u1 = g7[which(!is.nan(x1) & x2 < 0)]
+u2 = which(!is.nan(x1) & x2 < 0)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gauss2[u1[k], 3] * (pnorm(25, mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2])) + Gauss1[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2]) - pnorm(0, mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2])))/((Gauss1[u1[k], 4] + Gauss2[u1[k], 4])/2)
+})
+
+u1 = g7[which(is.nan(x1))]
+u2 = which(is.nan(x1))
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gauss2[u1[k], 4])/((Gauss1[u1[k], 4] + Gauss2[u1[k], 4])/2)
+})
+
+g8 = which(Gauss1[, 2] < Gauss2[, 2] & Gauss1[, 3] >= Gauss2[, 3])
+
+a = (1/(Gauss1[g8,2])^2 - 1/(Gauss2[g8,2])^2)
+b = 2 * ((Gauss2[g8,1])/(Gauss2[g8,2])^2 - (Gauss1[g8,1])/(Gauss1[g8,2])^2)
+c = (Gauss1[g8,1]/Gauss1[g8,2])^2 - (Gauss2[g8,1]/Gauss2[g8,2])^2 - 2 * log((Gauss1[g8,3] * Gauss2[g8,2])/(Gauss2[g8,3] * Gauss1[g8,2]))
+
+x2 = (- b - sqrt(b^(2) - 4 * a * c))/(2 * a)
+x1 = (- b + sqrt(b^(2) - 4 * a * c))/(2 * a)
+
+u1 = g8[which(x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)]
+u2 = which(x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gauss1[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2]) - pnorm(0, mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2]) + pnorm(25, mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2])) + Gauss2[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2])))/((Gauss1[u1[k], 4] + Gauss2[u1[k], 4])/2)
+})
+
+u1 = g8[which(x1 > 25)]
+u2 = which(x1 > 25)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gauss1[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2]) - pnorm(0, mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2])) + Gauss2[u1[k], 3] * (pnorm(25, mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2])))/((Gauss1[u1[k], 4] + Gauss2[u1[k], 4])/2)
+})
+
+u1 = g8[which(x2 < 0)]
+u2 = which(x2 < 0)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gauss1[u1[k], 3] * (pnorm(25, mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2])) + Gauss2[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2]) - pnorm(0, mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2])))/((Gauss1[u1[k], 4] + Gauss2[u1[k], 4])/2)
+})
+
+g9 = which(Gauss1[, 2] < Gauss2[, 2] & Gauss1[, 3] < Gauss2[, 3])
+
+a = (1/(Gauss1[g9,2])^2 - 1/(Gauss2[g9,2])^2)
+b = 2 * ((Gauss2[g9,1])/(Gauss2[g9,2])^2 - (Gauss1[g9,1])/(Gauss1[g9,2])^2)
+c = (Gauss1[g9,1]/Gauss1[g9,2])^2 - (Gauss2[g9,1]/Gauss2[g9,2])^2 - 2 * log((Gauss1[g9,3] * Gauss2[g9,2])/(Gauss2[g9,3] * Gauss1[g9,2]))
+
+x2 = (- b - sqrt(b^(2) - 4 * a * c))/(2 * a)
+x1 = (- b + sqrt(b^(2) - 4 * a * c))/(2 * a)
+
+u1 = g9[which(!is.nan(x1) & x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)]
+u2 = which(!is.nan(x1) & x1 <= 25 & x1 >= 0 & x2 <= 25 & x2 >= 0)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gauss1[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2]) - pnorm(0, mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2]) + pnorm(25, mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2])) + Gauss2[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2])))/((Gauss2[u1[k], 4] + Gauss1[u1[k], 4])/2)
+})
+
+u1 = g9[which(!is.nan(x1) & x1 > 25)]
+u2 = which(!is.nan(x1) & x1 > 25)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gauss1[u1[k], 3] * (pnorm(x2[u2[k]], mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2]) - pnorm(0, mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2])) + Gauss2[u1[k], 3] * (pnorm(25, mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2]) - pnorm(x2[u2[k]], mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2])))/((Gauss2[u1[k], 4] + Gauss1[u1[k], 4])/2)
+})
+
+u1 = g9[which(!is.nan(x1) & x2 < 0)]
+u2 = which(!is.nan(x1) & x2 < 0)
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gauss1[u1[k], 3] * (pnorm(25, mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2]) - pnorm(x1[u2[k]], mean = Gauss1[u1[k], 1], sd = Gauss1[u1[k], 2])) + Gauss2[u1[k], 3] * (pnorm(x1[u2[k]], mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2]) - pnorm(0, mean = Gauss2[u1[k], 1], sd = Gauss2[u1[k], 2])))/((Gauss2[u1[k], 4] + Gauss1[u1[k], 4])/2)
+})
+
+u1 = g9[which(is.nan(x1))]
+u2 = which(is.nan(x1))
+overlap[u1] = sapply(seq(1, length(u1), 1), function(k) {
+  (Gauss1[u1[k], 4])/((Gauss1[u1[k], 4] + Gauss2[u1[k], 4])/2)
+})
+
+Gauss1[, 5] = overlap 
+Gauss2[, 5] = overlap
+
+# ---> 7.7 Abspeichern der Daten aus dem Gaussian Fitting in "Weird_Summary"
+Weird_Summary[, 5] = Gauss1[, 1]
+Weird_Summary[, 6] = Gauss2[, 1]
+Weird_Summary[, 7] = Gauss1[, 2]
+Weird_Summary[, 8] = Gauss2[, 2]
+Weird_Summary[, 9] = Gauss1[, 3]
+Weird_Summary[, 10] = Gauss2[, 3]
+Weird_Summary[, 11] = Gauss1[, 4]
+Weird_Summary[, 12] = Gauss2[, 4]
+Weird_Summary[, 13] = Gauss1[, 5]
+
+colnames(Weird_Summary) = c(colnames(Weird_Summary)[-(5:13)], "Ctrl_mu", "RNase_mu", "Ctrl_sd", "RNase_sd", "Ctrl_h", "RNase_h", "Ctrl_prt_amount", "RNase_prt_amount", "overlap")
+
+rm(g1, g2, g3, g4, g5, g6, g7, g8, g9, u1, u2, a, b, c, x, x1, x2, overlap)
+
+
+# ---> 8. Vergleich der Variablen in "Weird_Summary"
+# ---> 8.1 Erstellen des Dataframes "Weird_Sel_Crit"
+Weird_Sel_Crit = as.data.frame(rep(NA, nrow(Weird_Summary)))
+
+Weird_Sel_Crit[, 1] = Weird_Summary[, 5] - Weird_Summary[, 6]
+
+Weird_Sel_Crit[, 2] = (Weird_Summary[, 5] - Weird_Summary[, 6])/25
+
+Weird_Sel_Crit[, 3] = Weird_Summary[, 8] - Weird_Summary[, 7]
+
+Weird_Sel_Crit[, 4] = Weird_Summary[, 8]/Weird_Summary[, 7] - 1
+
+Weird_Sel_Crit[, 5] = Weird_Summary[, 10] - Weird_Summary[, 9] 
+
+Weird_Sel_Crit[, 6] = Weird_Summary[, 10]/Weird_Summary[, 9] - 1
+
+Weird_Sel_Crit[, 7] = Weird_Summary[, 12] - Weird_Summary[, 11]
+
+Weird_Sel_Crit[, 8] = Weird_Summary[, 12]/Weird_Summary[, 11] - 1
+
+x1 = sqrt(- Gauss1[, 2] * log(0.5)) + Gauss1[, 1]
+x2 = - sqrt(- Gauss1[, 2] * log(0.5)) + Gauss1[, 1]
+
+x1[which(x1 > 25)] = 25
+x2[which(x2 < 1)] = 1 
+
+x1 = ceiling(x1)
+x2 = floor(x2)
+
+Fra.Pos = sapply(seq(1, nrow(Weird_Sel_Crit), 1), function(n) {seq(x2[n], x1[n] - 1, 1)})
+
+Ctrl_prt_amount = sapply(seq(1, nrow(Weird_Sel_Crit), 1), function(n) {sum(unlist(sapply(seq(1, length(Fra.Pos[[n]]), 1), function(i) {0.5 * (Weird_Ctrl_Mean[n, Fra.Pos[[n]][i]] + Weird_Ctrl_Mean[n, Fra.Pos[[n]][i] + 1])})))})
+
+RNase_prt_amount = sapply(seq(1, nrow(Weird_Sel_Crit), 1), function(n) {sum(unlist(sapply(seq(1, length(Fra.Pos[[n]]), 1), function(i) {0.5 * (Weird_RNase_Mean[n, Fra.Pos[[n]][i]] + Weird_RNase_Mean[n, Fra.Pos[[n]][i] + 1])})))})
+
+Weird_Sel_Crit[, 9] = Ctrl_prt_amount - RNase_prt_amount
+
+Weird_Sel_Crit[, 10] = 1 - RNase_prt_amount/Ctrl_prt_amount
+
+x1 = sqrt(- Gauss2[, 2] * log(0.5)) + Gauss2[, 1]
+x2 = - sqrt(- Gauss2[, 2] * log(0.5)) + Gauss2[, 1]
+
+x1[which(x1 > 25)] = 25
+x2[which(x2 < 1)] = 1 
+
+x1 = ceiling(x1)
+x2 = floor(x2)
+
+Fra.Pos = sapply(seq(1, nrow(Weird_Sel_Crit), 1), function(n) {seq(x2[n], x1[n] - 1, 1)})
+
+Ctrl_prt_amount = sapply(seq(1, nrow(Weird_Sel_Crit), 1), function(n) {sum(unlist(sapply(seq(1, length(Fra.Pos[[n]]), 1), function(i) {0.5 * (Weird_Ctrl_Mean[n, Fra.Pos[[n]][i]] + Weird_Ctrl_Mean[n, Fra.Pos[[n]][i] + 1])})))})
+
+RNase_prt_amount = sapply(seq(1, nrow(Weird_Sel_Crit), 1), function(n) {sum(unlist(sapply(seq(1, length(Fra.Pos[[n]]), 1), function(i) {0.5 * (Weird_RNase_Mean[n, Fra.Pos[[n]][i]] + Weird_RNase_Mean[n, Fra.Pos[[n]][i] + 1])})))})
+
+Weird_Sel_Crit[, 11] = RNase_prt_amount - Ctrl_prt_amount
+
+Weird_Sel_Crit[, 12] = 1 - Ctrl_prt_amount/RNase_prt_amount
+
+Weird_Sel_Crit[, 13] = Weird_Summary[, 13]
+
+Weird_Sel_Crit[, 14] = rep(NA, nrow(Weird_Sel_Crit))
+Weird_Sel_Crit[which((Gauss1[, 1] - Gauss2[, 1]) > 1 & !(Gauss1[, 1] > 24 | Gauss2[, 1] > 24)), 14] = "left"
+Weird_Sel_Crit[which((Gauss1[, 1] - Gauss2[, 1]) < -1 & !(Gauss1[, 1] > 24 | Gauss2[, 1] > 24)), 14] = "right"
+Weird_Sel_Crit[which(Gauss1[, 1] > 24 | Gauss2[, 1] > 24), 14] = "precipitated"
+Weird_Sel_Crit[which((Gauss1[, 1] - Gauss2[, 1]) <= 1 & (Gauss1[, 1] - Gauss2[, 1]) >= -1 & !(Gauss1[, 1] > 24 | Gauss2[, 1] > 24)), 14] = "no"
+
+rownames(Weird_Sel_Crit) = rownames(Weird_Summary)
+colnames(Weird_Sel_Crit) = c("delta_mu", "delta_mu_%", "delta_sd", "delta_sd_%", "delta_h", "delta_h_%", "delta_prt_amount", "delta_prt_amount_%", "Ctrl_prt_prop", "Ctrl_prt_prop_%", "RNase_prt_prop", "RNase_prt_prop_%", "overlap_%", "shift")
+
+rm(Fra.Pos, x1, x2, Ctrl_prt_amount, RNase_prt_amount, Gauss1, Gauss2)
+
+# ---> 8.2 Anwenden der Selection Criteria
+Weird_Sel_Crit[, 15] = rep(NA, nrow(Weird_Sel_Crit))
+colnames(Weird_Sel_Crit) = c(colnames(Weird_Sel_Crit)[-15], "RDP")
+
+Weird_Sel_Crit[which(abs(Weird_Sel_Crit[, 1]) > 1 & Weird_Sel_Crit[, 10] > 0.2 & Weird_Sel_Crit[, 12] > 0.2 & Weird_Sel_Crit[, 13] < 0.75), 15] = "yes"
+Weird_Sel_Crit[which(!(abs(Weird_Sel_Crit[, 1]) > 1 & (Weird_Sel_Crit[, 10] > 0.2 | Weird_Sel_Crit[, 12] > 0.2) & Weird_Sel_Crit[, 13] < 0.75)), 15] = "no"
+Weird_Sel_Crit[which(abs(Weird_Sel_Crit[, 1]) > 1 & (Weird_Sel_Crit[, 10] > 0.2 | Weird_Sel_Crit[, 12] > 0.2) & Weird_Sel_Crit[, 13] < 0.75 & !(Weird_Sel_Crit[, 10] > 0.2 & Weird_Sel_Crit[, 12] > 0.2)), 15] = "partial"
+
+# ---> 8.3 Hinzufügen des RBP2GO-Scores
+Weird_Sel_Crit[, 16] = rep(NA, nrow(Weird_Sel_Crit))
+colnames(Weird_Sel_Crit) = c(colnames(Weird_Sel_Crit)[-16], "RBP2GO_Score")
+
+Weird_Sel_Crit[which(rownames(Weird_Sel_Crit) %in% rownames(Table_HS_RBP)), 16] = Table_HS_RBP[which(rownames(Table_HS_RBP) %in% rownames(Weird_Sel_Crit)), 3]
+
+Weird_Sel_Crit[which(rownames(Weird_Sel_Crit) %in% rownames(Table_HS_Non_RBP)), 16] = Table_HS_Non_RBP[which(rownames(Table_HS_Non_RBP) %in% rownames(Weird_Sel_Crit)), 3]
+```
+
+
+##### 6.2 Shifting Behavior
+
+```{r}
+# ---> Plotten der peak positions und Einfärben nach "left", "right", "precipitated" und "no" shifting
+col = rep(NA, nrow(Ctrl_RDeep))
+col[which(Weird_Sel_Crit[, 14] == "left")] = "blue"
+col[which(Weird_Sel_Crit[, 14] == "right")] = "red"
+col[which(Weird_Sel_Crit[, 14] == "precipitated")] = "orange"
+col[which(Weird_Sel_Crit[, 14] == "no")] = "grey"
+
+plot(Weird_Summary[, 5], Weird_Summary[, 6], pch = 16, col = col, main = "Shifting Behavior (Weird)", xlab = "Ctrl Gbl Peak Position", ylab = "RNase Gbl Peak Position")
+legend("topleft", legend = c("left", "right", "precipitated", "no"), pch = 16, col = c("blue", "red", "orange", "grey"))
+
+rm(col)
+```
+
+
+##### 6.3 PCA
+
+```{r}
+pca = prcomp(Weird_Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
+
+# ---> Plot, der die Datenpunkte je nach Kategorisierung in "left", "right" und "no" shift einfärbt 
+col = rep(NA, nrow(Weird_Sel_Crit))
+col[which(Weird_Sel_Crit[, 14] == "left")] = "blue"
+col[which(Weird_Sel_Crit[, 14] == "right")] = "red"
+col[which(Weird_Sel_Crit[, 14] == "precipitated")] = "orange"
+col[which(Weird_Sel_Crit[, 14] == "no")] = "grey"
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Shifting Behavior (Weird)", xlab = "PC1", ylab = "PC2")
+legend("topright", legend = c("left", "right", "precipitated", "no"), pch = 16, col = c("blue", "red", "orange", "grey"))
+
+
+# ---> Plot, der die Dichte der Punkteverteilung im Plot durch Farben anzeigt ("rot" = sehr dicht beieinander; "blau" = nicht dicht beieinander)
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = densCols(pca$x[, 1], pca$x[, 2], colramp = colorRampPalette(c("blue", "cyan", "green", "yellow", "orange", "red"))), main = "Point Density (Weird)", xlab = "PC1", ylab = "PC2")
+abline(h = 0, lty =3, col = "grey")
+abline(v = 0, lty = 3, col = "grey")
+
+
+# --> Erstellen eines "Biplots" der die ersten zwei PCs mit den loadings der Variablen zeigt
+library(ggplot2)
+library(factoextra)
+
+fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T, col.ind = Weird_Sel_Crit[,14])
+
+# ---> RDPs and non RDPs
+col = rep(NA, nrow(Weird_Sel_Crit))
+col[which(Weird_Sel_Crit[, 15] == "yes")] = "blue"
+col[which(Weird_Sel_Crit[, 15] == "partial")] = "orange"
+col[which(Weird_Sel_Crit[, 15] == "no")] = "grey"
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "RDPs and non RDPs (Weird)", xlab = "PC1", ylab = "PC2")
+legend("topright", legend = c("RDP", "partial RDP", "non RDP"), pch = 16, col = c("blue","orange", "grey"))
+
+
+# ---> Gleiche Berechnungen für Selektionskriterien
+pca = prcomp(Weird_Sel_Crit[, c(2, 10, 12, 13)])
+
+
+col = rep(NA, nrow(Weird_Sel_Crit))
+col[which(Weird_Sel_Crit[, 14] == "left")] = "blue"
+col[which(Weird_Sel_Crit[, 14] == "right")] = "red"
+col[which(Weird_Sel_Crit[, 14] == "precipitated")] = "orange"
+col[which(Weird_Sel_Crit[, 14] == "no")] = "grey"
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Shifting Behavior (Weird)", xlab = "PC1", ylab = "PC2")
+legend("topleft", legend = c("left", "right", "precipitated", "no"), pch = 16, col = c("blue", "red", "orange", "grey"))
+
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = densCols(pca$x[, 1], pca$x[, 2], colramp = colorRampPalette(c("blue", "cyan", "green", "yellow", "orange", "red"))), main = "Point Density (Weird)", xlab = "PC1", ylab = "PC2")
+abline(h = 0, lty =3, col = "grey")
+abline(v = 0, lty = 3, col = "grey")
+
+
+fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T, col.ind = Weird_Sel_Crit[,14])
+
+
+col = rep(NA, nrow(Weird_Sel_Crit))
+col[which(Weird_Sel_Crit[, 15] == "yes")] = "blue"
+col[which(Weird_Sel_Crit[, 15] == "partial")] = "orange"
+col[which(Weird_Sel_Crit[, 15] == "no")] = "grey"
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "RDPs and non RDPs (Weird)", xlab = "PC1", ylab = "PC2")
+legend("topleft", legend = c("RDP", "partial RDP", "non RDP"), pch = 16, col = c("blue","orange", "grey"))
+
+rm(col, pca)
+```
+
+
 #### Extra: Automatic Graph Plotter
 
 Our function `Gene_Plotter` generates plots of protein distributions of specified genes. The default function is:
@@ -2248,5 +2968,4 @@ legend("topright",inset = c(-0.39,0),
 Let us see if it works!
 ```{r gene plotter}
 Gene_Plotter(c("TCRG1_HUMAN"))
-Sel_Crit[which(rownames(Sel_Crit) == "TCRG1_HUMAN"), c(1, 10, 12)]
 ```
