@@ -1813,8 +1813,6 @@ draw.triple.venn(
 
 grid.newpage()
 
-grid.newpage()
-
 draw.triple.venn(
   area1 = length(which(Sel_Crit[, 15] == "no")),   # Our identified non RDPs
   area2 = nrow(Table_HS_RBP),  # RBPs in RBP2GO-Databank
