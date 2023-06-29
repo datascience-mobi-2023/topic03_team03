@@ -7,4 +7,4 @@ Fragen:
 4. Lineare Regression?
 5. READ ME (gibt es spezifische Punkte, die er haben möchte?)
 6. 1440: Plot Ctrl_prt_prop und RNase_prt_prop --> lokale Peaks mit einbeziehen? :(
-7. Smoothing verändert höhe von sehr spitzen peaks enorm :( --> bspw. RTCA_HUMAN (c. 1449)
+7. Smoothing verändert höhe von sehr spitzen peaks enorm :( --> bspw. RTCA_HUMAN (c. 1449) ---------> zuerst lokale Peaks bestimmen, dann lokalen Peak mit höchsten Protein amount in rohdaten?!!!!!!!!!!!!!!!!
