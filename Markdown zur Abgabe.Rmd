@@ -12,7 +12,7 @@ fontsize: 11pt
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-load("Environment_with_RDP.RData")
+load("Environment.RData")
 # Environment clearen und dann Neues hinzufügen, mit allen nötigen Dataframes für die Graphen
 ```
 
@@ -34,7 +34,7 @@ load("Environment_with_RDP.RData")
 ## 2.1 Receipt of the Data
 
 ## 2.2 Data Cleanup and Normalization
-Divide dataframe into RNAse and Ctrl...
+Divide dataframe into RNase and Ctrl...
 
 ### 2.2.1 NA Values and Zero Rows
 ### 2.2.2 Pearson Correlation
@@ -45,40 +45,87 @@ Divide dataframe into RNAse and Ctrl...
 ## 2.3 Smoothing and Determination of Maxima
 
 ### 2.3.1 Smoothing the Data
-To determine the global and local maxima of the dataset, the dataframes *Ctrl_Mean* and *RNAse_Mean* first had to be smoothed. Otherwise the determination would be influenced by outliers and wrong peaks.  
+To determine the global and local maxima of the dataset, the dataframes *Ctrl_Mean* and *RNase_Mean* first had to be smoothed. Otherwise the determination would be influenced by outliers and wrong peaks.  
 For this the mean value of each fraction was calculated in a defined neighborhood of one with following formula for all fractions between 2 and 24: $y = \frac{f(x-1)+f(x)+f(x-1)}{3}$    
-*$x$: fraction position ($2  \leq  x  \geq  24$);* $\quad$ *$f(x)$: mass spectrometry value at fraction position $x$;* $\quad$ *$y$: smoothed value for fraction position $x$*  
+*$x$: fraction position ($2  \leq  x  \leq  24$);* $\quad$ *$f(x)$: mass spectrometry value at fraction position $x$;* $\quad$ *$y$: smoothed value for fraction position $x$*  
   
 For fraction position 1 and 25 the mean was of fraction 1 and 2 and 24 and 25 were calculated: $y = \frac{f(1)+f(2)}{2};\qquad y = \frac{f(24)+f(25)}{2}$  
 *$f(1), f(2)$ and $f(24), f(25)$: mass spectrometry value at fraction positions 1, 2 and 24, 25;* $\quad$ *$y$: smoothed value for fraction position 1 and 25*  
   
-This was done separately for the *Ctrl_Mean* dataframe and the *RNAse_Mean* dataframe and the smoothed data was then stored in following two dataframes: *Ctrl_Mean_Smooth* and *RNAse_Mean_Smooth*
+This was done separately for the *Ctrl_Mean* dataframe and the *RNase_Mean* dataframe and the smoothed data was then stored in following two dataframes: *Ctrl_Mean_Smooth* and *RNase_Mean_Smooth*
 
 ### 2.3.2 Normalization of Smoothed data
-For comparison of the different protein amounts, the dataframes *Ctrl_Mean_Smooth* and *RNAse_Mean_Smooth* had to be normalized to 100. This means, that the sum of the mass spectrometry data in the different fractions for one protein had to add up to 100: $y = \frac{f(x)}{\sum_{x=1}^{25}f(x)} *100$     
+For comparison of the different protein amounts, the dataframes *Ctrl_Mean_Smooth* and *RNase_Mean_Smooth* had to be normalized to 100. This means, that the sum of the mass spectrometry data in the different fractions for one protein had to add up to 100: $y = \frac{f(x)}{\sum_{x=1}^{25}f(x)} *100$     
 *$x$: fraction position ($1 \leq x \geq 25$);* $\quad$ *$f(X)$: mass spectrometry value at fraction position $x$;* $\quad$ *$y$: normalized value at fraction position $x$*  
   
-The normalized and smoothed values were then stored in the dataframes *Ctrl_Mean_Smooth_Norm100* and *RNAse_Mean_Smooth_Norm100*  
+The normalized and smoothed values were then stored in the dataframes *Ctrl_Mean_Smooth_Norm100* and *RNase_Mean_Smooth_Norm100*.  
 
 ### 2.3.3 Determination of Maxima
-If a protein is an RNA dependent protein, the maximum amount of protein is in a significantly different fraction in the RNAse sample compared to the Control sample. To determine for which proteins this is the case, the global and local maximua of the mass spectrometry data was determined.  
+If a protein is an RNA dependent protein, the maximum amount of protein is in a significantly different fraction in the RNase sample compared to the Control sample. To determine for which proteins this is the case, the global and local maxima of the mass spectrometry data was determined.  
   
 #### 2.3.3.1 Global Maxima  
   
-The global maximum for the dataframes *Ctrl_Mean_Smooth_Norm100* and *RNAse_Mean_Smooth_Norm100* were determined by identifying the fraction of the largest mass spectrometry value in each dataframe. For proteins that had 2 or 3 fractions with the same mass spectrometry value, the mean fraction position was calculated.  
+The global maximum for the dataframes *Ctrl_Mean_Smooth_Norm100* and *RNase_Mean_Smooth_Norm100* were determined by identifying the fraction of the largest mass spectrometry value in each dataframe. For proteins that had 2 or 3 fractions with the same mass spectrometry value, the mean fraction position was calculated.  
+The global maxima were stored in the dataframes *Ctrl_Mean_Gbl_Max* and *RNase_Mean_Gbl_Max*.
 
 #### 2.3.3.2 Local Maximum
 
+The local maxima for the dataframes *Ctrl_Mean_Smooth_Norm100* and *RNase_Mean_Smooth_Norm100* were determinded by comparing the protein amount of each fraction position x to the protein amount in the fractions in an neighborhood of n=2. $\qquad [(x-2)][(x-1)][x][(x+1)][(x+2)]\qquad x: fraction position (3\leq x\leq 23)\qquad$ If the protein amount in that fraction is greater or equal to its neighborhood it was defined as a local maximum. For the edge cases $x=2;\quad x=24$ and $x=1;\quad x=25$ the protein amounts in these fractions had to be greater or equal to the protein amounts in the fractions $x=1;\quad x=3;\quad x=4$ and $x=22;\quad x=23;\quad x=25$ and $x=2;\quad x=3$ and $x=23;\quad x=24$. For proteins that had 2 or 3 fractions with the same mass spectrometry value, the mean fraction position was calculated. To distinguish the local from the global peaks the global peaks were subtracted from the local peaks.  
+The local maxima were stored in the dataframes *Ctrl_Mean_Loc_Max* and *RNase_Mean_Loc_Max*.
+
+
 ## 2.4 Gaussian Fitting
-### 2.4.1 Gaussian Overlap
+The Gaussian curve was fitted to the global peak and the largest local peak of each gene in the control and RNase sample. For this the parameters hight *h*, standard deviation *sd* and mean $\mu$ were determined and optimized. $\mu$ describes the fraction position of the global and largest local peak, *sd* and *h* were calculated as follows: $sd =\frac{HWHM}{\sqrt{2*ln(2)}};\qquad h = \frac{MPA}{sd*\sqrt{2\pi}}\qquad$ *HWHM: half width at half maxumum; MPA: maximum protein amount*. The optimal value was defined as a value that minimizes the sum of squares of the differences between the Gaussian curve*(G)* and the smoothed and normalized protein distribution *(p)* ($min(\sum(G-p)^2))$ This was used to calculate the protein amount under the gaussian curve and the overlap of the protein amount for the control and RNase curves. 
 
 ## 2.5 Selection Criteria for Identification of RNA-Dependent Proteins
+To determine the optimal selection criteria for RNA-dependence multiple parameters were compiled and applyed to a principle component analysis.
+
+### 2.5.1 Defining Selection Criteria
+Following parameters were compiled to determine the optimal selection criteria for defining RNA-dependent proteins.
+
+The *absolute peak shift and the percentage of the peak shift* 
+between the Ctrl and RNase global peaks, 
+between the global and main local peak of Ctrl,
+and between the global and main local peak of RNase,   
+
+the *absolute change and percentage of change* 
+in the *standard deviation* between Ctrl and RNase, 
+in the *global peak height* between Ctrl and RNase, 
+and between the the *protein amount* under the gaussian curves of the Ctrl and RNase peaks,  
+
+the *absolute protein amount and the percentage of protein amount*
+that is lost under the global peak of Ctrl after RNase treatment,
+and that is gained under the globak peak of RNase after RNase treatment,  
+
+the *absolute differences and the percentage of the differences in the protein amounts*
+of the Ctrl and RNase samples under the main local Ctrl peak,  
+
+the *percentage of overlap*
+between the gaussian curves of the Ctrl and RNase,
+between the gaussian curves of the main local peak and global peak of Ctrl,
+between the gaussian curves of the main local peak and global peak of RNase,
+between the gaussian curves of the main local peaks of Ctrl and RNase.  
+
+A *shift* is a character variable that states whether a protein is *left*, *right*, *non* shifting or *precipitated* and is defined as following:
+$\Delta\mu = \mu(Ctrl)-\mu(RNase)> +1$: right shift; $\Delta\mu = \mu(Ctrl)-\mu(RNase)< -1$: left shift; $-1 \leq\Delta\mu = \mu(Ctrl)-\mu(RNase)\leq +1$: no shift;$\mu(Ctrl)>24 \lor \mu(RNase)>24$: precipitated  
+
+All the parameters were stored in the dataframe *Sel_Crit*.
+
+  
+### 2.5.2 Principal Componant Analysis
+Applying a principle component Analysis to the percentage values of the selection criteria the optimal parameters for a shift were defined by reducing the dimensions of the dataframe *Sel_Crit*. Only the variables calculated in percent were used for the PCA for better comparison and the variables regarding main local peaks only serve at determining partially shifting proteins and were therefore not included in the principle component analysis. The non correlating variables (= principle components) were defined as the optimal selection criteria for RNA-dependent proteins and applyed for futher analysis.
+
 
 ## 2.6 Further Analysis
-### 2.6.1 Principal Componant Analysis
-### 2.6.2 k means Clustering
-### 2.6.3 Linear Regression
+### 2.6.1 k means Clustering
+### 2.6.2 Linear Regression
 ### 2.6.4 Comparison with the RBP2GO Database
+#### 2.6.4.1 Direct comparison
+#### 2.4.6.2 Comparison with RDP2Go-score
+#### 2.4.6.3 Cluster comparison with T-test
+#### 2.4.6.4 Ven Diagram and Bar Plot
+For better visualization pf the results a Ven Diagram and Bar plot were created.
+
 
 # 3. Results
 
