@@ -2517,6 +2517,21 @@ rm(col, pca, kmeans)
 
 ##### 5.2 Linear Regression
 
+```{r}
+col = rep(NA, nrow(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), ]))
+col[which(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 26] == "yes")] = "blue"
+col[which(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 26] == "partial")] = "orange"
+col[which(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 26] == "no")] = "grey"
+
+plot(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 9], Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 11], col = col, pch = 16, xlab = "Ctrl_Gbl_prt_prop", ylab = "RNase_Gbl_prt_prop")
+
+fit <- lm(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 9] ~ Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 11])
+
+curve(fit$coefficients[2]*x + fit$coefficients[1], lwd = 3, col = "blue", add = T)
+summary(fit)$r.squared
+rm(col, fit)
+```
+
 
 ##### 5.3 Comparison with the RBP2GO Database
 
@@ -2801,6 +2816,49 @@ barplot(matrix(c(
                   paste("RDPS (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))), ")", sep = ""), 
                   paste("New RDPs (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))), ")", sep = "")),
   )
+```
+
+##### 5.4 PCA with Local Peaks
+
+```{r}
+# 15, 17, 22, 24, 18, 19, 20
+pca = prcomp(na.omit(Sel_Crit[, c(2, 10, 12, 13, 15, 17, 20)]))
+
+# ---> Plot, der die Datenpunkte je nach Kategorisierung in "left", "right" und "no" shift einfärbt 
+col = rep(NA, length(which(!is.na(Sel_Crit[, 14]) & !is.na(Sel_Crit[, 16]))))
+
+col[which(Sel_Crit[which(!is.na(Sel_Crit[, 14]) & !is.na(Sel_Crit[, 16])), 26] == "yes")] = "blue"
+col[which(Sel_Crit[which(!is.na(Sel_Crit[, 14]) & !is.na(Sel_Crit[, 16])), 26] == "partial")] = "orange"
+col[which(Sel_Crit[which(!is.na(Sel_Crit[, 14]) & !is.na(Sel_Crit[, 16])), 26] == "no")] = "grey"
+
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "RDPs and non RDPs", xlab = "PC1", ylab = "PC2")
+legend("topright", legend = c("RDP", "partial RDP", "non RDP"), pch = 16, col = c("blue", "orange", "grey"))
+
+col = rep(NA, length(which(!is.na(Sel_Crit[, 14]) & !is.na(Sel_Crit[, 16]))))
+
+col[which(Sel_Crit[which(!is.na(Sel_Crit[, 14]) & !is.na(Sel_Crit[, 16])), 25] == "left")] = "blue"
+col[which(Sel_Crit[which(!is.na(Sel_Crit[, 14]) & !is.na(Sel_Crit[, 16])), 25] == "right")] = "red"
+col[which(Sel_Crit[which(!is.na(Sel_Crit[, 14]) & !is.na(Sel_Crit[, 16])), 25] == "precipitated")] = "orange"
+col[which(Sel_Crit[which(!is.na(Sel_Crit[, 14]) & !is.na(Sel_Crit[, 16])), 25] == "no")] = "grey"
+
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Shifting Behavior", xlab = "PC1", ylab = "PC2")
+legend("topright", legend = c("left", "right", "precipitated", "no"), pch = 16, col = c("blue", "red", "orange", "grey"))
+
+# ---> Plot, der die Dichte der Punkteverteilung im Plot durch Farben anzeigt ("rot" = sehr dicht beieinander; "blau" = nicht dicht beieinander)
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = densCols(pca$x[, 1], pca$x[, 2], colramp = colorRampPalette(c("blue", "cyan", "green", "yellow", "orange", "red"))), main = "Point Density", xlab = "PC1", ylab = "PC2")
+abline(h = 0, lty =3, col = "grey")
+abline(v = 0, lty = 3, col = "grey")
+
+
+# --> Erstellen eines "Biplots" der die ersten zwei PCs mit den loadings der Variablen zeigt
+library(ggplot2)
+library(factoextra)
+
+fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T, col.ind = Sel_Crit[which(!is.na(Sel_Crit[, 14]) & !is.na(Sel_Crit[, 16])),25])
+
+rm(col, pca)
 ```
 
 
@@ -3903,6 +3961,5 @@ legend("topright",inset = c(-0.39,0),
 
 Let us see if it works!
 ```{r gene plotter}
-Gene_Plotter("TCRG1_HUMAN")
-
+Gene_Plotter("RTCA_HUMAN")
 ```
