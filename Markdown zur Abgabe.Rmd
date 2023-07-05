@@ -4,8 +4,8 @@ title: "Proteome-wide Screen for RNA-dependent Proteins in HeLa cells synchroniz
 author: "Hannah Brehm, Johann Blakytny, Kira Hoffmann, Viktor Bonin"
 date: "XX.07.2023"
 output:
-  word_document: default
   pdf_document: default
+  word_document: default
 subtitle: Data Analysis Project 2023
 fontsize: 11pt
 ---
@@ -31,16 +31,51 @@ load("Environment.RData")
 
 # 2. Material and Methods
 
-## 2.1 Receipt of the Data
+## 2.1 Referenced Data
 
-## 2.2 Data Cleanup and Normalization
-Divide dataframe into RNase and Ctrl...
+## 2.2 Data Cleanup
+The original dataset *RDeep_HeLa_Interphase* was split into two separate data frames containing the values for all RNase fractions and Control fractions respectively. These dataframes were named *RNase_RDeep* and accordingly *Ctrl_RDeep*. The following steps were performed on those two dataframes.
 
 ### 2.2.1 NA Values and Zero Rows
+All rows containing only zeros, of which there were five, were deleted from the dataframes. No NA values were found.
+
 ### 2.2.2 Pearson Correlation
+To test the reproducibility of the dataset the pearson correlation was performed. In seven cases, one of the three replicates contained only zeros. These values were replaced in *RNase_RDeep* and *Ctrl_RDeep* with NA as determining the pearson correlation would have been impossible. In five rows, two out of the three replicates contained only zeros. These genes were removed completely from the dataframes.
+The pearson correlation was computed via the following formula: $r = \frac{1}{N-1} \sum_{i = 1}^{N}{\frac{x_i - \bar{x}}{s_x} \frac{y_i - \bar{y}}{s_y}}$
+
+The calculated correlation coefficients were saved in the dataframes *Ctrl_Cor* and *RNase_Cor*. For each gene and condition this resulted in three correlation coefficients with a determined threshold of over or equal to 0.95. The genes for which all three correlation coefficients fell below that threshold were removed from the dataframes *RNase_RDeep* and *Ctrl_RDeep*. This applied to 1335 genes. If two out of three correlation coefficients were under 0.95 the replicate associated with both coefficients was replaced with NA. This was the case for 2594 replicates. Lastly, if one out of three correlation coefficients was below the determined threshold the replicate with the lower value in the other associated correlation coefficient was replaced with NA. This method was performed on 2285 replicates.
 
 ### 2.2.3 Mean of Replicates
-### 2.2.4 Data Exploration
+After testing for reproducibility and deleting unreliable values, the arithmetic mean for all triplicates was calculated. This was conducted on the in 2.2.2 modified dataframes *RNase_RDeep* and *Ctrl_RDeep* creating two new datasets called *Ctrl_Mean* and *RNase_Mean*.
+
+### 2.2.4 Normalization and Standard Error
+This step was executed solely for better graphical representation. At first, the rows of the dataframes *RNase_RDeep* and *Ctrl_RDeep* were normalized to a sum of 100. This data was stored in the dataframes *Ctrl_Norm100* and *RNase_Norm100*. Following the Normalization, the standerd deviation was calculated and saved as *Ctrl_Norm100_sd* and *RNase_Norm100_sd*
+
+### 2.2.5 Data Exploration
+To check the effectiveness of the previously undertaken cleanup steps and determine the following steps, the data was visualized in its various stages. Two new dataframes were created which incorporated the mean into normalization called *Ctrl_Mean_Norm100* and *RNase_Mean_Norm100*. For example, the gene CTCF_HUMAN can be plotted with and without the normalization:
+
+```{r Data Exploration, echo=FALSE, out.width = "50%"}
+
+
+# hier muss ich es noch irgendwie hinbekommen, eine Bildcaption für beide Bilder nebeneinander zu erzeugen...
+
+
+
+### not normalized
+plot(1:25, Ctrl_Mean[which(rownames(Ctrl_RDeep)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN Not Normalized")
+lines(1:25, RNase_Mean[which(rownames(RNase_RDeep)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
+grid()
+legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
+
+### normalized
+Ctrl_Mean_Norm100 = as.data.frame(sapply(Ctrl_Mean, function(i){(i/apply(Ctrl_Mean,1,sum))*100}))
+RNase_Mean_Norm100 = as.data.frame(sapply(RNase_Mean, function(i){(i/apply(RNase_Mean,1,sum))*100}))
+
+plot(1:25, Ctrl_Mean_Norm100[which(rownames(Ctrl_RDeep)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN Normalized", ylim=c(0,25))
+lines(1:25, RNase_Mean_Norm100[which(rownames(RNase_RDeep)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
+grid()
+legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
+```
 
 ## 2.3 Smoothing and Determination of Maxima
 
