@@ -219,12 +219,12 @@ library(factoextra)
 fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T, col.ind = Sel_Crit[,25])
 
 # PCA applied to following 4 selection criteria: delta_Gbl_mu_%**, **Ctrl_Gbl_prt_prop_%**, **RNase_Gbl_prt_prop_%** and **Gbl_overlap_%
+pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
 library(ggplot2)
 library(factoextra)
 
 fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T, col.ind = Sel_Crit[,25])
 
-rm(col, pca)
 ```
 
 ## 3.3 Shifting behavior
@@ -291,7 +291,7 @@ abline(v = 0, lty = 3, col = "grey")
 
 r^2 Wert: 0.6809688
 
-```{r linear regression, echo=False}
+```{r linear regression, echo=False, out.width=50%}
 # linear regression
 col = rep(NA, nrow(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), ]))
 col[which(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 26] == "yes")] = "blue"
@@ -309,7 +309,7 @@ curve(fit$coefficients[2]*x + fit$coefficients[1], lwd = 3, col = "blue", add = 
 
 ## 3.5 Comparison with the RBP2GO Database
 
-```{r comparision with RBP2Go Database, echo =False}
+```{r comparision with RBP2Go Database, echo =False, out.width=50%}
 
 #n für die 4 ausgewählten Selektionskriterien
 pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
