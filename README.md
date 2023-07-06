@@ -4,7 +4,7 @@ Data Analysis Project 2023
 > Hannah Brehm, Johann Blakytny, Kira Hoffmann, Viktor Bonin
 <br />
 <div class="figure" style="text-align: center">
-<img src="HNRPL_HUMAN.svg" alt="Fig. 1 - R-DeeP principle" width="100%" />
+<img src="HNRPL_HUMAN.svg" alt="Fig. 1 - R-DeeP principle" width="80%" />
 <p class="caption">Figure 1: Smoothed and normalized protein distribution with peak determination and gaussian fitting of the heterogeneous nuclear ribonucleoprotein (HNRPL_HUMAN). The grey area indicates the 95% confidence interval of the mean.</p>
 </div>
 
