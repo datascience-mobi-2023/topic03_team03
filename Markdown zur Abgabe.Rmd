@@ -4,8 +4,8 @@ title: "Proteome-wide Screen for RNA-dependent Proteins in HeLa cells synchroniz
 author: "Hannah Brehm, Johann Blakytny, Kira Hoffmann, Viktor Bonin"
 date: "XX.07.2023"
 output:
-  pdf_document: default
   word_document: default
+  pdf_document: default
 subtitle: Data Analysis Project 2023
 fontsize: 11pt
 ---
@@ -99,12 +99,10 @@ The normalized and smoothed values were then stored in the dataframes *Ctrl_Mean
 If a protein is an RNA dependent protein, the maximum amount of protein is in a significantly different fraction in the RNase sample compared to the Control sample. To determine for which proteins this is the case, the global and local maxima of the mass spectrometry data was determined.  
   
 #### 2.3.3.1 Global Maxima  
-  
 The global maximum for the dataframes *Ctrl_Mean_Smooth_Norm100* and *RNase_Mean_Smooth_Norm100* were determined by identifying the fraction of the largest mass spectrometry value in each dataframe. For proteins that had 2 or 3 fractions with the same mass spectrometry value, the mean fraction position was calculated.  
 The global maxima were stored in the dataframes *Ctrl_Mean_Gbl_Max* and *RNase_Mean_Gbl_Max*.
 
-#### 2.3.3.2 Local Maximum
-
+#### 2.3.3.2 Local Maximum  
 The local maxima for the dataframes *Ctrl_Mean_Smooth_Norm100* and *RNase_Mean_Smooth_Norm100* were determinded by comparing the protein amount of each fraction position x to the protein amount in the fractions in an neighborhood of n=2. $\qquad [(x-2)][(x-1)][x][(x+1)][(x+2)]\qquad x: fraction position (3\leq x\leq 23)\qquad$ If the protein amount in that fraction is greater or equal to its neighborhood it was defined as a local maximum. For the edge cases $x=2;\quad x=24$ and $x=1;\quad x=25$ the protein amounts in these fractions had to be greater or equal to the protein amounts in the fractions $x=1;\quad x=3;\quad x=4$ and $x=22;\quad x=23;\quad x=25$ and $x=2;\quad x=3$ and $x=23;\quad x=24$. For proteins that had 2 or 3 fractions with the same mass spectrometry value, the mean fraction position was calculated. To distinguish the local from the global peaks the global peaks were subtracted from the local peaks.  
 The local maxima were stored in the dataframes *Ctrl_Mean_Loc_Max* and *RNase_Mean_Loc_Max*.
 
@@ -148,18 +146,44 @@ All the parameters were stored in the dataframe *Sel_Crit*.
 
   
 ### 2.5.2 Principal Componant Analysis
-Applying a principle component Analysis to the percentage values of the selection criteria the optimal parameters for a shift were defined by reducing the dimensions of the dataframe *Sel_Crit*. Only the variables calculated in percent were used for the PCA for better comparison and the variables regarding main local peaks only serve at determining partially shifting proteins and were therefore not included in the principle component analysis. The non correlating variables (= principle components) were defined as the optimal selection criteria for RNA-dependent proteins and applyed for futher analysis.
+Applying a principle component Analysis to the percentage values of the selection criteria the optimal parameters for a shift were defined by reducing the dimensions of the dataframe *Sel_Crit*. Only the variables calculated in percent were used for the PCA for better comparison and the variables regarding main local peaks only serve at determining partially shifting proteins and were therefore not included in the principle component analysis. The non correlating variables (= principle components) were defined as the optimal selection criteria for RNA-dependent proteins and applyed for futher analysis.  
+
+### 2.5.3 Application of selection criteria  
+
+Based on the PCA four parameters were defined as most important for separating shifting and non shifting proteins.Based on observations and experience we set the following thresholds for an RNA-dependent protein (RDP):
+
+  1. Global peak shift of more than **1 fraction**
+  2. Protein loss under Ctrl global peak of more than **20 %** after RNase treatment
+  3. Protein gain under RNase global peak of more than **20 %** after RNase treatment
+  4. Overlap the gaussian curves of less than **75 %**
+  
+Furthermore, *partially* RNA-dependent proteins were defined as proteins that either satisfy the first, fourth and second or third criterion for RNA dependence (1. & 4. & (2. | 3.)) or that satisfy the following criteria:
+
+  1. Fraction shift between global and main local peak positions of more than **1 fraction**
+  2. Overlap between the gaussian curves of global and main local peaks of less than **75 %**
+  3. Overlap between the gaussian curves of the local peaks of less than **75 %**
+  4. Protein gain under main local peak in relation to protein distribution of other sample under the same peak of more than **20 %**
+  5. Protein amount at main local peak of more than **8**
+  6. Categorization as **"non RDP"**
 
 
 ## 2.6 Further Analysis
 ### 2.6.1 k means Clustering
-### 2.6.2 Linear Regression
-### 2.6.4 Comparison with the RBP2GO Database
-#### 2.6.4.1 Direct comparison
-#### 2.4.6.2 Comparison with RDP2Go-score
-#### 2.4.6.3 Cluster comparison with T-test
-#### 2.4.6.4 Ven Diagram and Bar Plot
-For better visualization pf the results a Ven Diagram and Bar plot were created.
+K means clustering was applied to the principal component analysis for comparison of these clusters with the identified RNA-dependent proteins. An elbow plot was used to identify the optimal number of clusters.  
+
+### 2.6.2 linear Regression  
+Linear regression was applied to the loss of protein amount under the Gaussian curve of the global peak for the control sample and the gain of protein amount under the Gaussian curve of the global peak for the RNase sample. This aimes at identifying proteins with a partial shift.
+
+### 2.6.3 Comparison with the RBP2GO Database  
+To evaluate the accuracy of this method, the identified RDPs were compared with the existing RDPs in the RBP2Go Database.
+#### 2.6.3.1 Direct comparison
+In the direct comparison the categories RDP dependent yes or no were plotted in a Biplot.
+#### 2.6.3.2 Comparison with RDP2Go-score
+For more accurate results the in this method identified RDPs were compared to the RDP2Go score.
+#### 2.6.3.3 Cluster comparison with T-test
+ By calculating the **mean RBP2GO-score** for each cluster of the k means clustering,the RNA-dependence of a cluster was estimated. Using a two-sided t-Test, the significance of the differences between the mean values were calculated.The H0 and H1 hypotheses were defined as following: H0: The mean values are not significantly different from each other, H1: The mean values are significantly different from each other. 
+#### 2.6.3.4 Venn Diagram and Bar Plot
+For better visualization of the results a Venn Diagram and Bar plot were created.
 
 
 # 3. Results
