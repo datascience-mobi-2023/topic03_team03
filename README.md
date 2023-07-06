@@ -5,7 +5,7 @@
   </summary>
     </ul>
 </div>
-  <h2> Subtopic 3: HeLa Cells Synchonized in Interphase </h2>
+<h2> Subtopic 3: HeLa Cells Synchonized in Interphase </h2>
   
 Hannah Brehm, Johann Blakytny, Kira Hoffmann, Viktor Bonin
 
@@ -22,23 +22,15 @@ In this project we investigated the RNA-dependency of different proteins. To do 
 
 ### Files on this Repository
 
-`Project Proposal`
-> Original project proposal with planned analysis steps.
-
-`Environment.RData`
-> R workspace that contains all dataframes from our analysis.
-
-`Table_HS_Non_RBP.RData`
-> R workspace that contains the dataframe for all non RBPs from the RBP2Go databank.
-
-`HeLa Cells Synchronized in Interphase.Rmd`
-> Entire code that was used for analysis.
-
-`Markdown.Rmd`
-> R code used to generate final report.
-
-`Final Report.Rmd` 
-> Documentation of analysis and results.
-
-`Final Presentation.pdf`
-> Presentation of our results.
+| Name | Description |
+| --- | --- |
+| `Project_Report.pdf` | Documentation of project, including an Introduction, Materials & Methods, Results and Discussion |
+| `Markdown.Rmd` | R code used to generate the project report |
+| `Project_Presentation.pdf` | Slides of the presentation of project results |
+| `HeLa Cells Synchronized in Interphase.Rmd` | Entire R code that was used for analysis |
+| `Environment.RData` | R workspace containing all dataframes generated and used in our analysis |
+| `Table_HS_Non_RBP.RData` | R workspace that contains the dataframe for all non RBPs from the RBP2GO databank |
+| `Datensätze.xlsx` | Excel spreadsheet describing all dataframes contained in `Environment.RData` (in German) |
+| `Project_Proposal` | Folder that contains .pdf and .pptx versions of the initial project proposal with planned analysis steps |
+| `README.md` | This file |
+| `HNRPL_HUMAN.svg` | Vector graphic used for figure 1 |
