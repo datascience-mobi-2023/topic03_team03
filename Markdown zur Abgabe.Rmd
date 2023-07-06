@@ -13,6 +13,7 @@ fontsize: 11pt
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 load("Environment.RData")
+load("Table_HS_Non_RBP.RData")
 # Environment clearen und dann Neues hinzufügen, mit allen nötigen Dataframes für die Graphen
 ```
 
