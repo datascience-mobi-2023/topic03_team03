@@ -1,7 +1,7 @@
 <div id="user-content-toc">
   <ul>
     <summary>Data Analysis Project 2023
-      <h1 style="display: inline-block;">Topic 3 : Proteome-wide Screen for RNA-dependent Proteins</h1>
+      <h1 style="display: inline-block;">Topic 3: Proteome-wide Screen for RNA-dependent Proteins</h1>
   </summary>
     </ul>
 </div>
