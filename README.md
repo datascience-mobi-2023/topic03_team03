@@ -5,7 +5,7 @@ Data Analysis Project 2023
 <br />
 <div class="figure" style="text-align: center">
 <img src="HNRPL_HUMAN.svg" alt="Fig. 1 - R-DeeP principle" width="80%" />
-<p class="caption">Figure 1: Smoothed and normalized protein distribution with peak determination and gaussian fitting of the heterogeneous nuclear ribonucleoprotein (HNRPL_HUMAN). The grey area indicates the 95% confidence interval of the mean.</p>
+<p class="caption"> Figure 1: Smoothed and normalized protein distribution with peak determination and gaussian fitting of the heterogeneous nuclear ribonucleoprotein (HNRPL_HUMAN). The grey area indicates the 95% confidence interval of the mean.</p>
 </div>
 
 In this project we investigated the RNA-dependence of different proteins. To do this we analyzed the protein distributions of 7086 genes from HeLa cells synchronized in interphase (data provided by Caudron-Herger *et al.*) (see **Figure 1**). The protein distributions were obtained from untreated and RNase-treated cell lysates separated on a sucrose gradient into 25 fractions and examined by mass spectrometry.
