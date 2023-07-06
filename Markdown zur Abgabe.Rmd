@@ -207,7 +207,7 @@ Gene_Plotter("CTCF_HUMAN", Gauss=F, conf=F, Type="Smooth and Norm")
 
 ## 3.2 Results of PCA
 
-```{r Principal components, echo=False, out.extra=50%}
+```{r Principal components, echo=False, out.extra="50%"}
 # PCA applied to all precentage selection criteria
 pca = prcomp(Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
 
@@ -229,7 +229,7 @@ fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T
 
 
 
-```{r shifting behavior, echo=false, out.width=50%}
+```{r shifting behavior, echo=false, out.width="50%"}
 
 # peak positions und Einfärben nach "left", "right", "precipitated" und "no" shifting
 
@@ -289,7 +289,7 @@ abline(v = 0, lty = 3, col = "grey")
 
 r^2 Wert: 0.6809688
 
-```{r linear regression, echo=False, out.width=50%}
+```{r linear regression, echo=False, out.width="50%"}
 # linear regression
 col = rep(NA, nrow(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), ]))
 col[which(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 26] == "yes")] = "blue"
@@ -307,7 +307,7 @@ curve(fit$coefficients[2]*x + fit$coefficients[1], lwd = 3, col = "blue", add = 
 
 ## 3.5 Comparison with the RBP2GO Database
 
-```{r comparision with RBP2Go Database, echo =False, out.width=50%}
+```{r comparision with RBP2Go Database, echo =False, out.width="50%"}
 
 #n für die 4 ausgewählten Selektionskriterien
 pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
@@ -334,7 +334,7 @@ rm(pca, col)
 
 ## 3.6 Comparison with RBP2GO score - kmeans clustering
 
-```{r Vergleich unserer Werte mit dem RBP2Go score, echo = False, out.width=50%}
+```{r Vergleich unserer Werte mit dem RBP2Go score, echo = False, out.width="50%"}
 #Vergleich unserer Werte mit dem RBP2Go score
 library(scales)
 
@@ -381,7 +381,7 @@ rm(pca, kmeans, col)
 
 ## 3.7 Venn Diagram & Bar plot
 
-```{r Venn diagramm RBPs, echo=False, out.width=50%}
+```{r Venn diagramm RBPs, echo=False, out.width="50%"}
 library("VennDiagram")
 
 grid.newpage()
