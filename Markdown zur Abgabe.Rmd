@@ -171,22 +171,220 @@ Furthermore, *partially* RNA-dependent proteins were defined as proteins that ei
 ### 2.6.1 k means Clustering
 K means clustering was applied to the principal component analysis for comparison of these clusters with the identified RNA-dependent proteins. An elbow plot was used to identify the optimal number of clusters.  
 
-### 2.6.2 linear Regression  
+### 2.6.2 linear Regression    
 Linear regression was applied to the loss of protein amount under the Gaussian curve of the global peak for the control sample and the gain of protein amount under the Gaussian curve of the global peak for the RNase sample. This aimes at identifying proteins with a partial shift.
 
-### 2.6.3 Comparison with the RBP2GO Database  
+### 2.6.3 Comparison with the RBP2GO Database    
 To evaluate the accuracy of this method, the identified RDPs were compared with the existing RDPs in the RBP2Go Database.
-#### 2.6.3.1 Direct comparison
+#### 2.6.3.1 Direct comparison  
 In the direct comparison the categories RDP dependent yes or no were plotted in a Biplot.
-#### 2.6.3.2 Comparison with RDP2Go-score
+#### 2.6.3.2 Comparison with RDP2Go-score  
 For more accurate results the in this method identified RDPs were compared to the RDP2Go score.
-#### 2.6.3.3 Cluster comparison with T-test
+#### 2.6.3.3 Cluster comparison with T-test  
  By calculating the **mean RBP2GO-score** for each cluster of the k means clustering,the RNA-dependence of a cluster was estimated. Using a two-sided t-Test, the significance of the differences between the mean values were calculated.The H0 and H1 hypotheses were defined as following: H0: The mean values are not significantly different from each other, H1: The mean values are significantly different from each other. 
-#### 2.6.3.4 Venn Diagram and Bar Plot
+#### 2.6.3.4 Venn Diagram and Bar Plot  
 For better visualization of the results a Venn Diagram and Bar plot were created.
 
-
 # 3. Results
+## 3.1 Results of Data Cleanup
+Using the data cleanup steps described in the methods, the original dataset *RDeep_HeLa_Interphase* was reduced from 7086 proteins to 5990 Proteins.As described in the Plots of CTCF_HUMAN, the smoothing and normalization steps applied to the dataset were successful.
+
+```{r Data Exploration, echo=FALSE, out.width = "50%"}
+
+
+# hier muss ich es noch irgendwie hinbekommen, eine Bildcaption für beide Bilder nebeneinander zu erzeugen...
+
+
+
+### not smoothed and normalized
+Gene_Plotter("CTCF_HUMAN", Gauss =F, conf =F, Type= "Raw")
+
+### smoothed
+Gene_Plotter("CTCF_HUMAN", Gauss=F, conf = F, Type="Smooth")
+
+### smoothed and normalized
+Gene_Plotter("CTCF_HUMAN", Gauss=F, conf=F, Type="Smooth and Norm")
+```
+
+
+## 3.2 Results of PCA
+
+```{r Principal components, echo=False, out.extra=50%}
+# PCA applied to all precentage selection criteria
+pca = prcomp(Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
+
+library(ggplot2)
+library(factoextra)
+
+fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T, col.ind = Sel_Crit[,25])
+
+# PCA applied to following 4 selection criteria: delta_Gbl_mu_%**, **Ctrl_Gbl_prt_prop_%**, **RNase_Gbl_prt_prop_%** and **Gbl_overlap_%
+library(ggplot2)
+library(factoextra)
+
+fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T, col.ind = Sel_Crit[,25])
+
+rm(col, pca)
+```
+
+## 3.3 Shifting behavior
+
+
+
+```{r shifting behavior, echo=false, out.width=50%}
+
+# peak positions und Einfärben nach "left", "right", "precipitated" und "no" shifting
+
+col = rep(NA, nrow(Ctrl_RDeep))
+col[which(Sel_Crit[, 25] == "left")] = "blue"
+col[which(Sel_Crit[, 25] == "right")] = "red"
+col[which(Sel_Crit[, 25] == "precipitated")] = "orange"
+col[which(Sel_Crit[, 25] == "no")] = "grey"
+
+plot(Ctrl_Gauss_Fit[, 1], RNase_Gauss_Fit[, 1], pch = 16, col = col, main = "Shifting Behavior", xlab = "Ctrl Gbl Peak Position", ylab = "RNase Gbl Peak Position")
+legend("topleft", legend = c(paste("left (", length(which(Sel_Crit[, 25] == "left")), ")", sep =""), paste("right (", length(which(Sel_Crit[, 25] == "right")), ")", sep =""), paste("precipitated (", length(which(Sel_Crit[, 25] == "precipitated")), ")", sep =""), paste("no (", length(which(Sel_Crit[, 25] == "no")), ")", sep ="")), pch = 16, col = c("blue", "red", "orange", "grey"))
+
+# shifiting behavior PCA all sel. criteria
+pca = prcomp(Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
+
+# Plot, der die Datenpunkte je nach Kategorisierung in "left", "right" und "no" shift einfärbt 
+col = rep(NA, nrow(Sel_Crit))
+
+col[which(Sel_Crit[, 25] == "left")] = "blue"
+col[which(Sel_Crit[, 25] == "right")] = "red"
+col[which(Sel_Crit[, 25] == "precipitated")] = "orange"
+col[which(Sel_Crit[, 25] == "no")] = "grey"
+
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Shifting Behavior", xlab = "PC1", ylab = "PC2")
+legend("bottomright", legend = c(paste("left (", length(which(Sel_Crit[, 25] == "left")), ")", sep =""), paste("right (", length(which(Sel_Crit[, 25] == "right")), ")", sep =""), paste("precipitated (", length(which(Sel_Crit[, 25] == "precipitated")), ")", sep =""), paste("no (", length(which(Sel_Crit[, 25] == "no")), ")", sep ="")), pch = 16, col = c("blue", "red", "orange", "grey"))
+
+#  Plot, der die Dichte der Punkteverteilung im Plot durch Farben anzeigt ("rot" = sehr dicht beieinander; "blau" = nicht dicht beieinander)
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = densCols(pca$x[, 1], pca$x[, 2], colramp = colorRampPalette(c("blue", "cyan", "green", "yellow", "orange", "red"))), main = "Point Density", xlab = "PC1", ylab = "PC2")
+abline(h = 0, lty =3, col = "grey")
+abline(v = 0, lty = 3, col = "grey")
+
+# shifitng behavior 4 sel. criteria
+
+pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
+
+#  Plot, der die Datenpunkte je nach Kategorisierung in "left", "right" und "no" shift einfärbt 
+col = rep(NA, nrow(Sel_Crit))
+col[which(Sel_Crit[, 25] == "left")] = "blue"
+col[which(Sel_Crit[, 25] == "right")] = "red"
+col[which(Sel_Crit[, 25] == "precipitated")] = "orange"
+col[which(Sel_Crit[, 25] == "no")] = "grey"
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Shifting Behavior", xlab = "PC1", ylab = "PC2")
+legend("topright", legend = c(paste("left (", length(which(Sel_Crit[, 25] == "left")), ")", sep =""), paste("right (", length(which(Sel_Crit[, 25] == "right")), ")", sep =""), paste("precipitated (", length(which(Sel_Crit[, 25] == "precipitated")), ")", sep =""), paste("no (", length(which(Sel_Crit[, 25] == "no")), ")", sep ="")), pch = 16, col = c("blue", "red", "orange", "grey"))
+
+
+#  Plot, der die Dichte der Punkteverteilung im Plot durch Farben anzeigt ("rot" = sehr dicht beieinander; "blau" = nicht dicht beieinander)
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = densCols(pca$x[, 1], pca$x[, 2], colramp = colorRampPalette(c("blue", "cyan", "green", "yellow", "orange", "red"))), main = "Point Density", xlab = "PC1", ylab = "PC2")
+abline(h = 0, lty =3, col = "grey")
+abline(v = 0, lty = 3, col = "grey")
+```
+
+
+## 3.4 Linear Regression
+
+r^2 Wert: 0.6809688
+
+```{r linear regression, echo=False}
+# linear regression
+col = rep(NA, nrow(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), ]))
+col[which(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 26] == "yes")] = "blue"
+col[which(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 26] == "partial")] = "orange"
+col[which(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 26] == "no")] = "grey"
+
+plot(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 9], Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 11], col = col, pch = 16, xlab = "Ctrl_Gbl_prt_prop", ylab = "RNase_Gbl_prt_prop")
+
+fit <- lm(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 9] ~ Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 11])
+
+curve(fit$coefficients[2]*x + fit$coefficients[1], lwd = 3, col = "blue", add = T)
+
+```
+
+
+## 3.5 Comparison with the RBP2GO Database
+
+```{r comparision with RBP2Go Database, echo =False}
+
+#n für die 4 ausgewählten Selektionskriterien
+pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
+
+col = rep(NA, nrow(Sel_Crit))
+col[which(Sel_Crit[, 26] == "yes")] = "blue"
+col[which(Sel_Crit[, 26] == "partial")] = "orange"
+col[which(Sel_Crit[, 26] == "no")] = "grey"
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Our RDPs and non RDPs", xlab = "PC1", ylab = "PC2")
+legend("topright", legend = c(paste("RDP (", length(which(Sel_Crit[, 26] == "yes")), ")", sep =""), paste("partial RDP (", length(which(Sel_Crit[, 26] == "partial")), ")", sep =""), paste("non RDP (", length(which(Sel_Crit[, 26] == "no")), ")", sep ="")), pch = 16, col = c("blue","orange", "grey"))
+
+col = rep(NA, nrow(Sel_Crit))
+col[which(rownames(Sel_Crit) %in% rownames(Table_HS_RBP))] = "blue"
+col[which(rownames(Sel_Crit) %in% rownames(Table_HS_Non_RBP))] = "grey"
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "RBP2GO RDPs and non RDPs", xlab = "PC1", ylab = "PC2")
+legend("topright", legend = c(paste("RDP (", length(which(rownames(Sel_Crit) %in% rownames(Table_HS_RBP))), ")", sep =""), paste("non RDP (", length(which(rownames(Sel_Crit) %in% rownames(Table_HS_Non_RBP))), ")", sep ="")), pch = 16, col = c("blue", "grey"))
+
+rm(pca, col)
+
+```
+
+
+## 3.6 Comparison with RBP2GO score - kmeans clustering
+
+```{r Vergleich unserer Werte mit dem RBP2Go score, echo = False, out.width=50%}
+#Vergleich unserer Werte mit dem RBP2Go score
+library(scales)
+
+# ---> Gleiche Berechnungen für die 4 ausgewählten Selektionskriterien
+pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = alpha("blue", Sel_Crit[, 27]/100), main = "RBP2GO_Score", xlab = "PC1", ylab = "PC2")
+
+rm(pca)
+
+
+# Vergleich mit kmeans clustering
+# Elbow plot
+pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
+plot(1:5, c(kmeans(pca$x[,1:2], 1, iter.max = 10, nstart = 1)$tot.withinss,
+            kmeans(pca$x[,1:2], 2, iter.max = 10, nstart = 1)$tot.withinss,
+            kmeans(pca$x[,1:2], 3, iter.max = 10, nstart = 1)$tot.withinss,
+            kmeans(pca$x[,1:2], 4, iter.max = 10, nstart = 1)$tot.withinss,
+            kmeans(pca$x[,1:2], 5, iter.max = 10, nstart = 1)$tot.withinss), type = "b", pch = 19, main = "Elbow Method", xlab = "Number of cluster", ylab = "Total within-cluster sum of squares")
+
+
+# Diagramm
+pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
+
+kmeans = kmeans(pca$x, 2, iter.max = 10, nstart = 1)
+
+col = rep(NA, nrow(Sel_Crit))
+col[which(kmeans$cluster == 1)] = "blue"
+col[which(kmeans$cluster == 2)] = "red"
+
+par(mar=c(4, 4, 4, 11), xpd=F)
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "k-Means Clustering (n = 2)", xlab = "PC1", ylab = "PC2")
+par(xpd=T)
+legend("topright", 
+       inset = c(-0.49,0), 
+       legend = c(paste("Cluster 1 (", length(which(kmeans$cluster == 1)), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit[which(kmeans$cluster == 1), 27], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit[which(kmeans$cluster == 1), 27], na.rm = T)/sqrt(length(which(kmeans$cluster == 1))), 2), ")", sep = ""), paste("Cluster 2 (", length(which(kmeans$cluster == 2)), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit[which(kmeans$cluster == 2), 27], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit[which(kmeans$cluster == 2), 27], na.rm = T)/sqrt(length(which(kmeans$cluster == 2))), 2), ")", sep = ""), "", paste("p(1&2) = ", signif(t.test(Sel_Crit[which(kmeans$cluster == 1), 27], Sel_Crit[which(kmeans$cluster == 2), 27], alternative = "two.sided")$p.value, 3), sep = "")), 
+       pch = 16, 
+       col = c("blue", NA, "red", NA, NA, NA))
+
+rm(pca, kmeans, col)
+
+```
+
+
+## 3.7 Venn Diagram & Bar plot
+
+
+## 3.8 Bar plot with wierd analysis
 
 ```{r}
 #load("Environment_with_RDP.RData")
