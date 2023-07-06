@@ -7,7 +7,7 @@
 </div>
 <h2> Subtopic 3: HeLa Cells Synchonized in Interphase </h2>
   
-Hannah Brehm, Johann Blakytny, Kira Hoffmann, Viktor Bonin
+Contributors: Hannah Brehm, Johann Blakytny, Kira Hoffmann, Viktor Bonin
 
 <br />
 <div class="figure" style="text-align: center">
