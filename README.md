@@ -13,6 +13,9 @@ This repository contains the following files:
 `Environment.RData`
 > R workspace that contains all dataframes from our analysis.
 
+`Table_HS_Non_RBP.RData`
+> R workspace that contains the dataframe for all non RBPs from the RBP2Go databank.
+
 `HeLa Cells Synchronized in Interphase.Rmd`
 > Entire code that was used for analysis.
 
