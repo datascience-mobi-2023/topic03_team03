@@ -4,8 +4,8 @@ title: "Proteome-wide Screen for RNA-dependent Proteins in HeLa cells synchroniz
 author: "Hannah Brehm, Johann Blakytny, Kira Hoffmann, Viktor Bonin"
 date: "XX.07.2023"
 output:
-  word_document: default
   pdf_document: default
+  word_document: default
 subtitle: Data Analysis Project 2023
 fontsize: 11pt
 ---
@@ -189,11 +189,9 @@ For better visualization of the results a Venn Diagram and Bar plot were created
 ## 3.1 Results of Data Cleanup
 Using the data cleanup steps described in the methods, the original dataset *RDeep_HeLa_Interphase* was reduced from 7086 proteins to 5990 Proteins.As described in the Plots of CTCF_HUMAN, the smoothing and normalization steps applied to the dataset were successful.
 
-```{r Data Exploration, echo=FALSE, out.width = "50%"}
-
+```{r smoothed and normalized, echo=FALSE, out.width = "50%"}
 
 # hier muss ich es noch irgendwie hinbekommen, eine Bildcaption für beide Bilder nebeneinander zu erzeugen...
-
 
 
 ### not smoothed and normalized
