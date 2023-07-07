@@ -2812,53 +2812,111 @@ draw.triple.venn(
   cat.col = c("dodgerblue", "darkorange", "red")
 )
 
+
 par(mar=c(1, 3, 3, 7.5))
-barplot(matrix(c(
+barplot(
+  matrix(
+  c(
+    length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) +
+    length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))), 
+    # RED: which protein are identified as non RDPs in our analysis and in RBP2GO? + which proteins from our dataset are not included in RBP2GO?
   
-  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) + 
-  length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))), # RED: which protein are identified as non RDPs in our analysis and in RBP2GO? + which proteins from our dataset are not included in RBP2GO?
+    length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_RBP))), 
+    # ORANGE: which of our non RDPs are in the RBP dataset from RBP2GO?
   
-  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_RBP))), # ORANGE: which of our non RDPs are in the RBP dataset from RBP2GO?
+    length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))),
+    # YELLOW: which of our RDPs or partial RDPs are also listed in the RBP2GO databank?
   
-  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))), # YELLOW: which of our RDPs or partial RDPs are also listed in the RBP2GO databank?
+    length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + 
+    length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))), 
+    # GREEN: which of our RDPs are not listed in the RBP2GO Databank?
   
-  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))), # GREEN: which of our RDPs are not listed in the RBP2GO Databank?
-  rep(NA, 4)),
+    rep(NA, 4)),
   nrow = 4),
   axes = F,
   col = c("red", "orange", "yellow", "green"), 
-  main = "Comparison with RBP2GO")
-  legend("topright", fill = c("green", "yellow", "orange", "red"), legend = c( 
-    paste("New RDPs (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))), ")", sep = ""),
-                  paste("RDPS (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))), ")", sep = ""), 
-                                    paste("RDPs (only RBP2GO) (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_RBP))), ")", sep = ""),
-                  paste("Non RDPs (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))), ")", sep = ""))
-  )
+  main = "Comparison with RBP2GO"
+)
+legend("topright", 
+       fill = c("green", "yellow", "orange", "red"), 
+       legend = c( 
+        paste("New RDPs (", 
+              length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + 
+              length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))), 
+              ")", sep = ""),
+        
+        paste("RDPS (", 
+              length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))), 
+              ")", sep = ""), 
+        
+        paste("RDPs (only RBP2GO) (", 
+              length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_RBP))), 
+              ")", sep = ""),
+        
+        paste("Non RDPs (", 
+              length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) + 
+              length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))), 
+              ")", sep = ""))
+)
 
 
 par(mar=c(1, 3, 3, 7.5))
-barplot(matrix(c(
+barplot(
+  matrix(
+  c(
+    length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) +
+    length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))) +
+    length(which(rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) +
+    length(which(rownames(Weird_Ctrl_RDeep[which(!(rownames(Weird_Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Weird_Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "no"), ]))), 
+    # RED: which protein are identified as non RDPs in our analysis and in RBP2GO? + which proteins from our dataset are not included in RBP2GO? (for both normal and weird analysis)
   
-  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) + 
-  length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))) + length(which(rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) + 
-  length(which(rownames(Weird_Ctrl_RDeep[which(!(rownames(Weird_Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Weird_Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "no"), ]))), # RED: which protein are identified as non RDPs in our analysis and in RBP2GO? + which proteins from our dataset are not included in RBP2GO? (for both normal and weird analysis)
+    length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_RBP))) +
+    length(which(rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "no"), ]) %in% rownames(Table_HS_RBP))), 
+    # ORANGE: which of our non RDPs are in the RBP dataset from RBP2GO? (for both normal and weird analysis)
   
-  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_RBP))) +  length(which(rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "no"), ]) %in% rownames(Table_HS_RBP))), # ORANGE: which of our non RDPs are in the RBP dataset from RBP2GO? (for both normal and weird analysis)
+    length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))) + 
+    length(which(rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "yes" | Weird_Sel_Crit[, 15] == "partial"), ]) %in% rownames(Table_HS_RBP))), 
+    # YELLOW: which of our RDPs or partial RDPs are also listed in the RBP2GO databank? (for both normal and weird analysis)
   
-  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))) + length(which(rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "yes" | Weird_Sel_Crit[, 15] == "partial"), ]) %in% rownames(Table_HS_RBP))), # YELLOW: which of our RDPs or partial RDPs are also listed in the RBP2GO databank? (for both normal and weird analysis)
-  
-  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))) + length(which(rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "yes" | Weird_Sel_Crit[, 15] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Weird_Ctrl_RDeep[which(!(rownames(Weird_Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Weird_Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "yes" | Weird_Sel_Crit[, 15] == "partial"), ]))), # GREEN: which of our RDPs are not listed in the RBP2GO Databank?
-  rep(NA, 4)),
+    length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + 
+    length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))) + 
+    length(which(rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "yes" | Weird_Sel_Crit[, 15] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + 
+    length(which(rownames(Weird_Ctrl_RDeep[which(!(rownames(Weird_Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Weird_Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "yes" | Weird_Sel_Crit[, 15] == "partial"), ]))), 
+    # GREEN: which of our RDPs are not listed in the RBP2GO Databank?
+    
+    rep(NA, 4)),
   nrow = 4),
   axes = F,
   col = c("red", "orange", "yellow", "green"), 
-  main = "Comparison with RBP2GO (including Weird)")
-   legend("topright", fill = c("green", "yellow", "orange", "red"), legend = c(paste("New RDPs (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))) + length(which(rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "yes" | Weird_Sel_Crit[, 15] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Weird_Ctrl_RDeep[which(!(rownames(Weird_Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Weird_Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "yes" | Weird_Sel_Crit[, 15] == "partial"), ]))), ")", sep = ""),
-          paste("RDPS (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))) + length(which(rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "yes" | Weird_Sel_Crit[, 15] == "partial"), ]) %in% rownames(Table_HS_RBP))), ")", sep = ""),
-          paste("RDPs (only RBP2GO) (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_RBP))) +  length(which(rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "no"), ]) %in% rownames(Table_HS_RBP))), ")", sep = ""),
-          paste("Non RDPs (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))) + length(which(rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) + 
-  length(which(rownames(Weird_Ctrl_RDeep[which(!(rownames(Weird_Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Weird_Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "no"), ]))), ")", sep = ""))
-  )
+  main = "Comparison with RBP2GO (including Weird)"
+)
+legend("topright", 
+       fill = c("green", "yellow", "orange", "red"), 
+       legend = c(
+         paste("New RDPs (", 
+               length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + 
+               length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))) + 
+               length(which(rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "yes" | Weird_Sel_Crit[, 15] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + 
+               length(which(rownames(Weird_Ctrl_RDeep[which(!(rownames(Weird_Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Weird_Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "yes" | Weird_Sel_Crit[, 15] == "partial"), ]))), 
+               ")", sep = ""),
+         
+         paste("RDPS (", 
+               length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))) + 
+               length(which(rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "yes" | Weird_Sel_Crit[, 15] == "partial"), ]) %in% rownames(Table_HS_RBP))), 
+               ")", sep = ""),
+         
+         paste("RDPs (only RBP2GO) (", 
+               length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_RBP))) +  
+               length(which(rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "no"), ]) %in% rownames(Table_HS_RBP))), 
+               ")", sep = ""),
+         
+         paste("Non RDPs (", 
+               length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) + 
+               length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))) + 
+               length(which(rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) +
+               length(which(rownames(Weird_Ctrl_RDeep[which(!(rownames(Weird_Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Weird_Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "no"), ]))), 
+               ")", sep = ""))
+)
 ```
 
 ##### 5.4 PCA with Local Peaks
