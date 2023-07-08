@@ -2812,7 +2812,7 @@ draw.triple.venn(
   cat.col = c("dodgerblue", "darkorange", "red")
 )
 
-
+# ---> Barplot 1: Vergleich unserer RDPs mit RBPs von der RBP2GO Datenbank
 par(mar=c(1, 3, 3, 7.5))
 barplot(
   matrix(
@@ -2845,7 +2845,7 @@ legend("topright",
               length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))), 
               ")", sep = ""),
         
-        paste("RDPS (", 
+        paste("RDPs (", 
               length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))), 
               ")", sep = ""), 
         
@@ -2860,6 +2860,7 @@ legend("topright",
 )
 
 
+# ---> Barplot 2: Vergleich unserer RDPs (inklusive Weird Analysis) mit RBPs von der RBP2GO Datenbank
 par(mar=c(1, 3, 3, 7.5))
 barplot(
   matrix(
@@ -2900,7 +2901,7 @@ legend("topright",
                length(which(rownames(Weird_Ctrl_RDeep[which(!(rownames(Weird_Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Weird_Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "yes" | Weird_Sel_Crit[, 15] == "partial"), ]))), 
                ")", sep = ""),
          
-         paste("RDPS (", 
+         paste("RDPs (", 
                length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))) + 
                length(which(rownames(Weird_Sel_Crit[which(Weird_Sel_Crit[, 15] == "yes" | Weird_Sel_Crit[, 15] == "partial"), ]) %in% rownames(Table_HS_RBP))), 
                ")", sep = ""),
