@@ -1,5 +1,5 @@
 ---
-title: "Proteome-wide Screen for RNA-dependent Proteins in HeLa cells synchronized
+title: "Proteome-wide Screen for RNA-dependent Proteins in HeLa Cells Synchronized
   in Interphase"
 author: "Hannah Brehm, Johann Blakytny, Kira Hoffmann, Viktor Bonin"
 date: "XX.07.2023"
@@ -35,14 +35,14 @@ load("Table_HS_Non_RBP.RData")
 ## 2.1 Referenced Data
 
 ## 2.2 Data Cleanup
-The original dataset *RDeep_HeLa_Interphase* was split into two separate data frames containing the values for all RNase fractions and Control fractions respectively. These dataframes were named *RNase_RDeep* and accordingly *Ctrl_RDeep*. The following steps were performed on those two dataframes.
+The original dataset *RDeep_HeLa_Interphase* was split into two separate data frames containing the values for all RNase fractions and Control fractions respectively. These dataframes were named *RNase_RDeep* and *Ctrl_RDeep* respectively. The following steps were performed on those two dataframes.
 
 ### 2.2.1 NA Values and Zero Rows
 All rows containing only zeros, of which there were five, were deleted from the dataframes. No NA values were found.
 
 ### 2.2.2 Pearson Correlation
-To test the reproducibility of the dataset the pearson correlation was performed. In seven cases, one of the three replicates contained only zeros. These values were replaced in *RNase_RDeep* and *Ctrl_RDeep* with NA as determining the pearson correlation would have been impossible. In five rows, two out of the three replicates contained only zeros. These genes were removed completely from the dataframes.
-The pearson correlation was computed via the following formula: $r = \frac{1}{N-1} \sum_{i = 1}^{N}{\frac{x_i - \bar{x}}{s_x} \frac{y_i - \bar{y}}{s_y}}$
+To test the reproducibility of the dataset the pearson correlation was used. In seven cases one of the three replicates contained only zeros. These values were replaced in *RNase_RDeep* and *Ctrl_RDeep* with NA values as determining the pearson correlation with these replicates would have been impossible. In five rows, two out of the three replicates contained only zeros. These genes were removed completely from the dataframes.
+The pearson correlation $r$ was computed via the following formula using the sample size $N$, individual sample points $x_i$ and $y_i$, sample means $\bar{x}$ and $\bar{y}$ and standard deviations $s_x$ and $s_y$: $r = \frac{1}{N-1} \sum_{i = 1}^{N}{\frac{x_i - \bar{x}}{s_x} \frac{y_i - \bar{y}}{s_y}}$
 
 The calculated correlation coefficients were saved in the dataframes *Ctrl_Cor* and *RNase_Cor*. For each gene and condition this resulted in three correlation coefficients with a determined threshold of over or equal to 0.95. The genes for which all three correlation coefficients fell below that threshold were removed from the dataframes *RNase_RDeep* and *Ctrl_RDeep*. This applied to 1335 genes. If two out of three correlation coefficients were under 0.95 the replicate associated with both coefficients was replaced with NA. This was the case for 2594 replicates. Lastly, if one out of three correlation coefficients was below the determined threshold the replicate with the lower value in the other associated correlation coefficient was replaced with NA. This method was performed on 2285 replicates.
 
@@ -50,7 +50,7 @@ The calculated correlation coefficients were saved in the dataframes *Ctrl_Cor* 
 After testing for reproducibility and deleting unreliable values, the arithmetic mean for all triplicates was calculated. This was conducted on the in 2.2.2 modified dataframes *RNase_RDeep* and *Ctrl_RDeep* creating two new datasets called *Ctrl_Mean* and *RNase_Mean*.
 
 ### 2.2.4 Normalization and Standard Error
-This step was executed solely for better graphical representation. At first, the rows of the dataframes *RNase_RDeep* and *Ctrl_RDeep* were normalized to a sum of 100. This data was stored in the dataframes *Ctrl_Norm100* and *RNase_Norm100*. Following the Normalization, the standerd deviation was calculated and saved as *Ctrl_Norm100_sd* and *RNase_Norm100_sd*
+This step was executed solely for better graphical representation. At first, the rows of the dataframes *RNase_RDeep* and *Ctrl_RDeep* were normalized to a sum of 100. This data was stored in the dataframes *Ctrl_Norm100* and *RNase_Norm100*. Following the Normalization, the standerd deviation was calculated and saved as *Ctrl_Norm100_sd* and *RNase_Norm100_sd*.
 
 ### 2.2.5 Data Exploration
 To check the effectiveness of the previously undertaken cleanup steps and determine the following steps, the data was visualized in its various stages. Two new dataframes were created which incorporated the mean into normalization called *Ctrl_Mean_Norm100* and *RNase_Mean_Norm100*. For example, the gene CTCF_HUMAN can be plotted with and without the normalization:
@@ -82,37 +82,37 @@ legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lw
 
 ### 2.3.1 Smoothing the Data
 To determine the global and local maxima of the dataset, the dataframes *Ctrl_Mean* and *RNase_Mean* first had to be smoothed. Otherwise the determination would be influenced by outliers and wrong peaks.  
-For this the mean value of each fraction was calculated in a defined neighborhood of one with following formula for all fractions between 2 and 24: $y = \frac{f(x-1)+f(x)+f(x-1)}{3}$    
+For this the mean value of each fraction was calculated in a defined neighborhood of one with the following formula for all fractions between 2 and 24: $y = \frac{f(x-1)+f(x)+f(x-1)}{3}$    
 *$x$: fraction position ($2  \leq  x  \leq  24$);* $\quad$ *$f(x)$: mass spectrometry value at fraction position $x$;* $\quad$ *$y$: smoothed value for fraction position $x$*  
   
-For fraction position 1 and 25 the mean was of fraction 1 and 2 and 24 and 25 were calculated: $y = \frac{f(1)+f(2)}{2};\qquad y = \frac{f(24)+f(25)}{2}$  
+For fraction position 1 and 25 the mean of fraction 1 and 2 and 24 and 25 were calculated: $y = \frac{f(1)+f(2)}{2};\qquad y = \frac{f(24)+f(25)}{2}$  
 *$f(1), f(2)$ and $f(24), f(25)$: mass spectrometry value at fraction positions 1, 2 and 24, 25;* $\quad$ *$y$: smoothed value for fraction position 1 and 25*  
   
-This was done separately for the *Ctrl_Mean* dataframe and the *RNase_Mean* dataframe and the smoothed data was then stored in following two dataframes: *Ctrl_Mean_Smooth* and *RNase_Mean_Smooth*
+This was done separately for the *Ctrl_Mean* dataframe and the *RNase_Mean* dataframe and the smoothed data was then stored in following two dataframes: *Ctrl_Mean_Smooth* and *RNase_Mean_Smooth*.
 
 ### 2.3.2 Normalization of Smoothed data
 For comparison of the different protein amounts, the dataframes *Ctrl_Mean_Smooth* and *RNase_Mean_Smooth* had to be normalized to 100. This means, that the sum of the mass spectrometry data in the different fractions for one protein had to add up to 100: $y = \frac{f(x)}{\sum_{x=1}^{25}f(x)} *100$     
-*$x$: fraction position ($1 \leq x \geq 25$);* $\quad$ *$f(X)$: mass spectrometry value at fraction position $x$;* $\quad$ *$y$: normalized value at fraction position $x$*  
+*$x$: fraction position ($1 \leq x \leq 25$);* $\quad$ *$f(x)$: mass spectrometry value at fraction position $x$;* $\quad$ *$y$: normalized value at fraction position $x$*  
   
 The normalized and smoothed values were then stored in the dataframes *Ctrl_Mean_Smooth_Norm100* and *RNase_Mean_Smooth_Norm100*.  
 
 ### 2.3.3 Determination of Maxima
-If a protein is an RNA dependent protein, the maximum amount of protein is in a significantly different fraction in the RNase sample compared to the Control sample. To determine for which proteins this is the case, the global and local maxima of the mass spectrometry data was determined.  
+If a protein is an RNA-dependent protein, the maximum amount of protein is in a significantly different fraction in the RNase sample compared to the Control sample. To determine for which proteins this is the case, the global and local maxima of the mass spectrometry data was determined.  
   
-#### 2.3.3.1 Global Maxima  
+#### 2.3.3.1 Global Maxima \
 The global maximum for the dataframes *Ctrl_Mean_Smooth_Norm100* and *RNase_Mean_Smooth_Norm100* were determined by identifying the fraction of the largest mass spectrometry value in each dataframe. For proteins that had 2 or 3 fractions with the same mass spectrometry value, the mean fraction position was calculated.  
 The global maxima were stored in the dataframes *Ctrl_Mean_Gbl_Max* and *RNase_Mean_Gbl_Max*.
 
-#### 2.3.3.2 Local Maximum  
-The local maxima for the dataframes *Ctrl_Mean_Smooth_Norm100* and *RNase_Mean_Smooth_Norm100* were determinded by comparing the protein amount of each fraction position x to the protein amount in the fractions in an neighborhood of n=2. $\qquad [(x-2)][(x-1)][x][(x+1)][(x+2)]\qquad x: fraction position (3\leq x\leq 23)\qquad$ If the protein amount in that fraction is greater or equal to its neighborhood it was defined as a local maximum. For the edge cases $x=2;\quad x=24$ and $x=1;\quad x=25$ the protein amounts in these fractions had to be greater or equal to the protein amounts in the fractions $x=1;\quad x=3;\quad x=4$ and $x=22;\quad x=23;\quad x=25$ and $x=2;\quad x=3$ and $x=23;\quad x=24$. For proteins that had 2 or 3 fractions with the same mass spectrometry value, the mean fraction position was calculated. To distinguish the local from the global peaks the global peaks were subtracted from the local peaks.  
+#### 2.3.3.2 Local Maximum \
+The local maxima for the dataframes *Ctrl_Mean_Smooth_Norm100* and *RNase_Mean_Smooth_Norm100* were determined by comparing the protein amount of each fraction position x to the protein amount in the fractions in a neighborhood of $n = 2$. $\qquad [(x-2)][(x-1)][x][(x+1)][(x+2)]\qquad x: fraction position (3\leq x\leq 23)\qquad$ If the protein amount in that fraction is greater or equal to its neighborhood it was defined as a local maximum. For the edge cases $x=2;\quad x=24$ and $x=1;\quad x=25$ the protein amounts in these fractions had to be greater or equal to the protein amounts in the fractions $x=1;\quad x=3;\quad x=4$ and $x=22;\quad x=23;\quad x=25$ and $x=2;\quad x=3$ and $x=23;\quad x=24$. For proteins that had 2 or 3 fractions with the same mass spectrometry value, the mean fraction position was calculated. To distinguish the local from the global peaks the global peaks were subtracted from the local peaks.  
 The local maxima were stored in the dataframes *Ctrl_Mean_Loc_Max* and *RNase_Mean_Loc_Max*.
 
 
 ## 2.4 Gaussian Fitting
-The Gaussian curve was fitted to the global peak and the largest local peak of each gene in the control and RNase sample. For this the parameters hight *h*, standard deviation *sd* and mean $\mu$ were determined and optimized. $\mu$ describes the fraction position of the global and largest local peak, *sd* and *h* were calculated as follows: $sd =\frac{HWHM}{\sqrt{2*ln(2)}};\qquad h = \frac{MPA}{sd*\sqrt{2\pi}}\qquad$ *HWHM: half width at half maxumum; MPA: maximum protein amount*. The optimal value was defined as a value that minimizes the sum of squares of the differences between the Gaussian curve*(G)* and the smoothed and normalized protein distribution *(p)* ($min(\sum(G-p)^2))$ This was used to calculate the protein amount under the gaussian curve and the overlap of the protein amount for the control and RNase curves. 
+A Gaussian curve was fitted to the global peak and local peak with the highest protein amount of each gene in the control and RNase samples. A Gaussian curve can be describe using the height $h$, standard deviation $\sigma$ and mean $\mu$ as: $f(x) = \frac {h} {\sqrt{2\pi} \cdot \sigma } \cdot e^{-\frac {1} {2} (\frac {x - \mu} {\sigma})^{2}}$. These parameters were first estimated and then optimized. $\mu$ was estimated as the fraction position of the global and largest local peak, $\sigma$ and $h$ were estimated as follows: $\sigma =\frac{HWHM}{\sqrt{2 \cdot ln(2)}};\qquad h = \frac{MPA}{sd \cdot \sqrt{2\pi}}\qquad$ *HWHM: half width at half maximum; MPA: maximum protein amount*. These estimated values were optimized by minimizing the sum of squares of the differences between protein amount values of the Gaussian curve $G$ and the smoothed and normalized protein distribution $p$ ($min(\sum(G-p)^2))$. This was used to calculate the protein amount under the Gaussian curve and the overlap of the Gaussian curves for the control and RNase samples. 
 
 ## 2.5 Selection Criteria for Identification of RNA-Dependent Proteins
-To determine the optimal selection criteria for RNA-dependence multiple parameters were compiled and applyed to a principle component analysis.
+To determine the optimal selection criteria for an RNA-dependent protein multiple parameters were compiled and applied to a principle component analysis.
 
 ### 2.5.1 Defining Selection Criteria
 Following parameters were compiled to determine the optimal selection criteria for defining RNA-dependent proteins.
@@ -147,42 +147,46 @@ All the parameters were stored in the dataframe *Sel_Crit*.
 
   
 ### 2.5.2 Principal Componant Analysis
-Applying a principle component Analysis to the percentage values of the selection criteria the optimal parameters for a shift were defined by reducing the dimensions of the dataframe *Sel_Crit*. Only the variables calculated in percent were used for the PCA for better comparison and the variables regarding main local peaks only serve at determining partially shifting proteins and were therefore not included in the principle component analysis. The non correlating variables (= principle components) were defined as the optimal selection criteria for RNA-dependent proteins and applyed for futher analysis.  
+Applying a principle component analysis to the percentage values of the selection criteria the optimal parameters for an RNA-dependent protein were examined by reducing the dimensions of the dataframe *Sel_Crit*. Only the variables calculated in percent were used for the PCA for better comparison and the variables regarding main local peaks only serve at determining partially shifting proteins and were therefore not included in the principle component analysis. The selection criteria that separate the points the most in the plot of the first two principal components were chosen for further analysis.   
 
 ### 2.5.3 Application of selection criteria  
 
-Based on the PCA four parameters were defined as most important for separating shifting and non shifting proteins.Based on observations and experience we set the following thresholds for an RNA-dependent protein (RDP):
+Based on the PCA four parameters were defined as most important for separating shifting and non shifting proteins. Based on observations and experience we set the following thresholds for an RNA-dependent protein (RDP):
 
   1. Global peak shift of more than **1 fraction**
   2. Protein loss under Ctrl global peak of more than **20 %** after RNase treatment
   3. Protein gain under RNase global peak of more than **20 %** after RNase treatment
-  4. Overlap the gaussian curves of less than **75 %**
+  4. Overlap of the Gaussian curves of less than **75 %**
   
-Furthermore, *partially* RNA-dependent proteins were defined as proteins that either satisfy the first, fourth and second or third criterion for RNA dependence (1. & 4. & (2. | 3.)) or that satisfy the following criteria:
+Furthermore, *partially* RNA-dependent proteins were defined as proteins that satisfy the first and fourth criteria and either the second or third criteria for RNA dependence. More *partially* RNA-dependent proteins were identified using the following criteria: 
 
   1. Fraction shift between global and main local peak positions of more than **1 fraction**
   2. Overlap between the gaussian curves of global and main local peaks of less than **75 %**
   3. Overlap between the gaussian curves of the local peaks of less than **75 %**
   4. Protein gain under main local peak in relation to protein distribution of other sample under the same peak of more than **20 %**
   5. Protein amount at main local peak of more than **8**
-  6. Categorization as **"non RDP"**
+  6. Previous categorization as **"non RDP"**
 
 
 ## 2.6 Further Analysis
-### 2.6.1 k means Clustering
-K means clustering was applied to the principal component analysis for comparison of these clusters with the identified RNA-dependent proteins. An elbow plot was used to identify the optimal number of clusters.  
+### 2.6.1 *k*-means Clustering
+*k*-means clustering was applied to the principal component analysis to compare the resulting clusters with the identified RNA-dependent proteins. An elbow plot was used to identify the optimal number of clusters.  
 
-### 2.6.2 linear Regression    
-Linear regression was applied to the loss of protein amount under the Gaussian curve of the global peak for the control sample and the gain of protein amount under the Gaussian curve of the global peak for the RNase sample. This aimes at identifying proteins with a partial shift.
+### 2.6.2 Linear Regression    
+Linear regression was applied to the loss of protein amount under the Gaussian curve of the global peak for the control sample and the gain of protein amount under the Gaussian curve of the global peak for the RNase sample. This aims at identifying proteins with a partial shift.
 
 ### 2.6.3 Comparison with the RBP2GO Database    
 To evaluate the accuracy of this method, the identified RDPs were compared with the existing RDPs in the RBP2Go Database.
+
 #### 2.6.3.1 Direct comparison  
 In the direct comparison the categories RDP dependent yes or no were plotted in a Biplot.
+
 #### 2.6.3.2 Comparison with RDP2Go-score  
 For more accurate results the in this method identified RDPs were compared to the RDP2Go score.
+
 #### 2.6.3.3 Cluster comparison with T-test  
  By calculating the **mean RBP2GO-score** for each cluster of the k means clustering,the RNA-dependence of a cluster was estimated. Using a two-sided t-Test, the significance of the differences between the mean values were calculated.The H0 and H1 hypotheses were defined as following: H0: The mean values are not significantly different from each other, H1: The mean values are significantly different from each other. 
+
 #### 2.6.3.4 Venn Diagram and Bar Plot  
 For better visualization of the results a Venn Diagram and Bar plot were created.
 
@@ -384,28 +388,28 @@ rm(pca, kmeans, col)
 ## 3.7 Venn Diagram & Bar plot
 
 ```{r Venn diagramm RBPs, echo=F, out.width="50%"}
-library("VennDiagram")
+#library("VennDiagram")
 
-grid.newpage()
+#grid.newpage()
 
-draw.triple.venn(
-  area1 = length(which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial")),   # Our identified RDPs
-  area2 = nrow(Table_HS_RBP),  # RBPs in RBP2GO-Databank
-  area3 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),   # RDPs from the R-Deep-Databank
-  n12 = length(which(rownames(Table_HS_RBP) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))), 
-  n23 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),
-  n13 = length(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))), 
-  n123 = length(which(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ])) %in% which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Table_HS_RBP)))),
-  fill = c("dodgerblue", "darkorange", "red"),
-  lwd = 1,
-  category = c(paste("Our RDPs (", length(which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial")), ")", sep = ""), paste("RBP2GO RBPs (", nrow(Table_HS_RBP), ")", sep =""), paste("R-Deep (", length(which(Table_HS_RBP$R.DeeP_HeLa == "X")), ")", sep = "")),
-  fontfamily = "plain",
-  cat.fontfamily = "plain",
-  cat.fontface = "bold",
-  cat.dist = c(0.09, 0.085, 0.08),
-  cat.pos = c(-25, 24, 150),
-  cat.col = c("dodgerblue", "darkorange", "red")
-)
+#draw.triple.venn(
+  #area1 = length(which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial")),   # Our identified RDPs
+  #area2 = nrow(Table_HS_RBP),  # RBPs in RBP2GO-Databank
+  #area3 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),   # RDPs from the R-Deep-Databank
+  #n12 = length(which(rownames(Table_HS_RBP) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))), 
+  #n23 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),
+  #n13 = length(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))), 
+  #n123 = length(which(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ])) %in% which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Table_HS_RBP)))),
+  #fill = c("dodgerblue", "darkorange", "red"),
+  #lwd = 1,
+  #category = c(paste("Our RDPs (", length(which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial")), ")", sep = ""), paste("RBP2GO RBPs (", nrow(Table_HS_RBP), ")", sep =""), paste("R-Deep (", length(which(Table_HS_RBP$R.DeeP_HeLa == "X")), ")", sep = "")),
+  #fontfamily = "plain",
+  #cat.fontfamily = "plain",
+  #cat.fontface = "bold",
+  #cat.dist = c(0.09, 0.085, 0.08),
+  #cat.pos = c(-25, 24, 150),
+  #cat.col = c("dodgerblue", "darkorange", "red")
+#)
 
 # bar plot
 par(mar=c(1, 3, 1, 7.5))
