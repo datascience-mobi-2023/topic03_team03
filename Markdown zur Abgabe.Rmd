@@ -154,10 +154,10 @@ In the direct comparison the categories RDP dependent yes or no were plotted in 
 For more accurate results the in this method identified RDPs were compared to the RDP2Go score.
 
 #### 2.6.3.3 Cluster comparison with T-test  
- By calculating the **mean RBP2GO-score** for each cluster of the k means clustering,the RNA-dependence of a cluster was estimated. Using a two-sided t-Test, the significance of the differences between the mean values were calculated.The H0 and H1 hypotheses were defined as following: H0: The mean values are not significantly different from each other, H1: The mean values are significantly different from each other. 
+By calculating the **mean RBP2GO-score** for each cluster identified by applying the optimal selection criteria, the RNA-dependence of a cluster was estimated. Using a two-sided t-Test, the significance of the differences between the mean values were calculated.The H0 and H1 hypotheses were defined as following: H0: The mean values are not significantly different from each other, H1: The mean values are significantly different from each other. 
 
-#### 2.6.3.4 Venn Diagram and Bar Plot  
-For better visualization of the results a Venn Diagram and Bar plot were created.
+#### 2.6.3.4 Bar Plot  
+For better visualization of the results a Bar plot were created.
 
 # 3. Results
 ## 3.1 Results of Data Cleanup
@@ -331,24 +331,6 @@ barplot(matrix(c(
   )
 
 ```
-
-
-## 3.8 Bar plot with weird analysis?
-
-```{r}
-#load("Environment_with_RDP.RData")
-
-#col = rep(NA, nrow(Ctrl_RDeep))
-#col[which(Sel_Crit_PCA[, 8] == "left")] = "blue"
-#col[which(Sel_Crit_PCA[, 8] == "right")] = "red"
-#col[which(Sel_Crit_PCA[, 8] == "precipitated")] = "orange"
-#col[which(Sel_Crit_PCA[, 8] == "no")] = "grey"
-
-#plot(Ctrl_Gauss_Fit[, 1], RNase_Gauss_Fit[, 1], pch = 16, col = col, main = "Shifting Behavior", xlab = "Ctrl Gbl Peak Position", ylab = "RNase Gbl Peak Position")
-#legend("topleft", legend = c("left", "right", "precipitated", "no"), pch = 16, col = c("blue", "red", "orange", "grey"))
-#rm(col)
-```
-
 
 
 # 4. Discussion
