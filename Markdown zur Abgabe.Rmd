@@ -11,7 +11,7 @@ fontsize: 11pt
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 load("Environment.RData")
 load("Table_HS_Non_RBP.RData")
 # Environment clearen und dann Neues hinzufügen, mit allen nötigen Dataframes für die Graphen
@@ -194,7 +194,7 @@ For better visualization of the results a Venn Diagram and Bar plot were created
 ## 3.1 Results of Data Cleanup
 Using the data cleanup steps described in the methods, the original dataset *RDeep_HeLa_Interphase* was reduced from 7086 proteins to 5990 Proteins.As described in the Plots of CTCF_HUMAN, the smoothing and normalization steps applied to the dataset were successful.
 
-```{r smoothed and normalized, echo=FALSE, out.width = "50%"}
+```{r smoothed and normalized, echo=FALSE, out.width = "33%"}
 
 # hier muss ich es noch irgendwie hinbekommen, eine Bildcaption für beide Bilder nebeneinander zu erzeugen...
 
@@ -235,7 +235,7 @@ fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T
 
 
 
-```{r shifting behavior, echo=FALSE, out.width="50%"}
+```{r shifting behavior, echo=FALSE, out.width="33%"}
 
 # peak positions und Einfärben nach "left", "right", "precipitated" und "no" shifting
 
@@ -260,14 +260,9 @@ col[which(Sel_Crit[, 25] == "precipitated")] = "orange"
 col[which(Sel_Crit[, 25] == "no")] = "grey"
 
 
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Shifting Behavior", xlab = "PC1", ylab = "PC2")
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Shifting Behavior with all Selection Criteria", xlab = "PC1", ylab = "PC2")
 legend("bottomright", legend = c(paste("left (", length(which(Sel_Crit[, 25] == "left")), ")", sep =""), paste("right (", length(which(Sel_Crit[, 25] == "right")), ")", sep =""), paste("precipitated (", length(which(Sel_Crit[, 25] == "precipitated")), ")", sep =""), paste("no (", length(which(Sel_Crit[, 25] == "no")), ")", sep ="")), pch = 16, col = c("blue", "red", "orange", "grey"))
 
-#  Plot, der die Dichte der Punkteverteilung im Plot durch Farben anzeigt ("rot" = sehr dicht beieinander; "blau" = nicht dicht beieinander)
-
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = densCols(pca$x[, 1], pca$x[, 2], colramp = colorRampPalette(c("blue", "cyan", "green", "yellow", "orange", "red"))), main = "Point Density", xlab = "PC1", ylab = "PC2")
-abline(h = 0, lty =3, col = "grey")
-abline(v = 0, lty = 3, col = "grey")
 
 # shifitng behavior 4 sel. criteria
 
@@ -280,14 +275,9 @@ col[which(Sel_Crit[, 25] == "right")] = "red"
 col[which(Sel_Crit[, 25] == "precipitated")] = "orange"
 col[which(Sel_Crit[, 25] == "no")] = "grey"
 
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Shifting Behavior", xlab = "PC1", ylab = "PC2")
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Shifting Behavior with Optimal Selection Criteria", xlab = "PC1", ylab = "PC2")
 legend("topright", legend = c(paste("left (", length(which(Sel_Crit[, 25] == "left")), ")", sep =""), paste("right (", length(which(Sel_Crit[, 25] == "right")), ")", sep =""), paste("precipitated (", length(which(Sel_Crit[, 25] == "precipitated")), ")", sep =""), paste("no (", length(which(Sel_Crit[, 25] == "no")), ")", sep ="")), pch = 16, col = c("blue", "red", "orange", "grey"))
 
-
-#  Plot, der die Dichte der Punkteverteilung im Plot durch Farben anzeigt ("rot" = sehr dicht beieinander; "blau" = nicht dicht beieinander)
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = densCols(pca$x[, 1], pca$x[, 2], colramp = colorRampPalette(c("blue", "cyan", "green", "yellow", "orange", "red"))), main = "Point Density", xlab = "PC1", ylab = "PC2")
-abline(h = 0, lty =3, col = "grey")
-abline(v = 0, lty = 3, col = "grey")
 ```
 
 
@@ -352,15 +342,7 @@ plot(pca$x[, 1], pca$x[, 2], pch = 16, col = alpha("blue", Sel_Crit[, 27]/100), 
 rm(pca)
 
 
-# Vergleich mit kmeans clustering
-# Elbow plot
-pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
-plot(1:5, c(kmeans(pca$x[,1:2], 1, iter.max = 10, nstart = 1)$tot.withinss,
-            kmeans(pca$x[,1:2], 2, iter.max = 10, nstart = 1)$tot.withinss,
-            kmeans(pca$x[,1:2], 3, iter.max = 10, nstart = 1)$tot.withinss,
-            kmeans(pca$x[,1:2], 4, iter.max = 10, nstart = 1)$tot.withinss,
-            kmeans(pca$x[,1:2], 5, iter.max = 10, nstart = 1)$tot.withinss), type = "b", pch = 19, main = "Elbow Method", xlab = "Number of cluster", ylab = "Total within-cluster sum of squares")
-
+# Vergleich mit kmeans Clustering
 
 # Diagramm
 pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
@@ -385,31 +367,9 @@ rm(pca, kmeans, col)
 ```
 
 
-## 3.7 Venn Diagram & Bar plot
+## 3.7 Bar plot
 
-```{r Venn diagramm RBPs, echo=F, out.width="50%"}
-#library("VennDiagram")
-
-#grid.newpage()
-
-#draw.triple.venn(
-  #area1 = length(which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial")),   # Our identified RDPs
-  #area2 = nrow(Table_HS_RBP),  # RBPs in RBP2GO-Databank
-  #area3 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),   # RDPs from the R-Deep-Databank
-  #n12 = length(which(rownames(Table_HS_RBP) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))), 
-  #n23 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),
-  #n13 = length(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))), 
-  #n123 = length(which(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ])) %in% which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Table_HS_RBP)))),
-  #fill = c("dodgerblue", "darkorange", "red"),
-  #lwd = 1,
-  #category = c(paste("Our RDPs (", length(which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial")), ")", sep = ""), paste("RBP2GO RBPs (", nrow(Table_HS_RBP), ")", sep =""), paste("R-Deep (", length(which(Table_HS_RBP$R.DeeP_HeLa == "X")), ")", sep = "")),
-  #fontfamily = "plain",
-  #cat.fontfamily = "plain",
-  #cat.fontface = "bold",
-  #cat.dist = c(0.09, 0.085, 0.08),
-  #cat.pos = c(-25, 24, 150),
-  #cat.col = c("dodgerblue", "darkorange", "red")
-#)
+```{r Bar plot RBPs, echo=F, out.width="50%"}
 
 # bar plot
 par(mar=c(1, 3, 1, 7.5))
@@ -431,7 +391,7 @@ barplot(matrix(c(
 ```
 
 
-## 3.8 Bar plot with wierd analysis?
+## 3.8 Bar plot with weird analysis?
 
 ```{r}
 #load("Environment_with_RDP.RData")
@@ -450,3 +410,39 @@ barplot(matrix(c(
 
 
 # 4. Discussion
+
+# 5. Appendix
+Point Density
+```{r Appendix Point Density, echo=FALSE, out.width="50%"}
+
+# shifiting behavior PCA all sel. criteria
+pca = prcomp(Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
+
+#  Plot, der die Dichte der Punkteverteilung im Plot durch Farben anzeigt ("rot" = sehr dicht beieinander; "blau" = nicht dicht beieinander)
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = densCols(pca$x[, 1], pca$x[, 2], colramp = colorRampPalette(c("blue", "cyan", "green", "yellow", "orange", "red"))), main = "Point Density", xlab = "PC1", ylab = "PC2")
+abline(h = 0, lty =3, col = "grey")
+abline(v = 0, lty = 3, col = "grey")
+
+# shifitng behavior 4 sel. criteria
+pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
+
+#  Plot, der die Dichte der Punkteverteilung im Plot durch Farben anzeigt ("rot" = sehr dicht beieinander; "blau" = nicht dicht beieinander)
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = densCols(pca$x[, 1], pca$x[, 2], colramp = colorRampPalette(c("blue", "cyan", "green", "yellow", "orange", "red"))), main = "Point Density", xlab = "PC1", ylab = "PC2")
+abline(h = 0, lty =3, col = "grey")
+abline(v = 0, lty = 3, col = "grey")
+```
+
+Elbow Plot
+```{r Appendix Elbow Plot, echo=FALSE, out.width="50%"}
+# Vergleich mit kmeans clustering
+# Elbow plot
+pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
+plot(1:5, c(kmeans(pca$x[,1:2], 1, iter.max = 10, nstart = 1)$tot.withinss,
+            kmeans(pca$x[,1:2], 2, iter.max = 10, nstart = 1)$tot.withinss,
+            kmeans(pca$x[,1:2], 3, iter.max = 10, nstart = 1)$tot.withinss,
+            kmeans(pca$x[,1:2], 4, iter.max = 10, nstart = 1)$tot.withinss,
+            kmeans(pca$x[,1:2], 5, iter.max = 10, nstart = 1)$tot.withinss), type = "b", pch = 19, main = "Elbow Method", xlab = "Number of cluster", ylab = "Total within-cluster sum of squares")
+```
+
+
