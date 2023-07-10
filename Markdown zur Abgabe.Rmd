@@ -22,6 +22,7 @@ load("Table_HS_Non_RBP.RData")
 
 
 ***
+\newpage
 
 # 1. Introduction
 
