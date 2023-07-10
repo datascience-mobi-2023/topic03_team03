@@ -2693,8 +2693,36 @@ abline(v = 0, lty = 3, col = "grey")
 
 rm(pca)
 ```
+###### 5.3.3 Linear Regression
 
-###### 5.3.3 Cluster Comparison with t-Test
+Using linear regression we test how well our selection criteria can predict the RBP2GO score:
+
+```{r}
+fit <- lm(Sel_Crit[, 27] ~ Sel_Crit[, 1] + Sel_Crit[, 13] + Sel_Crit[, 9] + Sel_Crit[, 11])
+
+summary(fit)$r.squared
+```
+
+Seems like not very well :(
+
+###### 5.3.4 t-Test
+
+```{r}
+mean(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 27], na.rm = T)
+mean(Sel_Crit[which(Sel_Crit[, 26] == "partial"), 27], na.rm = T)
+mean(Sel_Crit[which(Sel_Crit[, 26] == "no"), 27], na.rm = T)
+
+sd(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 27], na.rm = T)
+sd(Sel_Crit[which(Sel_Crit[, 26] == "partial"), 27], na.rm = T)
+sd(Sel_Crit[which(Sel_Crit[, 26] == "no"), 27], na.rm = T)
+
+t.test(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 27], Sel_Crit[which(Sel_Crit[, 26] == "no"), 27])$p.value
+t.test(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 27], Sel_Crit[which(Sel_Crit[, 26] == "partial"), 27])$p.value
+t.test(Sel_Crit[which(Sel_Crit[, 26] == "partial"), 27], Sel_Crit[which(Sel_Crit[, 26] == "no"), 27])$p.value
+```
+
+
+###### 5.3.5 Cluster Comparison with t-Test
 
 Maybe we can go back to our k-means clustering. By calculating the **mean RBP2GO-score** for each cluster, we can estimate how RNA-dependent a cluster is. 
 Furthermore, we can use a t-Test to calculate how significant the differences between the mean values are (H0: *The mean values are not significantly different from each other*, H1: *The mean values are significantly different from each other* (two-sided t-test)):
@@ -2740,7 +2768,7 @@ legend("topright",
 rm(pca, kmeans, col)
 ```
 
-###### 5.3.4 Venn-Diagram & Barplot
+###### 5.3.6 Venn-Diagram & Barplot
 
 Maybe this is not the right approach. Let us just compare the number of RDPs and non RDPs between the datasets using venn diagrams:
 
