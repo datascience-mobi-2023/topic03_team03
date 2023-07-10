@@ -347,9 +347,10 @@ plot(1:5, c(kmeans(pca$x[,1:2], 1, iter.max = 10, nstart = 1)$tot.withinss,
             kmeans(pca$x[,1:2], 5, iter.max = 10, nstart = 1)$tot.withinss), type = "b", pch = 19, main = "Elbow Method", xlab = "Number of cluster", ylab = "Total within-cluster sum of squares")
 ```
 
-### 2.6.1 *k*-means Clustering
+# *k*-means Clustering
 *k*-means clustering was applied to the principal component analysis to compare the resulting clusters with the identified RNA-dependent proteins. An elbow plot was used to identify the optimal number of clusters. 
-## 3.6 Comparison with RBP2GO score - kmeans clustering
+
+# Comparison with RBP2GO score - kmeans clustering
 
 ```{r Vergleich unserer Werte mit dem RBP2Go score, echo = F, out.width="50%"}
 #Vergleich unserer Werte mit dem RBP2Go score
