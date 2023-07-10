@@ -52,32 +52,6 @@ After testing for reproducibility and deleting unreliable values, the arithmetic
 ### 2.2.4 Normalization and Standard Error
 This step was executed solely for better graphical representation. At first, the rows of the dataframes *RNase_RDeep* and *Ctrl_RDeep* were normalized to a sum of 100. This data was stored in the dataframes *Ctrl_Norm100* and *RNase_Norm100*. Following the Normalization, the standerd deviation was calculated and saved as *Ctrl_Norm100_sd* and *RNase_Norm100_sd*.
 
-### 2.2.5 Data Exploration
-To check the effectiveness of the previously undertaken cleanup steps and determine the following steps, the data was visualized in its various stages. Two new dataframes were created which incorporated the mean into normalization called *Ctrl_Mean_Norm100* and *RNase_Mean_Norm100*. For example, the gene CTCF_HUMAN can be plotted with and without the normalization:
-
-```{r Data Exploration, echo=FALSE, out.width = "50%"}
-
-
-# hier muss ich es noch irgendwie hinbekommen, eine Bildcaption für beide Bilder nebeneinander zu erzeugen...
-
-
-
-### not normalized
-plot(1:25, Ctrl_Mean[which(rownames(Ctrl_RDeep)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN Not Normalized")
-lines(1:25, RNase_Mean[which(rownames(RNase_RDeep)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
-grid()
-legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
-
-### normalized
-Ctrl_Mean_Norm100 = as.data.frame(sapply(Ctrl_Mean, function(i){(i/apply(Ctrl_Mean,1,sum))*100}))
-RNase_Mean_Norm100 = as.data.frame(sapply(RNase_Mean, function(i){(i/apply(RNase_Mean,1,sum))*100}))
-
-plot(1:25, Ctrl_Mean_Norm100[which(rownames(Ctrl_RDeep)==c("CTCF_HUMAN")),],type="l",lwd=3,col="green",xlab="Fractions",ylab="Relative Protein Amount",main="CTCF_HUMAN Normalized", ylim=c(0,25))
-lines(1:25, RNase_Mean_Norm100[which(rownames(RNase_RDeep)==c("CTCF_HUMAN")),], type="l",lwd=3,col="red")
-grid()
-legend("topright",legend=c("Control","RNase"),col=c("green","red"),bg="white",lwd=2)
-```
-
 ## 2.3 Smoothing and Determination of Maxima
 
 ### 2.3.1 Smoothing the Data
