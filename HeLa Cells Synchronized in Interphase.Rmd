@@ -2693,6 +2693,7 @@ abline(v = 0, lty = 3, col = "grey")
 
 rm(pca)
 ```
+
 ###### 5.3.3 Linear Regression
 
 Using linear regression we test how well our selection criteria can predict the RBP2GO score:
@@ -3739,7 +3740,7 @@ But you can also specify the arguments to your liking:
 ## To-Do
   # ggplot Unterstützung
 
-Gene_Plotter <- function(gene.name, col = c("green", "red", "dodgerblue", "darkorange"), Ctrl = T, RNase = T, Gbl.Max = T, Loc.Max = T, Gauss = T, conf = T, grid = T, Type = "Smooth and Norm" #, "Norm", "Smooth", "Raw", "Compare"
+Gene_Plotter <- function(gene.name, col = c("green", "red", "dodgerblue", "darkorange"), Ctrl = T, RNase = T, Gbl.Max = T, Loc.Max = T, Gauss = T, conf = T, Legend = T, grid = T, Type = "Smooth and Norm" #, "Norm", "Smooth", "Raw", "Compare"
                           ) {
 library(scales)
   
@@ -3821,7 +3822,7 @@ curve(RNase_Gauss_Fit[which(rownames(RNase_Mean)==gene.name[j]), 3]*(1/(RNase_Ga
   
   curve(Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),9]*(1/(Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),8]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((x-Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),7])/Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),8])^2), add = T, lwd = 3, col = alpha(col[4], 0.5))  
   }
-
+if(Legend == T) {
 par(xpd=T)
 
 legend("topright",inset = c(-0.23,0), 
@@ -3829,7 +3830,7 @@ legend("topright",inset = c(-0.23,0),
        pch = c(if(Ctrl == T) {NA}, if(RNase == T) {NA}, if(Gauss == T & Ctrl == T) {c(NA, NA)}, if(Gauss == T & RNase == T) {c(NA, NA)}, if(Gbl.Max == T) {21}, if(Loc.Max == T) {24}), 
        lty = c(if(Ctrl == T) {1}, if(RNase == T) {1}, if(Gauss == T & Ctrl == T) {c(1, NA)}, if(Gauss == T & RNase == T) {c(1, NA)}, if(Gbl.Max == T) {NA}, if(Loc.Max == T) {NA}), 
        col = c(if(Ctrl == T) {col[1]}, if(RNase == T) {col[2]}, if(Gauss == T & Ctrl == T) {c(alpha(col[3], 0.5), NA)}, if(Gauss == T & RNase == T) {c(alpha(col[4], 0.5), NA)}, if(Gbl.Max == T) { "black"}, if(Loc.Max == T) {"black"}), 
-       lwd = c(if(Ctrl == T) {3}, if(RNase == T) {3}, if(Gauss == T & Ctrl == T) {c(3, NA)}, if(Gauss == T & RNase == T) {c(3, NA)},  if(Gbl.Max == T) {1.5}, if(Loc.Max == T) {1.5}))
+       lwd = c(if(Ctrl == T) {3}, if(RNase == T) {3}, if(Gauss == T & Ctrl == T) {c(3, NA)}, if(Gauss == T & RNase == T) {c(3, NA)},  if(Gbl.Max == T) {1.5}, if(Loc.Max == T) {1.5}))}
 }
 #####################################################################
 
@@ -3862,13 +3863,14 @@ segments(unlist(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]),]),
 if(RNase == T) {
 lines(1:25, RNase_Mean_Norm100[which(rownames(RNase_Mean)==gene.name[j]),], type="l", lwd=3, col = col[2])}
 
+if(Legend == T) {
 par(xpd=T)
 
 legend("topright",inset = c(-0.25,0), 
        legend = c(if(Ctrl == T) {"Control"}, if(RNase == T) {"RNase"}, if(Gbl.Max == T) {"Global"}, if(Loc.Max == T) {"Local"}), 
        lty = c(if(Ctrl == T) {1}, if(RNase == T) {1}, if(Gbl.Max == T) {2}, if(Loc.Max == T) {3}), 
        col = c(if(Ctrl == T) {col[1]}, if(RNase == T) {col[2]}, if(Gbl.Max == T) {"grey"}, if(Loc.Max == T) {"grey"}), 
-       lwd = c(if(Ctrl == T) {3}, if(RNase == T) {3}, if(Gbl.Max == T) {3}, if(Loc.Max == T) {3}))
+       lwd = c(if(Ctrl == T) {3}, if(RNase == T) {3}, if(Gbl.Max == T) {3}, if(Loc.Max == T) {3}))}
 }
 ########################################################
 
@@ -3937,6 +3939,7 @@ points(RNase_Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),which(!is.na
 if(Gbl.Max == T & RNase == T) {
 points(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]), ], RNase_Mean_Smooth[which(rownames(RNase_Mean)==gene.name[j]),unlist(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]),])], pch=21, col="black", bg=col[2], cex=1.5)}
 
+if(Legend == T) {
 par(xpd=T)
 
 legend("topright",inset = c(-0.23,0), 
@@ -3944,7 +3947,7 @@ legend("topright",inset = c(-0.23,0),
        pch = c(if(Ctrl == T) {NA}, if(RNase == T) {NA}, if(Gbl.Max == T) {21}, if(Loc.Max == T) {24}), 
        lty = c(if(Ctrl == T) {1}, if(RNase == T) {1}, if(Gbl.Max == T) {NA}, if(Loc.Max == T) {NA}), 
        col = c(if(Ctrl == T) {col[1]}, if(RNase == T) {col[2]}, if(Gbl.Max == T) { "black"}, if(Loc.Max == T) {"black"}), 
-       lwd = c(if(Ctrl == T) {3}, if(RNase == T) {3}, if(Gbl.Max == T) {1.5}, if(Loc.Max == T) {1.5}))
+       lwd = c(if(Ctrl == T) {3}, if(RNase == T) {3}, if(Gbl.Max == T) {1.5}, if(Loc.Max == T) {1.5}))}
 }
 ######################################################
 
@@ -3993,13 +3996,14 @@ segments(unlist(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]),]),
 if(RNase == T) {
 lines(1:25, RNase_Mean[which(rownames(RNase_Mean)==gene.name[j]),], type="l", lwd=3, col = col[2])}
 
+if(Legend == T) {
 par(xpd=T)
 
 legend("topright",inset = c(-0.25,0), 
        legend = c(if(Ctrl == T) {"Control"}, if(RNase == T) {"RNase"}, if(Gbl.Max == T) {"Global"}, if(Loc.Max == T) {"Local"}), 
        lty = c(if(Ctrl == T) {1}, if(RNase == T) {1}, if(Gbl.Max == T) {2}, if(Loc.Max == T) {3}), 
        col = c(if(Ctrl == T) {col[1]}, if(RNase == T) {col[2]}, if(Gbl.Max == T) {"grey"}, if(Loc.Max == T) {"grey"}), 
-       lwd = c(if(Ctrl == T) {3}, if(RNase == T) {3}, if(Gbl.Max == T) {3}, if(Loc.Max == T) {3}))
+       lwd = c(if(Ctrl == T) {3}, if(RNase == T) {3}, if(Gbl.Max == T) {3}, if(Loc.Max == T) {3}))}
 }
 #################################################
   
@@ -4073,6 +4077,7 @@ curve(Ctrl_Gauss_Fit[which(rownames(Ctrl_Mean)==gene.name[j]), 3]*(1/(Ctrl_Gauss
 if(Gauss == T & RNase == T) {
 curve(RNase_Gauss_Fit[which(rownames(RNase_Mean)==gene.name[j]), 3]*(1/(RNase_Gauss_Fit[which(rownames(RNase_Mean)==gene.name[j]), 2]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((x-RNase_Gauss_Fit[which(rownames(RNase_Mean)==gene.name[j]), 1])/RNase_Gauss_Fit[which(rownames(RNase_Mean)==gene.name[j]), 2])^2), add = T, lwd = 3, col = alpha(col[4], 0.5))}
 
+if(Legend == T) {
 par(xpd=T)
 
 legend("topright",inset = c(-0.39,0), 
@@ -4080,7 +4085,7 @@ legend("topright",inset = c(-0.39,0),
        pch = c(if(Ctrl == T) {c(NA, NA)}, if(RNase == T) {c(NA, NA)}, if(Ctrl == T) {NA}, if(RNase == T) {NA}, if(Gauss == T & Ctrl == T) {NA}, if(Gauss == T & RNase == T) {NA}, if(Gbl.Max == T) {21}, if(Loc.Max == T) {24}),
        lty = c(if(Ctrl == T) {c(1, NA)}, if(RNase == T) {c(1, NA)}, if(Ctrl == T) {1}, if(RNase == T) {1}, if(Gauss == T & Ctrl == T) {1}, if(Gauss == T & RNase == T) {1}, if(Gbl.Max == T) {NA}, if(Loc.Max == T) {NA}), 
        col = c(if(Ctrl == T) {c(col[1], NA)}, if(RNase == T) {c(col[2], NA)}, if(Ctrl == T) {alpha(col[1], 0.3)}, if(RNase == T) {alpha(col[2], 0.3)}, if(Gauss == T & Ctrl == T) {alpha(col[3], 0.5)}, if(Gauss == T & RNase == T) {alpha(col[4], 0.5)}, if(Gbl.Max == T) { "black"}, if(Loc.Max == T) {"black"}), 
-       lwd = c(if(Ctrl == T) {c(3,NA)}, if(RNase == T) {c(3,NA)}, if(Ctrl == T) {3}, if(RNase == T) {3}, if(Gauss == T & Ctrl == T) {3}, if(Gauss == T & RNase == T) {3}, if(Gbl.Max == T) {1.5}, if(Loc.Max == T) {1.5}))
+       lwd = c(if(Ctrl == T) {c(3,NA)}, if(RNase == T) {c(3,NA)}, if(Ctrl == T) {3}, if(RNase == T) {3}, if(Gauss == T & Ctrl == T) {3}, if(Gauss == T & RNase == T) {3}, if(Gbl.Max == T) {1.5}, if(Loc.Max == T) {1.5}))}
 }
 #####################################################
 
@@ -4092,4 +4097,6 @@ legend("topright",inset = c(-0.39,0),
 Let us see if it works!
 ```{r gene plotter}
 Gene_Plotter(c(rownames(Sel_Crit[which(Sel_Crit[, 27] == max(unlist(Sel_Crit[, 27]), na.rm = T)), ]), "CTCF_HUMAN", "RTCA_HUMAN"))
+
+Gene_Plotter("CTCF_HUMAN", Type = c("Smooth and Norm", "Norm", "Smooth", "Raw", "Compare"), Legend = F)
 ```
