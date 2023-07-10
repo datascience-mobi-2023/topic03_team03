@@ -34,7 +34,6 @@ load("Table_HS_Non_RBP.RData")
 # 2. Material and Methods
 
 ## 2.1 Referenced Data
-The protocol for an RDeep-Screen was performed on HeLa cells synchronized in interphase (Caudron-Herger *et al.*, 2020). This resulted in the dataframe *RDeep_HeLa_Interphase* in which the protein amounts per fraction were stored.
 
 ## 2.2 Data Cleanup
 The original dataset *RDeep_HeLa_Interphase* was split into two separate data frames containing the values for all RNase fractions and Control fractions respectively. These dataframes were named *RNase_RDeep* and *Ctrl_RDeep* respectively. The following steps were performed on those two dataframes.
@@ -43,45 +42,40 @@ The original dataset *RDeep_HeLa_Interphase* was split into two separate data fr
 All rows containing only zeros, of which there were five, were deleted from the dataframes. No NA values were found.
 
 ### 2.2.2 Pearson Correlation
-To test the reproducibility of the dataset the pearson correlation was used. In seven cases one of the three replicates contained only zeros. These values were replaced in *RNase_RDeep* and *Ctrl_RDeep* with NA values as determining the pearson correlation with these replicates would have been impossible. In five rows, two out of the three replicates contained only zeros. These genes were removed completely from the dataframes.
+To test the reproducibility of the dataframe the pearson correlation was used. In seven cases one of the three replicates contained only zeros. These values were replaced in with NA values as determining the pearson correlation with these replicates would have been impossible. In five rows, two out of the three replicates contained only zeros. These genes were removed completely from the dataframes.
 The pearson correlation $r$ was computed via the following formula using the sample size $N$, individual sample points $x_i$ and $y_i$, sample means $\bar{x}$ and $\bar{y}$ and standard deviations $s_x$ and $s_y$: $r = \frac{1}{N-1} \sum_{i = 1}^{N}{\frac{x_i - \bar{x}}{s_x} \frac{y_i - \bar{y}}{s_y}}$
 
-The calculated correlation coefficients were saved in the dataframes *Ctrl_Cor* and *RNase_Cor*. For each gene and condition this resulted in three correlation coefficients with a determined threshold of over or equal to 0.95. The genes for which all three correlation coefficients fell below that threshold were removed from the dataframes *RNase_RDeep* and *Ctrl_RDeep*. This applied to 1335 genes. If two out of three correlation coefficients were under 0.95 the replicate associated with both coefficients was replaced with NA. This was the case for 2594 replicates. Lastly, if one out of three correlation coefficients was below the determined threshold the replicate with the lower value in the other associated correlation coefficient was replaced with NA. This method was performed on 2285 replicates.
+For each gene and condition this resulted in three correlation coefficients with a determined threshold of over or equal to 0.95. The genes for which all three correlation coefficients fell below that threshold were removed from both dataframes. This applied to 1335 genes. If two out of three correlation coefficients were under 0.95 the replicate associated with both coefficients was replaced with NA. This was the case for 2594 replicates. Lastly, if one out of three correlation coefficients was below the determined threshold the replicate with the lower value in the other associated correlation coefficient was replaced with NA. This method was performed on 2285 replicates.
 
 ### 2.2.3 Mean of Replicates
-After testing for reproducibility and deleting unreliable values, the arithmetic mean for all triplicates was calculated. This was conducted on the in 2.2.2 modified dataframes *RNase_RDeep* and *Ctrl_RDeep* creating two new datasets called *Ctrl_Mean* and *RNase_Mean*.
+After testing for reproducibility and deleting unreliable values, the arithmetic mean for all triplicates was calculated.
 
-### 2.2.4 Normalization and Standard Error
-This step was executed solely for better graphical representation. At first, the rows of the dataframes *RNase_RDeep* and *Ctrl_RDeep* were normalized to a sum of 100. This data was stored in the dataframes *Ctrl_Norm100* and *RNase_Norm100*. Following the Normalization, the standerd deviation was calculated and saved as *Ctrl_Norm100_sd* and *RNase_Norm100_sd*.
 
 ## 2.3 Smoothing and Determination of Maxima
 
 ### 2.3.1 Smoothing the Data
-To determine the global and local maxima of the dataset, the dataframes *Ctrl_Mean* and *RNase_Mean* first had to be smoothed. Otherwise the determination would be influenced by outliers and wrong peaks.  
+To determine the global and local maxima of the dataset, the dataframes *Ctrl_Mean* and *RNase_Mean* were smoothed seperatly.Otherwise the determination would be influenced by outliers and wrong peaks.  
 For this the mean value of each fraction was calculated in a defined neighborhood of one with the following formula for all fractions between 2 and 24: $y = \frac{f(x-1)+f(x)+f(x-1)}{3}$    
 *$x$: fraction position ($2  \leq  x  \leq  24$);* $\quad$ *$f(x)$: mass spectrometry value at fraction position $x$;* $\quad$ *$y$: smoothed value for fraction position $x$*  
   
 For fraction position 1 and 25 the mean of fraction 1 and 2 and 24 and 25 were calculated: $y = \frac{f(1)+f(2)}{2};\qquad y = \frac{f(24)+f(25)}{2}$  
 *$f(1), f(2)$ and $f(24), f(25)$: mass spectrometry value at fraction positions 1, 2 and 24, 25;* $\quad$ *$y$: smoothed value for fraction position 1 and 25*  
   
-This was done separately for the *Ctrl_Mean* dataframe and the *RNase_Mean* dataframe and the smoothed data was then stored in following two dataframes: *Ctrl_Mean_Smooth* and *RNase_Mean_Smooth*.
 
 ### 2.3.2 Normalization of Smoothed data
-For comparison of the different protein amounts, the dataframes *Ctrl_Mean_Smooth* and *RNase_Mean_Smooth* had to be normalized to 100. This means, that the sum of the mass spectrometry data in the different fractions for one protein had to add up to 100: $y = \frac{f(x)}{\sum_{x=1}^{25}f(x)} *100$     
-*$x$: fraction position ($1 \leq x \leq 25$);* $\quad$ *$f(x)$: mass spectrometry value at fraction position $x$;* $\quad$ *$y$: normalized value at fraction position $x$*  
+For comparison of the different protein amounts, the smoothed dataframes had to be normalized to 100. This means, that the sum of the mass spectrometry data in the different fractions for one protein had to add up to 100: $y = \frac{f(x)}{\sum_{x=1}^{25}f(x)} *100$     
+*$x$: fraction position ($1 \leq x \leq 25$);* $\quad$ *$f(x)$: mass spectrometry value at fraction position $x$;* $\quad$ *$y$: normalized value at fraction position $x$* In the Following the standerd deviation was calculated.
   
-The normalized and smoothed values were then stored in the dataframes *Ctrl_Mean_Smooth_Norm100* and *RNase_Mean_Smooth_Norm100*.  
 
 ### 2.3.3 Determination of Maxima
 If a protein is an RNA-dependent protein, the maximum amount of protein is in a significantly different fraction in the RNase sample compared to the Control sample. To determine for which proteins this is the case, the global and local maxima of the mass spectrometry data was determined.  
   
 #### 2.3.3.1 Global Maxima \
-The global maximum for the dataframes *Ctrl_Mean_Smooth_Norm100* and *RNase_Mean_Smooth_Norm100* were determined by identifying the fraction of the largest mass spectrometry value in each dataframe. For proteins that had 2 or 3 fractions with the same mass spectrometry value, the mean fraction position was calculated.  
-The global maxima were stored in the dataframes *Ctrl_Mean_Gbl_Max* and *RNase_Mean_Gbl_Max*.
+The global maximum for the smoothed and normalized dataframes were determined by identifying the fraction of the largest mass spectrometry value in each dataframe. For proteins that had 2 or 3 fractions with the same mass spectrometry value, the mean fraction position was calculated.  
 
 #### 2.3.3.2 Local Maximum \
-The local maxima for the dataframes *Ctrl_Mean_Smooth_Norm100* and *RNase_Mean_Smooth_Norm100* were determined by comparing the protein amount of each fraction position x to the protein amount in the fractions in a neighborhood of $n = 2$. $\qquad [(x-2)][(x-1)][x][(x+1)][(x+2)]\qquad x: fraction position (3\leq x\leq 23)\qquad$ If the protein amount in that fraction is greater or equal to its neighborhood it was defined as a local maximum. For the edge cases $x=2;\quad x=24$ and $x=1;\quad x=25$ the protein amounts in these fractions had to be greater or equal to the protein amounts in the fractions $x=1;\quad x=3;\quad x=4$ and $x=22;\quad x=23;\quad x=25$ and $x=2;\quad x=3$ and $x=23;\quad x=24$. For proteins that had 2 or 3 fractions with the same mass spectrometry value, the mean fraction position was calculated. To distinguish the local from the global peaks the global peaks were subtracted from the local peaks.  
-The local maxima were stored in the dataframes *Ctrl_Mean_Loc_Max* and *RNase_Mean_Loc_Max*.
+The local maxima for the smoothed and normalized dataframes were determined by comparing the protein amount of each fraction position x to the protein amount in the fractions in a neighborhood of $n = 2$. $\qquad [(x-2)][(x-1)][x][(x+1)][(x+2)]\qquad x: fraction position (3\leq x\leq 23)\qquad$ If the protein amount in that fraction is greater or equal to its neighborhood it was defined as a local maximum. For the edge cases $x=2;\quad x=24$ and $x=1;\quad x=25$ the protein amounts in these fractions had to be greater or equal to the protein amounts in the fractions $x=1;\quad x=3;\quad x=4$ and $x=22;\quad x=23;\quad x=25$ and $x=2;\quad x=3$ and $x=23;\quad x=24$. For proteins that had 2 or 3 fractions with the same mass spectrometry value, the mean fraction position was calculated. To distinguish the local from the global peaks the global peaks were subtracted from the local peaks.  
+
 
 
 ## 2.4 Gaussian Fitting
@@ -118,8 +112,6 @@ between the gaussian curves of the main local peaks of Ctrl and RNase.
 
 A *shift* is a character variable that states whether a protein is *left*, *right*, *non* shifting or *precipitated* and is defined as following:
 $\Delta\mu = \mu(Ctrl)-\mu(RNase)> +1$: right shift; $\Delta\mu = \mu(Ctrl)-\mu(RNase)< -1$: left shift; $-1 \leq\Delta\mu = \mu(Ctrl)-\mu(RNase)\leq +1$: no shift;$\mu(Ctrl)>24 \lor \mu(RNase)>24$: precipitated  
-
-All the parameters were stored in the dataframe *Sel_Crit*.
 
   
 ### 2.5.2 Principal Componant Analysis
@@ -187,7 +179,7 @@ Gene_Plotter("CTCF_HUMAN", Gauss=F, conf=F, Type="Smooth and Norm")
 
 ## 3.2 Shifting behavior
 
-In *Fig.* the shifting behavior is represented by plotting the global peak positions of the Control and RNase samples. Non-shifting proteins are lying an a line through the origin with a slope of 1, meaning the global peak position of the control and RNase samples are the same. Left-shifting proteins lie under this line, meaning the global peak of the Control sample is in a higher fraction position than the global peak of the RNase sample. Right-shifting proteins lie above this line, meaning the global peak of the RNase sample is in a larger fraction position than the global peak of the control sample. Precipitated proteins are proteins with a global position in the the 25th fraction. Most proteins (around 5153) are non-shifting. The largest group of shifting proteins are left-shifting (782 proteins)
+In *Fig.* the shifting behavior is represented by plotting the global peak positions of the Control and RNase samples. Non-shifting proteins are lying  on a line through the origin with a slope of 1, meaning the global peak position of the control and RNase samples are the same. Left-shifting proteins lie under this line, meaning the global peak of the Control sample is in a higher fraction position than the global peak of the RNase sample. Right-shifting proteins lie above this line, meaning the global peak of the RNase sample is in a larger fraction position than the global peak of the control sample. Precipitated proteins are proteins with a global position in the the 25th fraction. Most proteins (around 5153) are non-shifting. The largest group of shifting proteins are left-shifting (782 proteins), and only 41 proteins are right shifting. 14 Proteins are precipitated, meaning
 
 
 ```{r shifting behavior, echo=FALSE, out.width="33%"}
@@ -360,14 +352,11 @@ barplot(matrix(c(
 
 # 4. Discussion
 
-# 5. References
-Caudron-Herger, M., Wassmer, E., Nasa, I., Schultz, A.-S., Seiler, J., Kettenbach, A.N., and Diederichs, S. (2020). Identification, quantification and bioinformatic analysis of RNA-dependent proteins by RNase treatment and density gradient ultracentrifugation using R-DeeP. Nature Protocols *15*, 1338-1370.
-
-# 6. Appendix
+# 5. Appendix
 
 shifting behavior PCA
 
-```{r Appendix PCA, echo=FALSE}
+```{r}
 # shifiting behavior PCA all sel. criteria
 pca = prcomp(Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
 
