@@ -1,6 +1,10 @@
 ---
 title: "Proteome-wide Screen for RNA-dependent Proteins in HeLa Cells Synchronized
   in Interphase"
+header-includes:
+   - \usepackage[default]{inter}
+   - \usepackage[T1]{fontenc}
+mainfont: Inter
 author: "Hannah Brehm, Johann Blakytny, Kira Hoffmann, Viktor Bonin"
 date: "XX.07.2023"
 output:
@@ -11,7 +15,7 @@ fontsize: 11pt
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, dev="cairo_pdf")
 load("Environment.RData")
 load("Table_HS_Non_RBP.RData")
 # Environment clearen und dann Neues hinzufügen, mit allen nötigen Dataframes für die Graphen
@@ -240,7 +244,7 @@ barplot(matrix(c(
   col = c("red", "orange", "yellow", "green"), 
   legend.text = c(paste("Non RDPs (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))), ")", sep = ""), 
                   paste("RDPs (only RBP2GO) (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_RBP))), ")", sep = ""), 
-                  paste("RDPS (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))), ")", sep = ""), 
+                  paste("RDPs (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))), ")", sep = ""), 
                   paste("New RDPs (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))), ")", sep = "")),
   )
 
@@ -302,6 +306,29 @@ r^2 Wert:
 
 
 # 4. Discussion
+
+In conclusion, the protein distributions provided by Caudron-Herger *et al.* for HeLa cells synchronized in interphase were cleaned and normalized. Next, the arithmetic mean for each fraction was calculated (see Fig. X). The averaged protein distributions were smoothed using a three fraction sliding window and normalized (see Fig. X).  
+Smoothing was performed to help with global and local peak determination, because the averaged protein distributions were sometimes too jagged for unambiguous peak determination.  
+However, this approach has three problems: First, single fraction peaks result, upon smoothing, in multiple peaks in neighboring fractions. This problem was fixed by calculating the mean fraction position for multiple peaks.  
+Second, smoothing sometimes caused the fraction position of peaks to change. But this did not have an influence on analysis, because the change in fraction position between raw and smoothed data was very slight (no more than one fraction position).  
+Third, smoothing changed the protein amount which sometimes led to global peaks in the raw data becoming local peaks in the smoothed data and *vice versa*. This problem was partly fixed by defining additional selection criteria for partial RDPs using the main local peaks. 
+  
+Next, the shifting behavior of the proteins was analyzed. There were 782 left-shifting, 41 right-shifting, 5153 non-shifting and 14 precipitated proteins.  
+  
+PCA helped with determining the optimal selection criteria for an RDP, namely the fraction shift between global peaks, the overlap of the Gaussian curves fitted to the global peaks and the protein amount gained or lost under the global peaks (see Fig. X). Two rough clusters emerged from plotting the first two principal components. Most of the non-shifting proteins were in the left cluster and most of the left-shifting proteins were in the right cluster.  
+  
+Application of the selection criteria resulted in 539 RDPs, 274 partial RDPs and 5177 non RDPs (see Fig. X). 
+These results compare well with the genes’ identified shifting behavior (823 are categorized as either right- or left-shifting compared to 813 identified RDPs and partial RDPs). Note that this does not mean that the individual genes are classified in the same way (compare Fig. (Biplot rocket) with Fig. (“Our RDPs and non RDPs” rocket)). 
+
+The identified RDPs are only partly comparable to the RBP2GO databank (see Fig. “Our RDPs and non RDPs” and “RBP2GO RDPs and non RDPs”).  
+The mean for the RBP2GO scores for the identified RDPs was 21.5, compared to 13.6 for partial RDPs and 6.6 for non RDPs. The differences in the mean values between RDPs, partial RDPs and non RDPs are all highly significant based on p-values calculated using a two-sided Welch two-sample t-test. It is noticeable that the p-value of the t-test for the difference between the mean values of the RBP2GO score of RDPs and non RDPs is by most the smallest ($p(RDPs, \ non \ RDPs) = 8.5 \cdot 10^{-54}$ compared to ($p(RDPs, \ partial \ RDPs) = 8.2 \cdot 10^{-10}$ and ($p(non \ RDPs, \ partial \ RDPs) = 2.0 \cdot 10^{-12}$). But these findings are of limited use because the RBP2GO score was calculated very differently from the analysis presented here.  
+This is also illustrated by the finding that multivariant linear regression applied to the four optimal selection criteria was not able to accurately predict the RBP2GO score (based on an $R^{2}$ value of 0.17). So, if there is a relation between these selection criteria and the RBP2GO score it is not linear.   
+
+The identification of RDPs was also compared directly to the RBP2GO databank: 2231 genes (37 % of all analyzed genes) which are categorized as non RDPs are also listed as non RBPs in the RBP2GO databank. In addition, 631 (11 %) RDPs are included as RBPs in RBP2GO. Yet, nearly half of the analyzed genes (2946 (49 %)) are categorized as non RDPs, even though RBP2GO lists them as RBPs. Moreover, 182 (3 %) RDPs are listed as non RBPs in the RBP2GO databank.   
+
+The differences between these results and the RBP2GO databank are possible the result of different human cell lineages used, different stages of the cell cycle analyzed and different experimental methods. Notably, the analysis presented here is only for HeLa cells synchronized in interphase, so poor comparability with the RBP2GO databank, which draws its data from many orthogonal experiments, should be expected.   
+The results of this analysis show that, besides the experimental methods used, bioinformatic analysis also plays a major role in determining the RNA-dependency of proteins. Multiple independent analysis of the same data could make results more reliable and more comparable with different studies.  
+The analysis of RNA-dependency in numerous different ways will undoubtably have important implications in the diagnosis and therapy of many human diseases.
 
 # 5. Appendix
 
@@ -375,7 +402,7 @@ plot(1:5, c(kmeans(pca$x[,1:2], 1, iter.max = 10, nstart = 1)$tot.withinss,
 
 # Comparison with RBP2GO score - kmeans clustering
 
-```{r Vergleich unserer Werte mit dem RBP2Go score, echo = F, out.width="50%"}
+```{r Vergleich unserer Werte mit dem RBP2Go scores, echo = F, out.width="50%"}
 #Vergleich unserer Werte mit dem RBP2Go score
 library(scales)
 
