@@ -17,7 +17,7 @@ Contributors: Hannah Brehm, Johann Blakytny, Kira Hoffmann, Viktor Bonin
 
 ### About
 
-In this project we investigated the RNA-dependency of different proteins. To do this we analyzed the protein distributions of 7086 genes from HeLa cells synchronized in interphase (data provided by Caudron-Herger *et al.*) (see **Figure 1**). The protein distributions were obtained from untreated and RNase-treated cell lysates separated on a sucrose gradient into 25 fractions and examined by mass spectrometry.
+In this project, we investigated RNA dependence in the human proteome by analyzing the protein distributions of 7086 genes in HeLa cells synchronized in interphase (data provided by Caudron-Herger *et al.*, 2020) (see **Figure 1**). The protein distributions were obtained from untreated and RNase-treated cell lysates separated on a sucrose gradient into 25 fractions and examined by mass spectrometry.
 
 
 ### Files on this Repository
