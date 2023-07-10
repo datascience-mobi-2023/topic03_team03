@@ -183,30 +183,9 @@ Gene_Plotter("CTCF_HUMAN", Gauss=F, conf = F, Type="Smooth")
 Gene_Plotter("CTCF_HUMAN", Gauss=F, conf=F, Type="Smooth and Norm")
 ```
 
+## 3.2 Shifting behavior
 
-## 3.2 Results of PCA
-
-```{r Principal components, echo=FALSE, out.width="50%"}
-
-# PCA applied to all precentage selection criteria
-pca = prcomp(Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
-
-library(ggplot2)
-library(factoextra)
-
-fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T, col.ind = Sel_Crit[,25])
-
-# PCA applied to following 4 selection criteria: delta_Gbl_mu_%**, **Ctrl_Gbl_prt_prop_%**, **RNase_Gbl_prt_prop_%** and **Gbl_overlap_%
-pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
-library(ggplot2)
-library(factoextra)
-
-fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T, col.ind = Sel_Crit[,25])
-
-```
-
-## 3.3 Shifting behavior
-
+In *Fig.* the shifting behavior is represented by plotting the global peak positions of the Control and RNase samples. Non-shifting proteins are lying an a line through the origin with a slope of 1, meaning the global peak position of the control and RNase samples are the same. Left-shifting proteins lie under this line, meaning the global peak of the Control sample is in a higher fraction position than the global peak of the RNase sample. Right-shifting proteins lie above this line, meaning the global peak of the RNase sample is in a larger fraction position than the global peak of the control sample. Precipitated proteins are proteins with a global position in the the 25th fraction. Most proteins (around 5153) are non-shifting. The largest group of shifting proteins are left-shifting (782 proteins)
 
 
 ```{r shifting behavior, echo=FALSE, out.width="33%"}
@@ -222,35 +201,29 @@ col[which(Sel_Crit[, 25] == "no")] = "grey"
 plot(Ctrl_Gauss_Fit[, 1], RNase_Gauss_Fit[, 1], pch = 16, col = col, main = "Shifting Behavior", xlab = "Ctrl Gbl Peak Position", ylab = "RNase Gbl Peak Position")
 legend("topleft", legend = c(paste("left (", length(which(Sel_Crit[, 25] == "left")), ")", sep =""), paste("right (", length(which(Sel_Crit[, 25] == "right")), ")", sep =""), paste("precipitated (", length(which(Sel_Crit[, 25] == "precipitated")), ")", sep =""), paste("no (", length(which(Sel_Crit[, 25] == "no")), ")", sep ="")), pch = 16, col = c("blue", "red", "orange", "grey"))
 
-# shifiting behavior PCA all sel. criteria
+
+
+```
+
+## 3.3 Results of PCA
+In *Fig.* the PCA was applied to all selection criteria and the first and second principle component were plotted against each other. The different shifting behaviors of the proteins are shown by using different colors. Left shifting proteins (blue) spread along the following four selection criteria: delta_Glb_mu_%, Ctrl_Gbl_prt_porp_% and RNase_Gbl_prt_prop_% and negative Gbl_overlap_%. Therefore, they are defined as optimal selection criteria. To illustrate this, *Fig.* shows the first and second principle component plotted against each other of an analysis of the optimal selection criteria. This shows clearly, that  shifting proteins spread in the direction of delta_Glb_mu_%, Ctrl_Gbl_prt_porp_% and RNase_Gbl_prt_prop_%, whereas nonshifting proteins spread in the direction of the delta_Glb_mu_%. Since delta_Gbl_mu_% is the longest vector, it has the most influence on the shifting behavior.
+
+```{r Principal components, echo=FALSE, out.width="50%"}
+
+# PCA applied to all precentage selection criteria
 pca = prcomp(Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
 
-# Plot, der die Datenpunkte je nach Kategorisierung in "left", "right" und "no" shift einfärbt 
-col = rep(NA, nrow(Sel_Crit))
+library(ggplot2)
+library(factoextra)
 
-col[which(Sel_Crit[, 25] == "left")] = "blue"
-col[which(Sel_Crit[, 25] == "right")] = "red"
-col[which(Sel_Crit[, 25] == "precipitated")] = "orange"
-col[which(Sel_Crit[, 25] == "no")] = "grey"
+fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T, col.ind = Sel_Crit[,25], pointshape =16, pointsize =1.5, palette = c("blue", "gray", "orange", "red"))
 
-
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Shifting Behavior with all Selection Criteria", xlab = "PC1", ylab = "PC2")
-legend("bottomright", legend = c(paste("left (", length(which(Sel_Crit[, 25] == "left")), ")", sep =""), paste("right (", length(which(Sel_Crit[, 25] == "right")), ")", sep =""), paste("precipitated (", length(which(Sel_Crit[, 25] == "precipitated")), ")", sep =""), paste("no (", length(which(Sel_Crit[, 25] == "no")), ")", sep ="")), pch = 16, col = c("blue", "red", "orange", "grey"))
-
-
-# shifitng behavior 4 sel. criteria
-
+# PCA applied to following 4 selection criteria: delta_Gbl_mu_%**, **Ctrl_Gbl_prt_prop_%**, **RNase_Gbl_prt_prop_%** and **Gbl_overlap_%
 pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
+library(ggplot2)
+library(factoextra)
 
-#  Plot, der die Datenpunkte je nach Kategorisierung in "left", "right" und "no" shift einfärbt 
-col = rep(NA, nrow(Sel_Crit))
-col[which(Sel_Crit[, 25] == "left")] = "blue"
-col[which(Sel_Crit[, 25] == "right")] = "red"
-col[which(Sel_Crit[, 25] == "precipitated")] = "orange"
-col[which(Sel_Crit[, 25] == "no")] = "grey"
-
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Shifting Behavior with Optimal Selection Criteria", xlab = "PC1", ylab = "PC2")
-legend("topright", legend = c(paste("left (", length(which(Sel_Crit[, 25] == "left")), ")", sep =""), paste("right (", length(which(Sel_Crit[, 25] == "right")), ")", sep =""), paste("precipitated (", length(which(Sel_Crit[, 25] == "precipitated")), ")", sep =""), paste("no (", length(which(Sel_Crit[, 25] == "no")), ")", sep ="")), pch = 16, col = c("blue", "red", "orange", "grey"))
+fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T, col.ind = Sel_Crit[,25], pointshape=16, pointsize=1.5, palette = c("blue", "gray", "orange", "red"))
 
 ```
 
@@ -386,6 +359,42 @@ barplot(matrix(c(
 # 4. Discussion
 
 # 5. Appendix
+
+shifting behavior PCA
+
+```{r}
+# shifiting behavior PCA all sel. criteria
+pca = prcomp(Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
+
+# Plot, der die Datenpunkte je nach Kategorisierung in "left", "right" und "no" shift einfärbt 
+col = rep(NA, nrow(Sel_Crit))
+
+col[which(Sel_Crit[, 25] == "left")] = "blue"
+col[which(Sel_Crit[, 25] == "right")] = "red"
+col[which(Sel_Crit[, 25] == "precipitated")] = "orange"
+col[which(Sel_Crit[, 25] == "no")] = "grey"
+
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Shifting Behavior with all Selection Criteria", xlab = "PC1", ylab = "PC2")
+legend("bottomright", legend = c(paste("left (", length(which(Sel_Crit[, 25] == "left")), ")", sep =""), paste("right (", length(which(Sel_Crit[, 25] == "right")), ")", sep =""), paste("precipitated (", length(which(Sel_Crit[, 25] == "precipitated")), ")", sep =""), paste("no (", length(which(Sel_Crit[, 25] == "no")), ")", sep ="")), pch = 16, col = c("blue", "red", "orange", "grey"))
+
+
+# shifitng behavior 4 sel. criteria
+
+pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
+
+#  Plot, der die Datenpunkte je nach Kategorisierung in "left", "right" und "no" shift einfärbt 
+col = rep(NA, nrow(Sel_Crit))
+col[which(Sel_Crit[, 25] == "left")] = "blue"
+col[which(Sel_Crit[, 25] == "right")] = "red"
+col[which(Sel_Crit[, 25] == "precipitated")] = "orange"
+col[which(Sel_Crit[, 25] == "no")] = "grey"
+
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Shifting Behavior with Optimal Selection Criteria", xlab = "PC1", ylab = "PC2")
+legend("topright", legend = c(paste("left (", length(which(Sel_Crit[, 25] == "left")), ")", sep =""), paste("right (", length(which(Sel_Crit[, 25] == "right")), ")", sep =""), paste("precipitated (", length(which(Sel_Crit[, 25] == "precipitated")), ")", sep =""), paste("no (", length(which(Sel_Crit[, 25] == "no")), ")", sep ="")), pch = 16, col = c("blue", "red", "orange", "grey"))
+```
+
+
 Point Density
 ```{r Appendix Point Density, echo=FALSE, out.width="50%"}
 
