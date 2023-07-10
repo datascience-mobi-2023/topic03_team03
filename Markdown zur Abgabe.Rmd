@@ -59,9 +59,7 @@ To determine the global and local maxima of the dataset, the dataframes *Ctrl_Me
 For this the mean value of each fraction was calculated in a defined neighborhood of one with the following formula for all fractions between 2 and 24: $y = \frac{f(x-1)+f(x)+f(x-1)}{3}$    
 *$x$: fraction position ($2  \leq  x  \leq  24$);* $\quad$ *$f(x)$: mass spectrometry value at fraction position $x$;* $\quad$ *$y$: smoothed value for fraction position $x$*  
   
-For fraction position 1 and 25 the mean of fraction 1 and 2 and 24 and 25 were calculated: $y = \frac{f(1)+f(2)}{2};\qquad y = \frac{f(24)+f(25)}{2}$  
-*$f(1), f(2)$ and $f(24), f(25)$: mass spectrometry value at fraction positions 1, 2 and 24, 25;* $\quad$ *$y$: smoothed value for fraction position 1 and 25*  
-  
+For fraction position 1 and 25 the mean of fraction 1 and 2 as well as 24 and 25 were calculated.
 
 ### 2.3.2 Normalization of Smoothed data
 For comparison of the different protein amounts, the smoothed dataframes had to be normalized to 100. This means, that the sum of the mass spectrometry data in the different fractions for one protein had to add up to 100: $y = \frac{f(x)}{\sum_{x=1}^{25}f(x)} *100$     
@@ -69,14 +67,13 @@ For comparison of the different protein amounts, the smoothed dataframes had to 
   
 
 ### 2.3.3 Determination of Maxima
-If a protein is an RNA-dependent protein, the maximum amount of protein is in a significantly different fraction in the RNase sample compared to the Control sample. To determine for which proteins this is the case, the global and local maxima of the mass spectrometry data was determined.  
+If a protein is an RNA-dependent protein, the maximum amount of protein is in a different fraction in the RNase sample compared to the Control sample. To determine for which proteins this is the case, the global and local maxima of the mass spectrometry data was determined.  
   
 #### 2.3.3.1 Global Maxima \
 The global maximum for the smoothed and normalized dataframes were determined by identifying the fraction of the largest mass spectrometry value in each dataframe. For proteins that had 2 or 3 fractions with the same mass spectrometry value, the mean fraction position was calculated.  
 
 #### 2.3.3.2 Local Maximum \
-The local maxima for the smoothed and normalized dataframes were determined by comparing the protein amount of each fraction position x to the protein amount in the fractions in a neighborhood of $n = 2$. $\qquad [(x-2)][(x-1)][x][(x+1)][(x+2)]\qquad x: fraction position (3\leq x\leq 23)\qquad$ If the protein amount in that fraction is greater or equal to its neighborhood it was defined as a local maximum. For the edge cases $x=2;\quad x=24$ and $x=1;\quad x=25$ the protein amounts in these fractions had to be greater or equal to the protein amounts in the fractions $x=1;\quad x=3;\quad x=4$ and $x=22;\quad x=23;\quad x=25$ and $x=2;\quad x=3$ and $x=23;\quad x=24$. For proteins that had 2 or 3 fractions with the same mass spectrometry value, the mean fraction position was calculated. To distinguish the local from the global peaks the global peaks were subtracted from the local peaks.  
-
+The local maxima for the smoothed and normalized dataframes were determined by comparing the protein amount of each fraction position x to the protein amount in the fractions in a neighborhood of $n = 2$. If the protein amount in that fraction is greater or equal to its neighborhood it was defined as a local maximum. For the edge cases fraction positions 2 and 25 as well as 1 and 25 the protein amounts had to be greater or equal to the protein amounts in the fractions 1,3 and 4 and fractions 22, 23,25 as well as fractions 2 and 3 and fractions 23 and 24. For proteins that had 2 or 3 fractions with the same mass spectrometry value, the mean fraction position was calculated. To distinguish the local from the global peaks the global peaks were subtracted from the local peaks.  
 
 
 ## 2.4 Gaussian Fitting
