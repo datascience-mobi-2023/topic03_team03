@@ -164,11 +164,11 @@ For more accurate results the in this method identified RDPs were compared to th
  By calculating the **mean RBP2GO-score** for each cluster of the k means clustering,the RNA-dependence of a cluster was estimated. Using a two-sided t-Test, the significance of the differences between the mean values were calculated.The H0 and H1 hypotheses were defined as following: H0: The mean values are not significantly different from each other, H1: The mean values are significantly different from each other. 
 
 #### 2.6.3.4 Venn Diagram and Bar Plot  
-For better visualization of the results a Venn Diagram and Bar plot were created.
+For better visualization of the results, a Venn Diagram and Bar plot were created.
 
 # 3. Results
-## 3.1 Results of Data Cleanup
-Using the data cleanup steps described in the methods, the original dataset *RDeep_HeLa_Interphase* was reduced from 7086 proteins to 5990 Proteins.As described in the Plots of CTCF_HUMAN, the smoothing and normalization steps applied to the dataset were successful.
+## 3.1 Results of Data Cleanup and Gaussian Fitting
+After performing all data cleanup steps, the original dataset *RDeep_HeLa_Interphase* was reduced from 7086 proteins to 5990 Proteins. As can be exemplarily observed in the plots of "CTCF_HUMAN" below, the smoothing steps, normalization steps and the Gaussian Fitting applied to the dataset were successful.
 
 ```{r smoothed and normalized, echo=FALSE, out.width = "33%"}
 
@@ -183,11 +183,15 @@ Gene_Plotter("CTCF_HUMAN", Gauss=F, conf = F, Type="Smooth")
 
 ### smoothed and normalized
 Gene_Plotter("CTCF_HUMAN", Gauss=F, conf=F, Type="Smooth and Norm")
+
+### Gaussian fitted
+Gene_Plotter("CTCF_HUMAN")
 ```
 
 ## 3.2 Shifting behavior
 
-In *Fig.* the shifting behavior is represented by plotting the global peak positions of the Control and RNase samples. Non-shifting proteins are lying an a line through the origin with a slope of 1, meaning the global peak position of the control and RNase samples are the same. Left-shifting proteins lie under this line, meaning the global peak of the Control sample is in a higher fraction position than the global peak of the RNase sample. Right-shifting proteins lie above this line, meaning the global peak of the RNase sample is in a larger fraction position than the global peak of the control sample. Precipitated proteins are proteins with a global position in the the 25th fraction. Most proteins (around 5153) are non-shifting. The largest group of shifting proteins are left-shifting (782 proteins)
+In *Fig.*, the shifting behavior is represented by plotting the global peak positions of the Control against those of the RNase samples. Non-shifting proteins lie an a straight line through the origin with a slope of 1, signifying equal positions of both global peaks. Left-shifting proteins lie below this line, meaning the global peak of the Control sample is in a higher fraction position than the global peak of the RNase sample. Right-shifting proteins lie above this line, indicating a larger fraction position of the control sample 
+meaning the global peak of the RNase sample is in a larger fraction position than the global peak of the control sample. Precipitated proteins are proteins with a global position in the 24th or the 25th fraction. Most proteins are non-shifting (5153 proteins). The largest group of shifting proteins are left-shifting (782 proteins).
 
 
 ```{r shifting behavior, echo=FALSE, out.width="33%"}
@@ -208,7 +212,7 @@ legend("topleft", legend = c(paste("left (", length(which(Sel_Crit[, 25] == "lef
 ```
 
 ## 3.3 Results of PCA
-In *Fig.* the PCA was applied to all selection criteria and the first and second principle component were plotted against each other. The different shifting behaviors of the proteins are shown by using different colors. Left shifting proteins (blue) spread along the following four selection criteria: delta_Glb_mu_%, Ctrl_Gbl_prt_porp_% and RNase_Gbl_prt_prop_% and negative Gbl_overlap_%. Therefore, they are defined as optimal selection criteria. To illustrate this, *Fig.* shows the first and second principle component plotted against each other of an analysis of the optimal selection criteria. This shows clearly, that  shifting proteins spread in the direction of delta_Glb_mu_%, Ctrl_Gbl_prt_porp_% and RNase_Gbl_prt_prop_%, whereas nonshifting proteins spread in the direction of the delta_Glb_mu_%. Since delta_Gbl_mu_% is the longest vector, it has the most influence on the shifting behavior.
+In *Fig.* the PCA was applied to all selection criteria and the first and second principle component were plotted against each other. The different shifting behaviors of the proteins are shown by using different colors. Left shifting proteins (blue) spread along the following four selection criteria: delta_Glb_mu_%, Ctrl_Gbl_prt_porp_% and RNase_Gbl_prt_prop_% and negative Gbl_overlap_%. Therefore, they are defined as optimal selection criteria. To illustrate this, *Fig.* shows the first and second principle component plotted against each other of an analysis of the optimal selection criteria. This shows that shifting proteins spread in the direction of delta_Glb_mu_%, Ctrl_Gbl_prt_porp_% and RNase_Gbl_prt_prop_%, whereas nonshifting proteins spread in the direction of the delta_Glb_mu_%. Since delta_Gbl_mu_% is the longest vector, it has the most influence on the shifting behavior.
 
 ```{r Principal components, echo=FALSE, out.width="50%"}
 
@@ -228,31 +232,40 @@ library(factoextra)
 fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T, col.ind = Sel_Crit[,25], pointshape=16, pointsize=1.5, palette = c("blue", "gray", "orange", "red"))
 
 ```
+## 3.4 Application of selection criteria 
 
+Global % local!!!
 
-## 3.4 Linear Regression
-
-r^2 Wert: 0.6809688
-
-```{r linear regression, echo=F, out.width="50%"}
-# linear regression
-col = rep(NA, nrow(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), ]))
-col[which(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 26] == "yes")] = "blue"
-col[which(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 26] == "partial")] = "orange"
-col[which(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 26] == "no")] = "grey"
-
-plot(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 9], Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 11], col = col, pch = 16, xlab = "Ctrl_Gbl_prt_prop", ylab = "RNase_Gbl_prt_prop")
-
-fit <- lm(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 9] ~ Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 11])
-
-curve(fit$coefficients[2]*x + fit$coefficients[1], lwd = 3, col = "blue", add = T)
-
-```
-
+(ggf. k means clustering um zu zeigen dass unsere thresholds gut gewählt sind)
 
 ## 3.5 Comparison with the RBP2GO Database
 
-```{r comparision with RBP2Go Database, echo =F, out.width="50%"}
+Comparing the RDPs identified via our presented analysis with the RDPs classified as such in the RBP2GO database, 631 proteins were identified as RDPs in both analyses, 2946 proteins were listed as RDPs in the database but were not identified as RDPs in our performed analysis, and 182 proteins which we determined as RDPs are not classified as such on the RBP2Go database (see *Fig.*).
+
+```{r Bar plot RBPs, echo=F, out.width="50%"}
+
+# bar plot
+par(mar=c(1, 3, 1, 7.5))
+barplot(matrix(c(
+  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))),
+  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_RBP))),
+  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))),
+  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))),
+  rep(NA, 4)),
+  nrow = 4),
+  axes = F,
+  col = c("red", "orange", "yellow", "green"), 
+  legend.text = c(paste("Non RDPs (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))), ")", sep = ""), 
+                  paste("RDPs (only RBP2GO) (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_RBP))), ")", sep = ""), 
+                  paste("RDPS (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))), ")", sep = ""), 
+                  paste("New RDPs (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))), ")", sep = "")),
+  )
+
+```
+
+Next, an analysis was performed on the spread of the proteins classified as RDPs on RBP2GO when plotted on the same PCs as in our analysis. As depicted in *Fig.*, the RBP2GO-classified RDPs distribute homogenously across the two clusters with no clear observable trend. 
+
+```{r comparison with RBP2Go Database, echo =F, out.width="50%"}
 
 #n für die 4 ausgewählten Selektionskriterien
 pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
@@ -277,7 +290,9 @@ rm(pca, col)
 ```
 
 
-## 3.6 Comparison with RBP2GO score - kmeans clustering
+## 3.6 Comparison with RBP2GO score 
+
+=>Was ist mit den Proteinen mit hohem RBP2GO? Sind die wenigstens alle "richtig" klassifiziert?
 
 ```{r Vergleich unserer Werte mit dem RBP2Go score, echo = F, out.width="50%"}
 #Vergleich unserer Werte mit dem RBP2Go score
@@ -291,71 +306,18 @@ plot(pca$x[, 1], pca$x[, 2], pch = 16, col = alpha("blue", Sel_Crit[, 27]/100), 
 rm(pca)
 
 
-# Vergleich mit kmeans Clustering
-
-# Diagramm
-pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
-
-kmeans = kmeans(pca$x, 2, iter.max = 10, nstart = 1)
-
-col = rep(NA, nrow(Sel_Crit))
-col[which(kmeans$cluster == 1)] = "blue"
-col[which(kmeans$cluster == 2)] = "red"
-
-par(mar=c(4, 4, 4, 11), xpd=F)
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "k-Means Clustering (n = 2)", xlab = "PC1", ylab = "PC2")
-par(xpd=T)
-legend("topright", 
-       inset = c(-0.49,0), 
-       legend = c(paste("Cluster 1 (", length(which(kmeans$cluster == 1)), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit[which(kmeans$cluster == 1), 27], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit[which(kmeans$cluster == 1), 27], na.rm = T)/sqrt(length(which(kmeans$cluster == 1))), 2), ")", sep = ""), paste("Cluster 2 (", length(which(kmeans$cluster == 2)), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit[which(kmeans$cluster == 2), 27], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit[which(kmeans$cluster == 2), 27], na.rm = T)/sqrt(length(which(kmeans$cluster == 2))), 2), ")", sep = ""), "", paste("p(1&2) = ", signif(t.test(Sel_Crit[which(kmeans$cluster == 1), 27], Sel_Crit[which(kmeans$cluster == 2), 27], alternative = "two.sided")$p.value, 3), sep = "")), 
-       pch = 16, 
-       col = c("blue", NA, "red", NA, NA, NA))
-
-rm(pca, kmeans, col)
-
 ```
 
 
-## 3.7 Bar plot
+## 3.7 Linear Regression
 
-```{r Bar plot RBPs, echo=F, out.width="50%"}
+r^2 Wert: 
 
-# bar plot
-par(mar=c(1, 3, 1, 7.5))
-barplot(matrix(c(
-  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))),
-  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_RBP))),
-  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))),
-  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))),
-  rep(NA, 4)),
-  nrow = 4),
-  axes = F,
-  col = c("red", "orange", "yellow", "green"), 
-  legend.text = c(paste("Non RDPs (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))), ")", sep = ""), 
-                  paste("RDPs (only RBP2GO) (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_RBP))), ")", sep = ""), 
-                  paste("RDPS (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))), ")", sep = ""), 
-                  paste("New RDPs (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))), ")", sep = "")),
-  )
+```{r linear regression, echo=F, out.width="50%"}
+# linear regression
+
 
 ```
-
-
-## 3.8 Bar plot with weird analysis?
-
-```{r}
-#load("Environment_with_RDP.RData")
-
-#col = rep(NA, nrow(Ctrl_RDeep))
-#col[which(Sel_Crit_PCA[, 8] == "left")] = "blue"
-#col[which(Sel_Crit_PCA[, 8] == "right")] = "red"
-#col[which(Sel_Crit_PCA[, 8] == "precipitated")] = "orange"
-#col[which(Sel_Crit_PCA[, 8] == "no")] = "grey"
-
-#plot(Ctrl_Gauss_Fit[, 1], RNase_Gauss_Fit[, 1], pch = 16, col = col, main = "Shifting Behavior", xlab = "Ctrl Gbl Peak Position", ylab = "RNase Gbl Peak Position")
-#legend("topleft", legend = c("left", "right", "precipitated", "no"), pch = 16, col = c("blue", "red", "orange", "grey"))
-#rm(col)
-```
-
 
 
 # 4. Discussion
@@ -433,4 +395,48 @@ plot(1:5, c(kmeans(pca$x[,1:2], 1, iter.max = 10, nstart = 1)$tot.withinss,
             kmeans(pca$x[,1:2], 5, iter.max = 10, nstart = 1)$tot.withinss), type = "b", pch = 19, main = "Elbow Method", xlab = "Number of cluster", ylab = "Total within-cluster sum of squares")
 ```
 
+## 3.8 Bar plot with weird analysis?
 
+```{r}
+#load("Environment_with_RDP.RData")
+
+#col = rep(NA, nrow(Ctrl_RDeep))
+#col[which(Sel_Crit_PCA[, 8] == "left")] = "blue"
+#col[which(Sel_Crit_PCA[, 8] == "right")] = "red"
+#col[which(Sel_Crit_PCA[, 8] == "precipitated")] = "orange"
+#col[which(Sel_Crit_PCA[, 8] == "no")] = "grey"
+
+#plot(Ctrl_Gauss_Fit[, 1], RNase_Gauss_Fit[, 1], pch = 16, col = col, main = "Shifting Behavior", xlab = "Ctrl Gbl Peak Position", ylab = "RNase Gbl Peak Position")
+#legend("topleft", legend = c("left", "right", "precipitated", "no"), pch = 16, col = c("blue", "red", "orange", "grey"))
+#rm(col)
+```
+
+## 3.5 Comparison to k means clustering 
+
+Inkl. overlap of k means with our own selection criteria (Änderungen: 5.3.3, 5.3.4)
+
+```{r comparison to k means clustering, echo =F, out.width="50%"}
+# Vergleich mit kmeans Clustering
+
+# Diagramm
+pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
+
+kmeans = kmeans(pca$x, 2, iter.max = 10, nstart = 1)
+
+col = rep(NA, nrow(Sel_Crit))
+col[which(kmeans$cluster == 1)] = "blue"
+col[which(kmeans$cluster == 2)] = "red"
+
+par(mar=c(4, 4, 4, 11), xpd=F)
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "k-Means Clustering (n = 2)", xlab = "PC1", ylab = "PC2")
+par(xpd=T)
+legend("topright", 
+       inset = c(-0.49,0), 
+       legend = c(paste("Cluster 1 (", length(which(kmeans$cluster == 1)), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit[which(kmeans$cluster == 1), 27], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit[which(kmeans$cluster == 1), 27], na.rm = T)/sqrt(length(which(kmeans$cluster == 1))), 2), ")", sep = ""), paste("Cluster 2 (", length(which(kmeans$cluster == 2)), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit[which(kmeans$cluster == 2), 27], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit[which(kmeans$cluster == 2), 27], na.rm = T)/sqrt(length(which(kmeans$cluster == 2))), 2), ")", sep = "")), 
+       pch = 16, 
+       col = c("blue", NA, "red", NA, NA, NA))
+
+rm(pca, kmeans, col)
+
+#, "", paste("p(1&2) = ", signif(t.test(Sel_Crit[which(kmeans$cluster == 1), 27], Sel_Crit[which(kmeans$cluster == 2), 27], alternative = "two.sided")$p.value, 3), sep = "")
+```
