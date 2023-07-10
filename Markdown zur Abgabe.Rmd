@@ -34,6 +34,7 @@ load("Table_HS_Non_RBP.RData")
 # 2. Material and Methods
 
 ## 2.1 Referenced Data
+The protocol for an RDeep-Screen was performed on HeLa cells synchronized in interphase (Caudron-Herger *et al.*, 2020). This resulted in the dataframe *RDeep_HeLa_Interphase* in which the protein amounts per fraction were stored.
 
 ## 2.2 Data Cleanup
 The original dataset *RDeep_HeLa_Interphase* was split into two separate data frames containing the values for all RNase fractions and Control fractions respectively. These dataframes were named *RNase_RDeep* and *Ctrl_RDeep* respectively. The following steps were performed on those two dataframes.
@@ -359,11 +360,14 @@ barplot(matrix(c(
 
 # 4. Discussion
 
-# 5. Appendix
+# 5. References
+Caudron-Herger, M., Wassmer, E., Nasa, I., Schultz, A.-S., Seiler, J., Kettenbach, A.N., and Diederichs, S. (2020). Identification, quantification and bioinformatic analysis of RNA-dependent proteins by RNase treatment and density gradient ultracentrifugation using R-DeeP. Nature Protocols *15*, 1338-1370.
+
+# 6. Appendix
 
 shifting behavior PCA
 
-```{r}
+```{r Appendix PCA, echo=FALSE}
 # shifiting behavior PCA all sel. criteria
 pca = prcomp(Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
 
