@@ -2690,19 +2690,8 @@ points(pca$x[, 1], pca$x[, 2], pch = 16, col = densCols(pca$x[, 1], pca$x[, 2], 
 rm(pca)
 ```
 
-###### 5.2.4 RBP2GO-Score: Linear Regression
 
-Using linear regression we test how well our selection criteria can predict the RBP2GO score:
-
-```{r}
-fit <- lm(Sel_Crit[, 27] ~ Sel_Crit[, 1] + Sel_Crit[, 13] + Sel_Crit[, 9] + Sel_Crit[, 11])
-
-summary(fit)$r.squared
-```
-
-Seems like not very well :(
-
-###### 5.2.5 RBP2GO-Score: t-Test
+###### 5.2.4 RBP2GO-Score: t-Test
 
 We will calculate the **mean RBP2GO score** for each of our RDP groups (RDPs, partial RDPs and non RDPs) and using a two-sided Welch two-sample t-test we can determine if the differences between these means is significant (H0: *The mean values are not significantly different from each other*, H1: *The mean values are significantly different from each other*):
 
@@ -2736,7 +2725,7 @@ t.test(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 27], Sel_Crit[which(Sel_Crit[, 2
 t.test(Sel_Crit[which(Sel_Crit[, 26] == "partial"), 27], Sel_Crit[which(Sel_Crit[, 26] == "no"), 27], alternative = "two.sided")$p.value
 ```
 
-###### 5.2.6 Barplots (& Venn-Diagrams)
+###### 5.2.5 Barplots (& Venn-Diagrams)
 
 Maybe this is not the right approach. Let us just compare the number of RDPs and non RDPs between the datasets using venn diagrams:
 
@@ -2916,7 +2905,47 @@ legend("topright",
 )
 ```
 
-##### 5.3 PCA with Local Peaks
+
+##### 5.3 Linear Regression
+
+We will now test how well of a predictor **binding affinity** is to **binding specificity** for our RDPs. We define binding affinity as the protein amount difference between the Ctrl and RNase samples at the fraction position of the global Ctrl peak and binding specificity as the standard deviation at the global Ctrl peak.
+
+```{r}
+RNase_h = sapply(which(Sel_Crit[, 26] == "yes"), function(n) {RNase_Mean_Smooth_Norm100[n, unlist(round(Ctrl_Mean_Gbl_Max))[n]]})
+
+d_height = Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "yes"), 3] - RNase_h
+
+fit <- lm(Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "yes"), 2] ~ d_height)
+
+col = rep(NA, length(which(Sel_Crit[, 26] == "yes")))
+col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "yes")] = "blue"
+col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "partial")] = "orange"
+col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "no")] = "grey"
+plot(d_height, Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "yes"), 2], col = col, pch = 16, ylab = "Binding Specificity", xlab = "Binding Affinity")
+curve(fit$coefficients[1] + fit$coefficients[2]*x, add = T, lwd = 3, col = "orange")
+legend("topleft", inset = c(0.01, 0.031), legend = c(paste("y = ", round(fit$coefficients[2], 2), "x + ", round(fit$coefficients[1], 2), sep = ""), NA, paste("R² = ", round(summary(fit)$r.squared, 2), sep = "")), box.col = NA)
+```
+
+```{r}
+library("scatterplot3d")
+
+col = rep(NA, nrow(Sel_Crit))
+col[which(Sel_Crit[, 26] == "yes")] = "blue"
+col[which(Sel_Crit[, 26] == "partial")] = "orange"
+col[which(Sel_Crit[, 26] == "no")] = "grey"
+
+plot = scatterplot3d(Sel_Crit[, 27], Sel_Crit[, 1], Sel_Crit[, 11], pch = NA, box = F, grid = F, angle = 45)
+source('http://www.sthda.com/sthda/RDoc/functions/addgrids3d.r')
+addgrids3d(Sel_Crit[, 27], Sel_Crit[, 1], Sel_Crit[, 11], grid = c("xy", "xz", "yz"), angle = 45)
+plot$points3d(Sel_Crit[, 27], Sel_Crit[, 1], Sel_Crit[, 11], pch = 16, col = col)
+
+fit <- lm(Sel_Crit[, 27] ~ Sel_Crit[, 1] + Sel_Crit[, 11])
+plot$plane3d(fit, draw_polygon = T, draw_lines = T, col = c("black"))
+#summary(fit)$r.squared
+```
+
+
+##### 5.4 PCA with Local Peaks
 
 ```{r}
 # 15, 17, 22, 24, 18, 19, 20
@@ -3686,7 +3715,7 @@ rm(col, pca)
 
 Our function `Gene_Plotter` generates plots of protein distributions of specified genes. The default function is:
 
-Gene_Plotter(gene.name, col = c("green", "red", "dodgerblue", "darkorange"), Ctrl = TRUE, RNase = TRUE, Gbl.Max = TRUE, Loc.Max = TRUE, Gauss = TRUE, conf = TRUE, grid = TRUE, Type = "Smooth and Norm")
+Gene_Plotter(gene.name, col = c("green", "red", "dodgerblue", "darkorange"), main = TRUE, ylab = "Relative Protein Amount", xlab = "Protein Fractions", fs = c(1.2, 1, 1), Leg.Size = 1, Leg.Pos = c(0, 0), mar = c(5, 4, 4, 7), Legend = TRUE, Ctrl = TRUE, RNase = TRUE, Gbl.Max = TRUE, Loc.Max = TRUE, Gauss = TRUE, conf = TRUE, grid = TRUE, Type = "Smooth and Norm")
 
 In its most basic form you can just type in the gene name of your gene of interest (e.g. *Gene_Plotter("CTCF_HUMAN")*) and get the normalized and smoothed protein distributions for the Control and RNase samples with global and local peaks and gaussian fitting for each global peak as an output.
 
@@ -3694,6 +3723,14 @@ But you can also specify the arguments to your liking:
 
   * **gene.name**: either just the name of a gene or a vector with multiple gene names (e.g. c("CTCF_HUMAN", "NAT10_HUMAN", "RL32_HUMAN")) (note: different genes are plotted separately)
   * **col**: vector specifying the colors used in the plot (col = c(**Control, RNase, Gauss Control, Gauss RNase**))
+  * **main**: logical argument (TRUE or FALSE) that specifies whether or not the main heading is shown
+  * **ylab**: Text that is displayed on the y-axis
+  * **xlab**: Text that is displayed on the x-axis
+  * **fs**: vector that specifies the font size for the elements of the plot (c(**main Heading, Axis Names, Axis Labels**))
+  * **Leg.Size**: numeric that specifies the size of the legend
+  * **Leg.Pos**: vector that specifies the position of the legend (c(x, y))
+  * **mar**: vector that specifies the margin size (c(bottom, left, top, right))
+  * **Legend**: logical argument (TRUE or FALSE) that specifies whether or not the legend is shown
   * **Ctrl**: logical argument (TRUE or FALSE) that specifies whether or not information regarding the **Control sample** is shown
   * **RNase**: logical argument (TRUE or FALSE) that specifies whether or not information regarding the **RNase sample** is shown
   * **Gbl.Max**: logical argument (TRUE or FALSE) that specifies whether or not **global peaks** are shown
@@ -3707,7 +3744,7 @@ But you can also specify the arguments to your liking:
 ## To-Do
   # ggplot Unterstützung
 
-Gene_Plotter <- function(gene.name, col = c("green", "red", "dodgerblue", "darkorange"), Ctrl = T, RNase = T, Gbl.Max = T, Loc.Max = T, Gauss = T, conf = T, Legend = T, grid = T, Type = "Smooth and Norm" #, "Norm", "Smooth", "Raw", "Compare"
+Gene_Plotter <- function(gene.name, col = c("green", "red", "dodgerblue", "darkorange"), main = T, ylab = "Relative Protein Amount", xlab = "Protein Fractions", fs = c(1.2, 1, 1), Leg.Size =  1, Leg.Pos = c(0, 0), mar = c(5, 4, 4, 7), Legend = T, Ctrl = T, RNase = T, Gbl.Max = T, Loc.Max = T, Gauss = T, conf = T, grid = T, Type = "Smooth and Norm" #, "Norm", "Smooth", "Raw", "Compare"
                           ) {
 library(scales)
   
@@ -3717,12 +3754,15 @@ plots = sapply(seq(1, length(Type), 1), function (k) {
   
 ###################### Smoothed and Normalized ######################
 if(Type[k] == "Smooth and Norm" & (Ctrl == T | RNase == T)) {
-par(mar=c(5, 4, 4, 7), xpd=F)
+par(mar=mar, xpd=F)
   
-plot(1:25, rep(NA, 25),xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(gene.name[j], "(Smoothed and Normalized)"), ylim=c(0, 1.1 * max(
+plot(1:25, rep(NA, 25),xlab=xlab,ylab=ylab,main = if(main == T) {paste(gene.name[j], "(Smoothed and Normalized)")}, ylim=c(0, 1.1 * max(
   if(Ctrl == T) {max(Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
-  if(RNase == T) {max(RNase_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])}
-  )))
+  if(RNase == T) {max(RNase_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])})),
+  cex.main = fs[1],
+  cex.lab = fs[2],
+  cex.axis = fs[3]
+  )
 
 if(grid == T) {grid()}
 
@@ -3790,9 +3830,9 @@ curve(RNase_Gauss_Fit[which(rownames(RNase_Mean)==gene.name[j]), 3]*(1/(RNase_Ga
   curve(Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),9]*(1/(Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),8]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((x-Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),7])/Mean_Loc_Max[which(rownames(RNase_Mean)==gene.name[j]),8])^2), add = T, lwd = 3, col = alpha(col[4], 0.5))  
   }
 if(Legend == T) {
-par(xpd=T)
+par(xpd=T, cex = Leg.Size)
 
-legend("topright",inset = c(-0.23,0), 
+legend("topright",inset = c(-0.23,0) - Leg.Pos, 
        legend = c(if(Ctrl == T) {"Control"}, if(RNase == T) {"RNase"}, if(Gauss == T & Ctrl == T) {c("Gauss", "Control")}, if(Gauss == T & RNase == T) {c("Gauss", "RNase")}, if(Gbl.Max == T) {"Global"}, if(Loc.Max == T) {"Local"}), 
        pch = c(if(Ctrl == T) {NA}, if(RNase == T) {NA}, if(Gauss == T & Ctrl == T) {c(NA, NA)}, if(Gauss == T & RNase == T) {c(NA, NA)}, if(Gbl.Max == T) {21}, if(Loc.Max == T) {24}), 
        lty = c(if(Ctrl == T) {1}, if(RNase == T) {1}, if(Gauss == T & Ctrl == T) {c(1, NA)}, if(Gauss == T & RNase == T) {c(1, NA)}, if(Gbl.Max == T) {NA}, if(Loc.Max == T) {NA}), 
@@ -3804,11 +3844,15 @@ legend("topright",inset = c(-0.23,0),
 ###################### Normalized ######################
 if(Type[k] == "Norm" & (Ctrl == T | RNase == T)) {
   
-par(mar=c(5, 4, 4, 7), xpd=F)
+par(mar=mar, xpd=F)
 
-plot(1:25, rep(NA, 25),xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(gene.name[j], "(Normalized)"), ylim=c(0, 1.1 * max(
+plot(1:25, rep(NA, 25),xlab=xlab,ylab=ylab,main=if(main == T) {paste(gene.name[j], "(Normalized)")}, ylim=c(0, 1.1 * max(
   if(Ctrl == T) {max(Ctrl_Mean_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
-  if(RNase == T) {max(RNase_Mean_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])})))
+  if(RNase == T) {max(RNase_Mean_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])})),
+  cex.main = fs[1],
+  cex.lab = fs[2],
+  cex.axis = fs[3]
+  )
 
 if(grid == T) {grid()}
 
@@ -3831,9 +3875,9 @@ if(RNase == T) {
 lines(1:25, RNase_Mean_Norm100[which(rownames(RNase_Mean)==gene.name[j]),], type="l", lwd=3, col = col[2])}
 
 if(Legend == T) {
-par(xpd=T)
+par(xpd=T, cex = Leg.Size)
 
-legend("topright",inset = c(-0.25,0), 
+legend("topright",inset = c(-0.25,0) - Leg.Pos, 
        legend = c(if(Ctrl == T) {"Control"}, if(RNase == T) {"RNase"}, if(Gbl.Max == T) {"Global"}, if(Loc.Max == T) {"Local"}), 
        lty = c(if(Ctrl == T) {1}, if(RNase == T) {1}, if(Gbl.Max == T) {2}, if(Loc.Max == T) {3}), 
        col = c(if(Ctrl == T) {col[1]}, if(RNase == T) {col[2]}, if(Gbl.Max == T) {"grey"}, if(Loc.Max == T) {"grey"}), 
@@ -3844,11 +3888,15 @@ legend("topright",inset = c(-0.25,0),
 ###################### Smoothed ######################
 if(Type[k] == "Smooth" & (Ctrl == T | RNase == T)) {
   
-par(mar=c(5, 4, 4, 7), xpd=F)
+par(mar=mar, xpd=F)
   
-plot(1:25, rep(NA, 25),xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(gene.name[j], "(Smoothed)"), ylim=c(0, 1.1 * max(
+plot(1:25, rep(NA, 25),xlab=xlab,ylab=ylab,main=if(main == T) {paste(gene.name[j], "(Smoothed)")}, ylim=c(0, 1.1 * max(
   if(Ctrl == T) {max(Ctrl_Mean_Smooth[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
-  if(RNase == T) {max(RNase_Mean_Smooth[which(rownames(Ctrl_Mean)==gene.name[j]),])})))
+  if(RNase == T) {max(RNase_Mean_Smooth[which(rownames(Ctrl_Mean)==gene.name[j]),])})),
+  cex.main = fs[1],
+  cex.lab = fs[2],
+  cex.axis = fs[3]
+  )
 
 if(grid == T) {grid()}
 
@@ -3907,9 +3955,9 @@ if(Gbl.Max == T & RNase == T) {
 points(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]), ], RNase_Mean_Smooth[which(rownames(RNase_Mean)==gene.name[j]),unlist(RNase_Mean_Gbl_Max[which(rownames(RNase_Mean)==gene.name[j]),])], pch=21, col="black", bg=col[2], cex=1.5)}
 
 if(Legend == T) {
-par(xpd=T)
+par(xpd=T, cex = Leg.Size)
 
-legend("topright",inset = c(-0.23,0), 
+legend("topright",inset = c(-0.23,0) - Leg.Pos, 
        legend = c(if(Ctrl == T) {"Control"}, if(RNase == T) {"RNase"}, if(Gbl.Max == T) {"Global"}, if(Loc.Max == T) {"Local"}), 
        pch = c(if(Ctrl == T) {NA}, if(RNase == T) {NA}, if(Gbl.Max == T) {21}, if(Loc.Max == T) {24}), 
        lty = c(if(Ctrl == T) {1}, if(RNase == T) {1}, if(Gbl.Max == T) {NA}, if(Loc.Max == T) {NA}), 
@@ -3921,11 +3969,15 @@ legend("topright",inset = c(-0.23,0),
 ###################### Raw ######################
 if(Type[k] == "Raw" & (Ctrl == T | RNase == T)) {
   
-par(mar=c(5, 4, 4, 7), xpd=F)
+par(mar=mar, xpd=F)
   
-plot(1:25, rep(NA, 25),xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(gene.name[j], "(Raw Data)"), ylim=c(0, 1.1 * max(
+plot(1:25, rep(NA, 25),xlab=xlab,ylab=ylab,main=if(main == T) {paste(gene.name[j], "(Raw Data)")}, ylim=c(0, 1.1 * max(
   if(Ctrl == T) {max(Ctrl_Mean[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
-  if(RNase == T) {max(RNase_Mean[which(rownames(Ctrl_Mean)==gene.name[j]),])})))
+  if(RNase == T) {max(RNase_Mean[which(rownames(Ctrl_Mean)==gene.name[j]),])})),
+  cex.main = fs[1],
+  cex.lab = fs[2],
+  cex.axis = fs[3]
+  )
 
 if(grid == T) {grid()}
 
@@ -3964,9 +4016,9 @@ if(RNase == T) {
 lines(1:25, RNase_Mean[which(rownames(RNase_Mean)==gene.name[j]),], type="l", lwd=3, col = col[2])}
 
 if(Legend == T) {
-par(xpd=T)
+par(xpd=T, cex = Leg.Size)
 
-legend("topright",inset = c(-0.25,0), 
+legend("topright",inset = c(-0.25,0) - Leg.Pos, 
        legend = c(if(Ctrl == T) {"Control"}, if(RNase == T) {"RNase"}, if(Gbl.Max == T) {"Global"}, if(Loc.Max == T) {"Local"}), 
        lty = c(if(Ctrl == T) {1}, if(RNase == T) {1}, if(Gbl.Max == T) {2}, if(Loc.Max == T) {3}), 
        col = c(if(Ctrl == T) {col[1]}, if(RNase == T) {col[2]}, if(Gbl.Max == T) {"grey"}, if(Loc.Max == T) {"grey"}), 
@@ -3977,14 +4029,17 @@ legend("topright",inset = c(-0.25,0),
 ###################### Compare ######################
 if(Type[k] == "Compare" & (Ctrl == T | RNase == T)) {
   
-par(mar=c(5, 4, 4, 10), xpd=F)
+par(mar=mar + c(0,0,0,3), xpd=F)
   
-plot(1:25, rep(NA, 25),xlab="Protein Fractions",ylab="Relative Protein Amount",main=paste(gene.name[j], "(Norm/Smooth v. Norm)"), ylim=c(0, 1.1 * max(
+plot(1:25, rep(NA, 25),xlab=xlab,ylab=ylab,main=if(main == T) {paste(gene.name[j], "(Norm/Smooth v. Norm)")}, ylim=c(0, 1.1 * max(
   if(Ctrl == T) {max(Ctrl_Mean_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
   if(RNase == T) {max(RNase_Mean_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
   if(Ctrl == T) {max(Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
-  if(RNase == T) {max(RNase_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])}
-  )))
+  if(RNase == T) {max(RNase_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])})),
+  cex.main = fs[1],
+  cex.lab = fs[2],
+  cex.axis = fs[3]
+  )
 
 if(grid == T) {grid()}
 
@@ -4045,9 +4100,9 @@ if(Gauss == T & RNase == T) {
 curve(RNase_Gauss_Fit[which(rownames(RNase_Mean)==gene.name[j]), 3]*(1/(RNase_Gauss_Fit[which(rownames(RNase_Mean)==gene.name[j]), 2]*(sqrt(2*pi))))*exp(1)^(-(1/2)*((x-RNase_Gauss_Fit[which(rownames(RNase_Mean)==gene.name[j]), 1])/RNase_Gauss_Fit[which(rownames(RNase_Mean)==gene.name[j]), 2])^2), add = T, lwd = 3, col = alpha(col[4], 0.5))}
 
 if(Legend == T) {
-par(xpd=T)
+par(xpd=T, cex = Leg.Size)
 
-legend("topright",inset = c(-0.39,0), 
+legend("topright",inset = c(-0.39,0) - Leg.Pos, 
        legend = c(if(Ctrl == T) {c("Control", "(Norm/Smooth)")}, if(RNase == T) {c("RNase", "(Norm/Smooth)")}, if(Ctrl == T) {"Control (Norm)"}, if(RNase == T) {"RNase (Norm)"}, if(Gauss == T & Ctrl == T) {"Gauss Ctrl"}, if(Gauss == T & RNase == T) {"Gauss RNase"}, if(Gbl.Max == T) {"Global"}, if(Loc.Max == T) {"Local"}), 
        pch = c(if(Ctrl == T) {c(NA, NA)}, if(RNase == T) {c(NA, NA)}, if(Ctrl == T) {NA}, if(RNase == T) {NA}, if(Gauss == T & Ctrl == T) {NA}, if(Gauss == T & RNase == T) {NA}, if(Gbl.Max == T) {21}, if(Loc.Max == T) {24}),
        lty = c(if(Ctrl == T) {c(1, NA)}, if(RNase == T) {c(1, NA)}, if(Ctrl == T) {1}, if(RNase == T) {1}, if(Gauss == T & Ctrl == T) {1}, if(Gauss == T & RNase == T) {1}, if(Gbl.Max == T) {NA}, if(Loc.Max == T) {NA}), 
@@ -4063,7 +4118,5 @@ legend("topright",inset = c(-0.39,0),
 
 Let us see if it works!
 ```{r gene plotter}
-Gene_Plotter(c(rownames(Sel_Crit[which(Sel_Crit[, 27] == max(unlist(Sel_Crit[, 27]), na.rm = T)), ]), "CTCF_HUMAN", "RTCA_HUMAN"))
-
-Gene_Plotter("CTCF_HUMAN", Type = c("Smooth and Norm", "Norm", "Smooth", "Raw", "Compare"), Legend = F)
+Gene_Plotter("CTCF_HUMAN", Type = c("Smooth and Norm", "Norm", "Smooth", "Compare", "Raw"))
 ```
