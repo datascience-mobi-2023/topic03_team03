@@ -38,56 +38,57 @@ load("Table_HS_Non_RBP.RData")
 # 2. Material and Methods
 
 ## 2.1 Referenced Data
-The protocol for an R-DeeP-Screen was performed on HeLa cells synchronized in interphase (Caudron-Herger *et al.*, 2020). This resulted in the dataframe *RDeep_HeLa_Interphase* in which the protein amounts per fraction were stored.
+The protocol for an R-DeeP-Screen was performed on HeLa cells synchronized in interphase (Caudron-Herger *et al.*, 2020) and the results (protein amount per fraction) were stored in the dataframe *RDeep_HeLa_Interphase*.
 
 ## 2.2 Data Cleanup
-The original dataset *RDeep_HeLa_Interphase* was split into two separate data frames containing the values for all RNase fractions and Control fractions respectively. These dataframes were named *RNase_RDeep* and *Ctrl_RDeep* respectively. The following steps were performed on those two dataframes.
+The original dataset *RDeep_HeLa_Interphase* was split into two separate data frames containing the values for all RNase fractions and Control fractions respectively. These dataframes were named *RNase_RDeep* and *Ctrl_RDeep* respectively. The following steps were performed on both dataframes.
 
 ### 2.2.1 NA Values and Zero Rows
 All rows containing only zeros, of which there were five, were deleted from the dataframes. No NA values were found.
 
 ### 2.2.2 Pearson Correlation
 To test the reproducibility of the dataframe the pearson correlation was used. In seven cases one of the three replicates contained only zeros. These values were replaced in with NA values as determining the pearson correlation with these replicates would have been impossible. In five rows, two out of the three replicates contained only zeros. These genes were removed completely from the dataframes.
+
 The pearson correlation $r$ was computed via the following formula using the sample size $N$, individual sample points $x_i$ and $y_i$, sample means $\bar{x}$ and $\bar{y}$ and standard deviations $s_x$ and $s_y$: $r = \frac{1}{N-1} \sum_{i = 1}^{N}{\frac{x_i - \bar{x}}{s_x} \frac{y_i - \bar{y}}{s_y}}$
 
 For each gene and condition this resulted in three correlation coefficients with a determined threshold of over or equal to 0.95. The genes for which all three correlation coefficients fell below that threshold were removed from both dataframes. This applied to 1335 genes. If two out of three correlation coefficients were under 0.95 the replicate associated with both coefficients was replaced with NA. This was the case for 2594 replicates. Lastly, if one out of three correlation coefficients was below the determined threshold the replicate with the lower value in the other associated correlation coefficient was replaced with NA. This method was performed on 2285 replicates.
 
 ### 2.2.3 Mean of Replicates
-After testing for reproducibility and deleting unreliable values, the arithmetic mean for all triplicates was calculated.
+After testing for reproducibility and deleting unreliable values, the arithmetic mean was calculated for all triplicates and used for further analysis.
 
 
 ## 2.3 Smoothing and Determination of Maxima
 
 ### 2.3.1 Smoothing the Data
-To determine the global and local maxima of the dataset, the dataframes *Ctrl_Mean* and *RNase_Mean* were smoothed seperatly.Otherwise the determination would be influenced by outliers and wrong peaks.  
-For this the mean value of each fraction was calculated in a defined neighborhood of one with the following formula for all fractions between 2 and 24: $y = \frac{f(x-1)+f(x)+f(x-1)}{3}$    
+To determine the global and local maxima of the dataset, the dataframes *Ctrl_Mean* and *RNase_Mean* were smoothed separately. Otherwise, the determination would be influenced by outliers and wrong peaks.  
+
+Smoothing was achieved by changing the value of each fraction to the respective mean value of its defined neighborhood of \u00b1 1 with the following formula (applies to all fractions between 2 and 24): $y = \frac{f(x-1)+f(x)+f(x-1)}{3}$    
 *$x$: fraction position ($2  \leq  x  \leq  24$);* $\quad$ *$f(x)$: mass spectrometry value at fraction position $x$;* $\quad$ *$y$: smoothed value for fraction position $x$*  
   
-For fraction position 1 and 25 the mean of fraction 1 and 2 as well as 24 and 25 were calculated.
+For fraction position 1 and 25, the mean of fraction 1 and 2 as well as 24 and 25 were used instead.
 
 ### 2.3.2 Normalization of Smoothed data
-For comparison of the different protein amounts, the smoothed dataframes had to be normalized to 100. This means, that the sum of the mass spectrometry data in the different fractions for one protein had to add up to 100: $y = \frac{f(x)}{\sum_{x=1}^{25}f(x)} *100$     
-*$x$: fraction position ($1 \leq x \leq 25$);* $\quad$ *$f(x)$: mass spectrometry value at fraction position $x$;* $\quad$ *$y$: normalized value at fraction position $x$* In the Following the standerd deviation was calculated.
-  
+In order to be able to compare the different protein amounts, the smoothed dataframes were normalized to 100. This means that the sum of the mass spectrometry data in the different fractions for one protein adds up to 100: $y = \frac{f(x)}{\sum_{x=1}^{25}f(x)} *100$     
+*$x$: fraction position ($1 \leq x \leq 25$);* $\quad$ *$f(x)$: mass spectrometry value at fraction position $x$;* $\quad$ *$y$: normalized value at fraction position $x$* The same procedure was then applied to the standard deviation.
+
 
 ### 2.3.3 Determination of Maxima
-If a protein is an RNA-dependent protein, the maximum amount of protein is in a different fraction in the RNase sample compared to the Control sample. To determine for which proteins this is the case, the global and local maxima of the mass spectrometry data was determined.  
+If a protein is an RNA-dependent protein, the maximum amount of protein should be situated in a different fraction in the RNase sample compared to the Control sample. To determine for which proteins this is the case, the global and local maxima of the mass spectrometry data was determined.  
   
 #### 2.3.3.1 Global Maxima \
-The global maximum for the smoothed and normalized dataframes were determined by identifying the fraction of the largest mass spectrometry value in each dataframe. For proteins that had 2 or 3 fractions with the same mass spectrometry value, the mean fraction position was calculated.  
-
-#### 2.3.3.2 Local Maximum \
-The local maxima for the smoothed and normalized dataframes were determined by comparing the protein amount of each fraction position x to the protein amount in the fractions in a neighborhood of $n = 2$. If the protein amount in that fraction is greater or equal to its neighborhood it was defined as a local maximum. For the edge cases fraction positions 2 and 25 as well as 1 and 25 the protein amounts had to be greater or equal to the protein amounts in the fractions 1,3 and 4 and fractions 22, 23,25 as well as fractions 2 and 3 and fractions 23 and 24. For proteins that had 2 or 3 fractions with the same mass spectrometry value, the mean fraction position was calculated. To distinguish the local from the global peaks the global peaks were subtracted from the local peaks.  
-
+The global maximum for the smoothed and normalized dataframes were determined by identifying the fraction of the largest mass spectrometry value in each dataframe. For proteins that had 2 or 3 fractions with the same value, the mean fraction position was calculated.  
+  
+#### 2.3.3.2 Local Maxima \
+The local maxima for the smoothed and normalized dataframes were determined by comparing the protein amount of each fraction position x to the protein amount in the fractions in a neighborhood of $n = 2$. If the protein amount in that fraction is greater or equal to its neighborhood, it was defined as a local maximum. For the fraction positions 2 and 24, the protein amounts had to be greater than or equal to the protein amounts in the fractions 1, 3 and 4 as well as fractions 22, 23, 25, and for the fraction positions 1 and 25, they had to be greater than or equal to fractions 2 and 3 as well as fractions 23 and 24. For proteins that had 2 or 3 fractions with the same mass spectrometry value, the mean fraction position was calculated. To distinguish local from global peaks, all global peaks were subtracted from the local peaks dataframe.  
 
 ## 2.4 Gaussian Fitting
-A Gaussian curve was fitted to the global peak and local peak with the highest protein amount of each gene in the control and RNase samples. A Gaussian curve can be describe using the height $h$, standard deviation $\sigma$ and mean $\mu$ as: $f(x) = \frac {h} {\sqrt{2\pi} \cdot \sigma } \cdot e^{-\frac {1} {2} (\frac {x - \mu} {\sigma})^{2}}$. These parameters were first estimated and then optimized. $\mu$ was estimated as the fraction position of the global and largest local peak, $\sigma$ and $h$ were estimated as follows: $\sigma =\frac{HWHM}{\sqrt{2 \cdot ln(2)}};\qquad h = \frac{MPA}{sd \cdot \sqrt{2\pi}}\qquad$ *HWHM: half width at half maximum; MPA: maximum protein amount*. These estimated values were optimized by minimizing the sum of squares of the differences between protein amount values of the Gaussian curve $G$ and the smoothed and normalized protein distribution $p$ ($min(\sum(G-p)^2))$. This was used to calculate the protein amount under the Gaussian curve and the overlap of the Gaussian curves for the control and RNase samples. 
+A Gaussian curve was fitted to the global peak and the local peak with the highest protein amount of each gene in the Control and RNase samples. A Gaussian curve can be described using the height $h$, standard deviation $\sigma$ and mean $\mu$ as: $f(x) = \frac {h} {\sqrt{2\pi} \cdot \sigma } \cdot e^{-\frac {1} {2} (\frac {x - \mu} {\sigma})^{2}}$. These parameters were first estimated and then optimized. $\mu$ was estimated as the fraction position of the global and largest local peak, $\sigma$ and $h$ were estimated as follows: $\sigma =\frac{HWHM}{\sqrt{2 \cdot ln(2)}};\qquad h = \frac{MPA}{sd \cdot \sqrt{2\pi}}\qquad$ *HWHM: half width at half maximum; MPA: maximum protein amount*. These estimated values were optimized by minimizing the sum of squares of the differences between protein amount values of the Gaussian curve $G$ and the smoothed and normalized protein distribution $p$ ($min(\sum(G-p)^2))$. This was used to calculate the protein amount under the Gaussian curve and the overlap of the Gaussian curves between the control and the RNase samples. 
 
 ## 2.5 Selection Criteria for Identification of RNA-Dependent Proteins
-To determine the optimal selection criteria for an RNA-dependent protein multiple parameters were compiled and applied to a principle component analysis.
+To determine the optimal selection criteria for an RNA-dependent protein, multiple parameters were compiled and applied to a principle component analysis. The best parameters were subsequently used to select between RDPs, non-RDPs and partial RDPs. 
 
 ### 2.5.1 Defining Selection Criteria
-Following parameters were compiled to determine the optimal selection criteria for defining RNA-dependent proteins.
+Following parameters were compiled to determine the optimal selection criteria for defining RNA-dependent proteins:
 
 The *absolute peak shift and the percentage of the peak shift* 
 between the Ctrl and RNase global peaks, 
@@ -117,18 +118,18 @@ $\Delta\mu = \mu(Ctrl)-\mu(RNase)> +1$: right shift; $\Delta\mu = \mu(Ctrl)-\mu(
 
   
 ### 2.5.2 Principal Componant Analysis
-Applying a principle component analysis to the percentage values of the selection criteria the optimal parameters for an RNA-dependent protein were examined by reducing the dimensions of the dataframe *Sel_Crit*. Only the variables calculated in percent were used for the PCA for better comparison and the variables regarding main local peaks only serve at determining partially shifting proteins and were therefore not included in the principle component analysis. The selection criteria that separate the points the most in the plot of the first two principal components were chosen for further analysis.   
+By applying a principle component analysis to the percentage values of the selection criteria, the optimal parameters to select for RNA-dependent proteins were examined by reducing the dimensions of the dataframe *Sel_Crit*. Only the variables calculated in percentages were used for the PCA for better comparison and the variables regarding main local peaks only serve at determining partially shifting proteins and were therefore not included in the principle component analysis. The selection criteria that separate the points the most in the plot of the first two principal components were chosen for further analysis.   
 
 ### 2.5.3 Application of selection criteria  
 
-Based on the PCA four parameters were defined as most important for separating shifting and non shifting proteins. Based on observations and experience we set the following thresholds for an RNA-dependent protein (RDP):
+Based on the PCA, four parameters were defined as most important for separating shifting from non-shifting proteins. Following thresholds for the four parameters were furthermore set for the classification of an RNA-dependent protein (RDP):
 
   1. Global peak shift of more than **1 fraction**
   2. Protein loss under Ctrl global peak of more than **20 %** after RNase treatment
   3. Protein gain under RNase global peak of more than **20 %** after RNase treatment
   4. Overlap of the Gaussian curves of less than **75 %**
   
-Furthermore, *partially* RNA-dependent proteins were defined as proteins that satisfy the first and fourth criteria and either the second or third criteria for RNA dependence. More *partially* RNA-dependent proteins were identified using the following criteria: 
+Furthermore, *partially* RNA-dependent proteins were defined as proteins that satisfy the first and fourth criterion and either the second or third criterion for RNA dependence. More *partially* RNA-dependent proteins were identified using the following criteria: 
 
   1. Fraction shift between global and main local peak positions of more than **1 fraction**
   2. Overlap between the gaussian curves of global and main local peaks of less than **75 %**
@@ -141,24 +142,24 @@ Furthermore, *partially* RNA-dependent proteins were defined as proteins that sa
 ## 2.6 Further Analysis
 
 ### 2.6.1 Comparison with the RBP2GO Database    
-To evaluate the accuracy of this method, the identified RDPs were compared with the existing RDPs in the RBP2Go Database and a barplot was created. 
+To evaluate the accuracy of the performed analysis, the identified RDPs were compared with existing RDPs in the RBP2GO database, and a barplot was created. 
 
 #### 2.6.2.1 Direct comparison  
-In the direct comparison the categories RDP dependent yes or no were plotted in a biplot.
+To further examine the relation between our RDP identification method and the RBP2GO classification, we plotted both RBP2Go-RDPs and -non-RDPs in the biplot of the first two principal components used in our analysis.
 
-#### 2.6.2.2 Comparison with RDP2Go-score  
-For more accurate results the in this method identified RDPs were compared to the RDP2Go score.
+#### 2.6.2.2 Comparison with RDP2GO-score  
+The RDPs identified in our analysis were then further compared to their respective RDP2GO score.
 
-#### 2.6.2.3 Cluster comparison with T-test  
-By calculating the **average RBP2GO-score** for each cluster identified by applying the optimal selection criteria, the RNA-dependence of a cluster was estimated. Using a two-sided t-Test. The significance of the differences between the mean values were calculated.The H0 and H1 hypotheses were defined as following: H0: The mean values are not significantly different from each other, H1: The mean values are significantly different from each other, with a False Positive Rate of 5%.
+#### 2.6.2.3 Cluster comparison with t-test  
+By calculating the **mean RBP2GO-score** for each cluster identified by applying the optimal selection criteria, the RNA-dependence of a cluster (non-/partial/RDP) was estimated. Using a two-sided Welch t-test, the significance of the differences between the mean RBP2GO-score values were calculated. The H0 and H1 hypotheses were defined as following: H0: The mean values are not significantly different from each other, H1: The mean values are significantly different from each other. The Flase Positive Rate was set at $p=0,05$. 
 
 ### 2.6.3 Linear Regression    
-Linear regression was applied to the loss of protein amount under the Gaussian curve of the global peak for the control sample and the gain of protein amount under the Gaussian curve of the global peak for the RNase sample. This aims at identifying proteins with a partial shift.
+Finally, we investigated whether the RBP2Go-Score could be predicted via a multivariate linear regression based on how well the proteins fulfills the four selection criteria deployed in our performed analysis. 
 
 
 # 3. Results
 ## 3.1 Results of Data Cleanup, localisation of Maxima and Gaussian Fitting
-After performing all data cleanup steps, the original dataset *RDeep_HeLa_Interphase* was reduced from 7086 proteins to 5990 Proteins. Local and global maxima were determined and the Gaussian curve fitted to the peaks. As can be observed in the plots of "CTCF_HUMAN" below, the smoothing and normalization steps and the Gaussian Fitting applied to the dataset were successful.
+After performing all data cleanup steps, the original dataset *RDeep_HeLa_Interphase* was reduced from 7086 proteins to 5990 Proteins. Local and global maxima were determined and the Gaussian curve fitted to the peaks. As can be observed in the plots of "CTCF_HUMAN" below, the smoothing and normalization steps as well as the Gaussian Fitting applied to the dataset were successful.
 
 ```{r smoothed and normalized, echo=FALSE, out.width = "33%"}
 
@@ -184,9 +185,7 @@ Gene_Plotter("CTCF_HUMAN", grid =F)
 
 
 ## 3.2 Shifting behavior
-
-In *Fig.*, the shifting behavior is represented by plotting the global peak positions of the Control against those of the RNase samples. Non-shifting proteins lie an a straight line through the origin with a slope of 1, signifying equal positions of both global peaks. Left-shifting proteins lie below this line, meaning the global peak of the Control sample is in a higher fraction position than the global peak of the RNase sample. Right-shifting proteins lie above this line, indicating a lower fraction position of the global peak of the Control sample in comparison to the RNase sample. Precipitated proteins are proteins with a global position in the 24th or the 25th fraction. They can not be identified as RDPs, because a significant shift can not determined. Most proteins are non-shifting (5153 proteins). The largest group of shifting proteins are left-shifting (782 proteins).
-
+In *Fig.*, the shifting behavior is represented by plotting the global peak positions of the Control against those of the RNase samples. Non-shifting proteins lie an a straight line through the origin with a slope of 1, signifying equal positions of both global peaks. Left-shifting proteins lie below this line, right-shifting proteins lie above. Precipitated proteins lie close to the right as well as to the top edge. Most proteins are non-shifting (5153 proteins). The largest group of shifting proteins are left-shifting (782 proteins).
 
 ```{r shifting behavior, echo=FALSE, out.width="50%"}
 
@@ -225,9 +224,36 @@ fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T
 
 ```
 
-## 3.5 Comparison with the RBP2GO Database
+## 3.4 Application of selection criteria and determination of RDPs
 
-To determine the effectivess of our method, the proteins classified as RDPs in our analysis were compared to the proteins classified as RDPs in the RDP2Go database.. As depicted in *Fig.*, the RBP2GO-classified RDPs distribute homogeneously across the two clusters with no clear observable trend. 
+Include locals too & show how including these righteously expands the number of RBPs
+
+## 3.5 Comparison with the RBP2GO Database
+To determine the effectiveness of our method, the proteins classified as RDPs in our analysis were compared to the proteins classified as RDPs in the RDP2GO database. 
+
+Comparing the RDPs identified via our presented analysis with the RDPs classified as such in the RBP2GO database, 631 proteins were identified as RDPs in both analyses, 2946 proteins were listed as RDPs in the database but were not identified as RDPs in our performed analysis, and 182 proteins which we determined as RDPs are not classified as such on the RBP2GO database (see *Fig.*).
+```{r Bar plot RBPs, echo=F, out.width="50%"}
+
+# bar plot
+par(mar=c(1, 3, 1, 7.5))
+barplot(matrix(c(
+  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))),
+  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_RBP))),
+  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))),
+  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))),
+  rep(NA, 4)),
+  nrow = 4),
+  axes = F,
+  col = c("red", "orange", "yellow", "green"), 
+  legend.text = c(paste("Non RDPs (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))), ")", sep = ""), 
+                  paste("RDPs (only RBP2GO) (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_RBP))), ")", sep = ""), 
+                  paste("RDPs (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))), ")", sep = ""), 
+                  paste("New RDPs (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))), ")", sep = "")),
+  )
+
+```
+
+In order to further analyse the relation between the RBP2GO classification and our analysis, both RBP2Go-RDPs and -non-RDPs were plotted in the biplot of the first two principal components used in our analysis. As depicted in *Fig.*, the RBP2GO-classified RDPs distribute homogeneously across the two clusters with no clear observable trend. 
 
 ```{r comparison with RBP2Go Database, echo =F, out.width="50%"}
 
@@ -254,45 +280,15 @@ rm(pca, col)
 ```
 ## 3.6 Cluster Comparison with RBP2GO score and T-test
 
-To determine the significance of our clusters, the average RDP2Go score of these clusters was compared with a T-test. The average RDP2Go score of our RDPs is $21.5$ with a standard deviation of $19.9$, the average score of our partial RDPs is $13.6$ with a standard deviation of $15.6$ and the average score of our non-RDPs is $6.6$ with a standard deviation of $9.1$. For the comparison of the different clusters following p-values are calculated: RDP and non-RDP cluster:  p-value of $8.5*10^{-54}$, RDP and partial RDP cluster: p-value of $8.2*10^{-10}$, partial RDP and non RDP: p-value of $ 2.0*10^{-12}$. All clusters have significantly different p-values since each p-value is distinctly smaller than the False Positive Rate of $p=0,05$. 
-
+To determine the significance of our clusters, the average RDP2Go score of these clusters was compared with a T-test. The average RDP2Go score of our RDPs is $21.5$ with a standard deviation of $19.9$, the average score of our partial RDPs is $13.6$ with a standard deviation of $15.6$ and the average score of our non-RDPs is $6.6$ with a standard deviation of $9.1$. For the comparison of the different clusters, following p-values are calculated: RDP and non-RDP cluster:  p-value of $8.5*10^{-54}$, RDP and partial RDP cluster: p-value of $8.2*10^{-10}$, partial RDP and non RDP: p-value of $ 2.0*10^{-12}$. All clusters have significantly different p-values, since each p-value is distinctly smaller than the false positive rate of $p=0,05$. 
 
 
 =>Was ist mit den Proteinen mit hohem RBP2GO? Sind die wenigstens alle "richtig" klassifiziert?
 
 
-
 ## 3.7 Linear Regression
+Performing a multivariate linear regression with our four selection criteria (Global peak shift, Protein loss under Ctrl global peak, Protein gain under RNase global peak, Overlap of the Gaussian curves) as variables to predict the RBP2GO score of the respective protein yields an $r^2$ value of 0.1650693, indicating a low correlation and therefore a low strength of prediction. 
 
-r^2 Wert: 
-
-```{r linear regression, echo=F, out.width="50%"}
-# linear regression
-
-
-```
-## 3.8 Bar plot
-Comparing the RDPs identified via our presented analysis with the RDPs classified as such in the RBP2GO database, 631 proteins were identified as RDPs in both analyses, 2946 proteins were listed as RDPs in the database but were not identified as RDPs in our performed analysis, and 182 proteins which we determined as RDPs are not classified as such on the RBP2Go database (see *Fig.*).
-```{r Bar plot RBPs, echo=F, out.width="50%"}
-
-# bar plot
-par(mar=c(1, 3, 1, 7.5))
-barplot(matrix(c(
-  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))),
-  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_RBP))),
-  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))),
-  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))),
-  rep(NA, 4)),
-  nrow = 4),
-  axes = F,
-  col = c("red", "orange", "yellow", "green"), 
-  legend.text = c(paste("Non RDPs (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))), ")", sep = ""), 
-                  paste("RDPs (only RBP2GO) (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_RBP))), ")", sep = ""), 
-                  paste("RDPs (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))), ")", sep = ""), 
-                  paste("New RDPs (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))), ")", sep = "")),
-  )
-
-```
 
 # 4. Discussion
 
