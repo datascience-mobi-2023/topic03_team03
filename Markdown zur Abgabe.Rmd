@@ -160,7 +160,7 @@ Linear regression was applied to the loss of protein amount under the Gaussian c
 ## 3.1 Results of Data Cleanup, localisation of Maxima and Gaussian Fitting
 After performing all data cleanup steps, the original dataset *RDeep_HeLa_Interphase* was reduced from 7086 proteins to 5990 Proteins. Local and global maxima were determined and the Gaussian curve fitted to the peaks. As can be observed in the plots of "CTCF_HUMAN" below, the smoothing and normalization steps and the Gaussian Fitting applied to the dataset were successful.
 
-```{r smoothed and normalized, echo=FALSE, out.width = "25%"}
+```{r smoothed and normalized, echo=FALSE, out.width = "33%"}
 
 # hier muss ich es noch irgendwie hinbekommen, eine Bildcaption für beide Bilder nebeneinander zu erzeugen...
 
@@ -174,16 +174,21 @@ Gene_Plotter("CTCF_HUMAN", Gauss=F, conf = F, Type="Smooth", grid=F, Gbl.Max=F, 
 ### smoothed and normalized
 Gene_Plotter("CTCF_HUMAN", Gauss=F, conf=F, Type="Smooth and Norm", grid=F, Gbl.Max=F, Loc.Max=F, Legend=F)
 
+```
+
+```{r maxima and Gaussian fit, echo=FALSE, out.width = "50%"}
 ### Gaussian fitted
 Gene_Plotter("CTCF_HUMAN", grid =F)
+
 ```
+
 
 ## 3.2 Shifting behavior
 
 In *Fig.*, the shifting behavior is represented by plotting the global peak positions of the Control against those of the RNase samples. Non-shifting proteins lie an a straight line through the origin with a slope of 1, signifying equal positions of both global peaks. Left-shifting proteins lie below this line, meaning the global peak of the Control sample is in a higher fraction position than the global peak of the RNase sample. Right-shifting proteins lie above this line, indicating a lower fraction position of the global peak of the Control sample in comparison to the RNase sample. Precipitated proteins are proteins with a global position in the 24th or the 25th fraction. They can not be identified as RDPs, because a significant shift can not determined. Most proteins are non-shifting (5153 proteins). The largest group of shifting proteins are left-shifting (782 proteins).
 
 
-```{r shifting behavior, echo=FALSE, out.width="33%"}
+```{r shifting behavior, echo=FALSE, out.width="50%"}
 
 # peak positions und Einfärben nach "left", "right", "precipitated" und "no" shifting
 
@@ -249,7 +254,7 @@ rm(pca, col)
 ```
 ## 3.6 Cluster Comparison with RBP2GO score and T-test
 
-To determine the significance of our clusters, the average RDP2Go score of these clusters was compared with a T-test. The average RDP2Go score of our RDPs is 21.5039 with a standard deviation of 19.8778, the average score of our partial RDPs is 13.57409 with a standard deviation of 15.59148 and the average score of our non-RDPs is 6.578844 with a standard deviation of 9.076432. For the comparison of the different clusters following p-values are calculated: RDP and non-RDP cluster:  p-value of $8.51824910^{-54}$, RDP and partial RDP cluster: p-value of $8.21350310^{-10}$, partial RDP and non RDP: p-value of $ 1.99911910^{-12}$. All clusters have significantly different p-values since each p-value is distinctly smaller than the Fals Positive Rate of $p=0,05$. 
+To determine the significance of our clusters, the average RDP2Go score of these clusters was compared with a T-test. The average RDP2Go score of our RDPs is $21.5$ with a standard deviation of $19.9$, the average score of our partial RDPs is $13.6$ with a standard deviation of $15.6$ and the average score of our non-RDPs is $6.6$ with a standard deviation of $9.1$. For the comparison of the different clusters following p-values are calculated: RDP and non-RDP cluster:  p-value of $8.5*10^{-54}$, RDP and partial RDP cluster: p-value of $8.2*10^{-10}$, partial RDP and non RDP: p-value of $ 2.0*10^{-12}$. All clusters have significantly different p-values since each p-value is distinctly smaller than the False Positive Rate of $p=0,05$. 
 
 
 
