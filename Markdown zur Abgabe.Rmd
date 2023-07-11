@@ -1,12 +1,12 @@
 ---
 title: "Proteome-wide Screen for RNA-dependent Proteins in HeLa Cells Synchronized
   in Interphase"
+author: "Hannah Brehm, Johann Blakytny, Kira Hoffmann, Viktor Bonin"
+date: "XX.07.2023"
 header-includes:
    - \usepackage[default]{inter}
    - \usepackage[T1]{fontenc}
 mainfont: Inter
-author: "Hannah Brehm, Johann Blakytny, Kira Hoffmann, Viktor Bonin"
-date: "XX.07.2023"
 output:
   pdf_document: default
   word_document: default
@@ -29,11 +29,13 @@ load("Table_HS_Non_RBP.RData")
 \newpage
 
 # 1. Introduction
+RNA and its interacting proteins are relevant for essential cellular activity. Especially in posttranscriptional processes, RNA-binding proteins mediate the regulation of posttranscriptional modification, transport through the cytoplasm, translation, and stability of the RNA template. Different RNA-binding motifs have been characterized so far allowing the linkage of proteins to ribonucleic acid (Burd and Dreyfuss, 1994). The structure of most RNA-binding domains is highly conserved; nevertheless, many RBPs bind with high specificity and affinity to distinct RNAs (Lunde *et al.*, 2007). As RBPs are crucial for certain housekeeping mechanisms, mutations or other alterations in human RBPs can have pathological effects (Gebauer *et al.*, 2021).
 
-```{r}
-#test chunk
-```
+There are multiple classifications for interactions between proteins and RNA. RBPs can be characterized in a binary system of being “specific” or “nonspecific” where specific RBPs interact with defined RNA motifs and nonspecific RBPs bind to RNA with an absence of definite motifs (Jankowsky and Harris, 2015). Further differentiation can lead to RBP classes defined by specific RNA-binding domains such as zinc-finger domains or RNA recognition motifs. Additionally, the targets of RBPs can be considered for creating subgroups. Thus, for instance mRNA‑binding or tRNA‑binding RBPs are classified (Gerstberger *et al.*, 2014).
 
+Furthermore, RBPs can be classified as a subcategory of RNA-interacting proteins themselves. The concept of RNA-dependency combines RBPs with proteins which are interacting indirectly with RNA. The latter can also be called RBP-interacting proteins. Thus, RNA-dependent proteins (RDPs) allow for a broader comprehension of the RNA interactome (Caudron-Herger *et al.*, 2020).
+
+Various methods have been applied to identify RNA recognition elements so far, for example crosslinking and immunoprecipitation followed by sequencing (CLIP-seq) (Gerstberger *et al.*, 2014;2013). This enables identification of RNAs bound to proteins. Detecting the proteins interacting with RNA requires other methods such as comprehensive identification of RBPs by mass spectrometry (CHIRP-MS) (Licatalosi *et al.*, 2020). Introducing the method R-DeeP, Caudron-Herger *et al.* promise a “proteome-wide, unbiased, and enrichment-free screen” that is solely based on disrupting the RNA-protein and RNA-protein-protein interaction (Caudron-Herger *et al.*, 2020;2019). Through R-DeeP, we aim to identify more human RBPs and RBP-interacting proteins in this project.
 
 # 2. Material and Methods
 
@@ -120,7 +122,7 @@ $\Delta\mu = \mu(Ctrl)-\mu(RNase)> +1$: right shift; $\Delta\mu = \mu(Ctrl)-\mu(
 ### 2.5.2 Principal Componant Analysis
 By applying a principle component analysis to the percentage values of the selection criteria, the optimal parameters to select for RNA-dependent proteins were examined by reducing the dimensions of the dataframe *Sel_Crit*. Only the variables calculated in percentages were used for the PCA for better comparison and the variables regarding main local peaks only serve at determining partially shifting proteins and were therefore not included in the principle component analysis. The selection criteria that separate the points the most in the plot of the first two principal components were chosen for further analysis.   
 
-### 2.5.3 Application of selection criteria  
+### 2.5.3 Application of Selection Criteria  
 
 Based on the PCA, four parameters were defined as most important for separating shifting from non-shifting proteins. Following thresholds for the four parameters were furthermore set for the classification of an RNA-dependent protein (RDP):
 
@@ -146,22 +148,22 @@ Furthermore, *partially* RNA-dependent proteins were defined as proteins that sa
 To evaluate the accuracy of the performed analysis, the identified RDPs were compared with existing RDPs in the RBP2GO database, and a barplot was created. 
 
 
-#### 2.6.2.1 Direct comparison  
+#### 2.6.2.1 Direct Comparison  
 To further examine the relation between our RDP identification method and the RBP2GO classification, we plotted both RBP2Go-RDPs and -non-RDPs in the biplot of the first two principal components used in our analysis.
 
 #### 2.6.2.2 Comparison with RDP2GO-score  
 The RDPs identified in the performed analysis were then further compared to their respective RDP2GO score.
 
 
-#### 2.6.2.3 Cluster comparison with t-test  
-By calculating the **mean RBP2GO-score** for each cluster identified by applying the optimal selection criteria, the RNA-dependence of a cluster (non-/partial/RDP) was estimated. Using a two-sided Welch t-test, the significance of the differences between the mean RBP2GO-score values were calculated. The H0 and H1 hypotheses were defined as following: H0: The mean values are not significantly different from each other, H1: The mean values are significantly different from each other. The Flase Positive Rate was set at $p=0,05$. 
+#### 2.6.2.3 Cluster Comparison with t-Test  
+By calculating the **mean RBP2GO-score** for each cluster identified by applying the optimal selection criteria, the RNA-dependence of a cluster (non-/partial/RDP) was estimated. Using a two-sided Welch t-test, the significance of the differences between the mean RBP2GO-score values were calculated. The H0 and H1 hypotheses were defined as following: H0: The mean values are not significantly different from each other, H1: The mean values are significantly different from each other. The False Positive Rate was set at $p=0,05$. 
 
 ### 2.6.3 Linear Regression    
 Finally, we investigated whether the RBP2Go-Score could be predicted via a multivariate linear regression based on how well the proteins fulfills the four selection criteria deployed in our performed analysis. 
 
 
 # 3. Results
-## 3.1 Results of Data Cleanup, localisation of Maxima and Gaussian Fitting
+## 3.1 Results of Data Cleanup, Localization of Maxima and Gaussian Fitting
 After performing all data cleanup steps, the original dataset *RDeep_HeLa_Interphase* was reduced from 7086 proteins to 5990 Proteins. Local and global maxima were determined and the Gaussian curve fitted to the peaks. As can be observed in the plots of "CTCF_HUMAN" below, the smoothing and normalization steps as well as the Gaussian Fitting applied to the dataset were successful.
 
 ```{r smoothed and normalized, echo=FALSE, out.width = "33%"}
@@ -227,7 +229,7 @@ fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T
 
 ```
 
-## 3.4 Application of selection criteria and determination of RDPs
+## 3.4 Application of Selection Criteria and Determination of RDPs
 
 To determine the effectivess of our method, the proteins classified as RDPs in our analysis were compared to the proteins classified as RDPs in the RBP2GO database.. As depicted in *Fig.*, the RBP2GO-classified RDPs distribute homogeneously across the two clusters with no clear observable trend. 
 
@@ -235,7 +237,7 @@ Include locals too & show how including these righteously expands the number of 
 
 ## 3.5 Comparison with the RBP2GO Database
 To determine the effectiveness of our method, the proteins classified as RDPs in our analysis were compared to the proteins classified as RDPs in the RDP2GO database. 
-In order to further analyse the relation between the RBP2GO classification and our analysis, both RBP2Go-RDPs and -non-RDPs were plotted in the biplot of the first two principal components used in our analysis. As depicted in *Fig.*, the RBP2GO-classified RDPs distribute homogeneously across the two clusters with no clear observable trend. 
+In order to further analyse the relation between the RBP2GO classification and our analysis, both RBP2GO-RDPs and -non-RDPs were plotted in the biplot of the first two principal components used in our analysis. As depicted in *Fig.*, the RBP2GO-classified RDPs distribute homogeneously across the two clusters with no clear observable trend. 
 
 ```{r comparison with RBP2GO Database, echo =F, out.width="50%"}
 
@@ -260,13 +262,14 @@ legend("topright", legend = c(paste("RDP (", length(which(rownames(Sel_Crit) %in
 rm(pca, col)
 
 ```
-## 3.6 Cluster Comparison with RBP2GO score and T-test
 
-To determine the significance of our clusters, the average RBP2GO score of these clusters was compared with a T-test. The average RBP2GO score of our RDPs is $21.5$ with a standard deviation of $19.9$, the average score of our partial RDPs is $13.6$ with a standard deviation of $15.6$ and the average score of our non-RDPs is $6.6$ with a standard deviation of $9.1$. For the comparison of the different clusters following p-values are calculated: RDP and non-RDP cluster:  p-value of $8.5*10^{-54}$, RDP and partial RDP cluster: p-value of $8.2*10^{-10}$, partial RDP and non RDP: p-value of $ 2.0*10^{-12}$. All clusters have significantly different p-values since each p-value is distinctly smaller than the False Positive Rate of $p=0,05$. 
+## 3.6 Cluster Comparison with RBP2GO Score and T-test
+
+To determine the significance of our clusters, the average RBP2GO score of these clusters was compared with a T-test. The average RBP2GO score of our RDPs is $21.5$ with a standard deviation of $19.9$, the average score of our partial RDPs is $13.6$ with a standard deviation of $15.6$ and the average score of our non-RDPs is $6.6$ with a standard deviation of $9.1$. For the comparison of the different clusters following p-values are calculated: RDP and non-RDP cluster:  p-value of $8.5*10^{-54}$, RDP and partial RDP cluster: p-value of $8.2*10^{-10}$, partial RDP and non RDP: p-value of $2.0*10^{-12}$. All clusters have significantly different p-values since each p-value is distinctly smaller than the False Positive Rate of $p=0,05$. 
 
 =>Was ist mit den Proteinen mit hohem RBP2GO? Sind die wenigstens alle "richtig" klassifiziert?
 
-## 3.7 Bar plot
+## 3.7 Bar Plot
 Comparing the RDPs identified via our presented analysis with the RDPs classified as such in the RBP2GO database, 631 proteins were identified as RDPs in both analyses, 2946 proteins were listed as RDPs in the database but were not identified as RDPs in our performed analysis, and 182 proteins which we determined as RDPs are not classified as such on the RBP2GO database (see *Fig.*).
 ```{r Bar plot RBPs, echo=F, out.width="50%"}
 
@@ -322,11 +325,30 @@ The differences between these results and the RBP2GO databank are possible the r
 The results of this analysis show that, besides the experimental methods used, bioinformatic analysis also plays a major role in determining the RNA-dependency of proteins. Multiple independent analysis of the same data could make results more reliable and more comparable with different studies.  
 The analysis of RNA-dependency in numerous different ways will undoubtedly have important implications in the diagnosis and therapy of many human diseases.
 
-# 5. Appendix
+# 5. References
+Burd, C.G., and Dreyfuss, G. (1994). Conserved Structures and Diversity of Functions of RNA-Binding Proteins. Science *265*, 615-621.
+
+Caudron-Herger, M., Rusin, S.F., Adamo, M.E., Seiler, J., Schmid, V.K., Barreau, E., Kettenbach, A.N., and Diederichs, S. (2019). R-DeeP: Proteome-wide and Quantitative Identification of RNA-Dependent Proteins by Density Gradient Ultracentrifugation. Molecular Cell *75*, 184-199.e110.
+
+Caudron-Herger, M., Wassmer, E., Nasa, I., Schultz, A.-S., Seiler, J., Kettenbach, A.N., and Diederichs, S. (2020). Identification, quantification and bioinformatic analysis of RNA-dependent proteins by RNase treatment and density gradient ultracentrifugation using R-DeeP. Nature Protocols *15*, 1338-1370.
+
+Gebauer, F., Schwarzl, T., Valcárcel, J., and Hentze, M.W. (2021). RNA-binding proteins in human genetic disease. Nature Reviews Genetics *22*, 185-198.
+
+Gerstberger, S., Hafner, M., and Tuschl, T. (2013). Learning the language of post-transcriptional gene regulation. Genome Biology *14*, 130.
+
+Gerstberger, S., Hafner, M., and Tuschl, T. (2014). A census of human RNA-binding proteins. Nature Reviews Genetics *15*, 829-845.
+
+Jankowsky, E., and Harris, M.E. (2015). Specificity and nonspecificity in RNA–protein interactions. Nature Reviews Molecular Cell Biology *16*, 533-544.
+
+Licatalosi, D.D., Ye, X., and Jankowsky, E. (2020). Approaches for measuring the dynamics of RNA–protein interactions. WIREs RNA *11*, e1565.
+
+Lunde, B.M., Moore, C., and Varani, G. (2007). RNA-binding proteins: modular design for efficient function. Nature Reviews Molecular Cell Biology *8*, 479-490.
+
+# 6. Appendix
 
 shifting behavior PCA
 
-```{r}
+```{r Appendix Shifting Behavior, echo=FALSE}
 # shifiting behavior PCA all sel. criteria
 pca = prcomp(Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
 
