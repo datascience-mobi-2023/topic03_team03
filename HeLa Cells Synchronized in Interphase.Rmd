@@ -2474,17 +2474,23 @@ We can use *k-Means Clustering* to identify clusters from our PCA analysis and c
 # ---> PCA
 pca = prcomp(Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
 
-# ---> kmeans-Clustering
+# ---> k-Means-Clustering für 3 Cluster
 kmeans = kmeans(pca$x, 3, iter.max = 10, nstart = 1)
 
+# ---> Erstellen eines Farbenvektors basierend auf den Clustern
 col = rep(NA, nrow(Sel_Crit))
 col[which(kmeans$cluster == 1)] = "blue"
 col[which(kmeans$cluster == 2)] = "red"
 col[which(kmeans$cluster == 3)] = "orange"
+
+# ---> Erstellen des Biplots mit entsprechender Einfärbung und t-Test Berechnungen in der Legende
+par(mar=c(4, 4, 4, 11), xpd=F)
 plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "k-Means Clustering (n = 3)", xlab = "PC1", ylab = "PC2")
-legend("bottomright", legend = c(paste("1 (", length(which(kmeans$cluster == 1)), ")", sep =""), paste("2 (", length(which(kmeans$cluster == 2)), ")", sep =""), paste("3 (", length(which(kmeans$cluster == 3)), ")", sep ="")), pch = 16, col = c("blue", "red", "orange"))
+par(xpd=T)
+legend("topright", inset = c(-0.39,0), legend = c(paste("Cluster 1 (", length(which(kmeans$cluster == 1)), ")", sep = ""), paste("Cluster 2 (", length(which(kmeans$cluster == 2)), ")", sep = ""), paste("Cluster 3 (", length(which(kmeans$cluster == 3)), ")", sep = "")), pch = 16, col = c("blue", "red", "orange"))
 
 # ---> Erstellung eines Elbow-Plots
+par(mar = c(5, 4, 4, 2) + 0.1)
 plot(1:5, c(kmeans(pca$x[,1:2], 1, iter.max = 10, nstart = 1)$tot.withinss,
             kmeans(pca$x[,1:2], 2, iter.max = 10, nstart = 1)$tot.withinss,
             kmeans(pca$x[,1:2], 3, iter.max = 10, nstart = 1)$tot.withinss,
@@ -2492,19 +2498,26 @@ plot(1:5, c(kmeans(pca$x[,1:2], 1, iter.max = 10, nstart = 1)$tot.withinss,
             kmeans(pca$x[,1:2], 5, iter.max = 10, nstart = 1)$tot.withinss), type = "b", pch = 19, main = "Elbow Method", xlab = "Number of cluster", ylab = "Total within-cluster sum of squares")
 
 
-# ---> PCA
+# ---> Gleiche Berechnungen für die 4 ausgewählten Selektionskriterien
 pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
 
-# ---> kmeans-Clustering
 kmeans = kmeans(pca$x, 2, iter.max = 10, nstart = 1)
 
 col = rep(NA, nrow(Sel_Crit))
 col[which(kmeans$cluster == 1)] = "blue"
 col[which(kmeans$cluster == 2)] = "red"
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "k-Means Clustering (n = 2)", xlab = "PC1", ylab = "PC2")
-legend("topright", legend = c(paste("1 (", length(which(kmeans$cluster == 1)), ")", sep =""), paste("2 (", length(which(kmeans$cluster == 2)), ")", sep ="")), pch = 16, col = c("blue", "red"))
 
-# ---> Erstellung eines Elbow-Plots
+par(mar=c(4, 4, 4, 11), xpd=F)
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "k-Means Clustering (n = 2)", xlab = "PC1", ylab = "PC2")
+par(xpd=T)
+legend("topright", 
+       inset = c(-0.39,0), 
+       legend = c(paste("Cluster 1 (", length(which(kmeans$cluster == 1)), ")", sep = ""), paste("Cluster 2 (", length(which(kmeans$cluster == 2)), ")", sep = "")), 
+       pch = 16, 
+       col = c("blue", "red"))
+
+# ---> Erstellung eines Elbow-
+par(mar = c(5, 4, 4, 2) + 0.1)
 plot(1:5, c(kmeans(pca$x[,1:2], 1, iter.max = 10, nstart = 1)$tot.withinss,
             kmeans(pca$x[,1:2], 2, iter.max = 10, nstart = 1)$tot.withinss,
             kmeans(pca$x[,1:2], 3, iter.max = 10, nstart = 1)$tot.withinss,
@@ -2515,25 +2528,7 @@ rm(col, pca, kmeans)
 ```
 
 
-##### 5.2 Linear Regression
-
-```{r}
-col = rep(NA, nrow(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), ]))
-col[which(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 26] == "yes")] = "blue"
-col[which(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 26] == "partial")] = "orange"
-col[which(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 26] == "no")] = "grey"
-
-plot(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 9], Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 11], col = col, pch = 16, xlab = "Ctrl_Gbl_prt_prop", ylab = "RNase_Gbl_prt_prop")
-
-fit <- lm(Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 9] ~ Sel_Crit[which(Sel_Crit$RDP == "no" | Sel_Crit$RDP == "partial"), 11])
-
-curve(fit$coefficients[2]*x + fit$coefficients[1], lwd = 3, col = "blue", add = T)
-summary(fit)$r.squared
-rm(col, fit)
-```
-
-
-##### 5.3 Comparison with the RBP2GO Database
+##### 5.2 Comparison with the RBP2GO Database
 
 First, we will load the data from the RBP2GO databank for *homo sapiens*: 
 
@@ -2562,7 +2557,7 @@ Sel_Crit[which(rownames(Sel_Crit) %in% rownames(Table_HS_Non_RBP)), 27] = Table_
 ```
 
 
-###### 5.3.1 Direct Comparison
+###### 5.2.1 Direct Comparison
 
 Now we can look again at our PCA results and compare our findings with the RBP2GO databank:
 
@@ -2610,7 +2605,7 @@ legend("topright", legend = c(paste("RDP (", length(which(rownames(Sel_Crit) %in
 rm(pca, col)
 ```
 
-###### 5.3.2 Comparison with RBP2GO-Score
+###### 5.2.2 RBP2GO-Score: Confetti Plots
 
 Mmmmmh ... maybe we get more clear results if we color our points according to their RBP2GO-scores: we have 5970 genes with RBP2GO-scores (20 genes are not included in the RBP2GO databank (= NA)). We want to obtain 6 ruffly equally sized groups (so 995 genes in each): 
 
@@ -2664,7 +2659,10 @@ legend("topright", inset = c(-0.24,0), legend = c("[0, 0.9]", "(0.9, 2.3]", "(2.
 rm(pca, col)
 ```
 
-Maybe we have more success if we do not use different colors but give genes with a higher RBP2GO-Score more opacity: 
+
+###### 5.2.3 RBP2GO-Score: Opacity Plots
+
+Maybe we have more success if we do not use different colors but give genes with a higher RBP2GO-Score more opacity and color regions with higher points density a different color:
 
 ```{r}
 library(scales)
@@ -2673,6 +2671,10 @@ pca = prcomp(Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
 
 # ---> Erstellen des Biplots mit einer Farbe, aber unterschiedlicher Deckungskraft je nach RBP2GO-Score
 plot(pca$x[, 1], pca$x[, 2], pch = 16, col = alpha("blue", Sel_Crit[, 27]/100), main = "RBP2GO_Score", xlab = "PC1", ylab = "PC2")
+
+abline(h = 0, lty =3, col = "grey")
+abline(v = 0, lty = 3, col = "grey")
+points(pca$x[, 1], pca$x[, 2], pch = 16, col = densCols(pca$x[, 1], pca$x[, 2], colramp = colorRampPalette(c(alpha("red", 0), "red"), alpha = T)))
 
 
 # ---> Gleiche Berechnungen für die 4 ausgewählten Selektionskriterien
@@ -2685,16 +2687,10 @@ abline(h = 0, lty =3, col = "grey")
 abline(v = 0, lty = 3, col = "grey")
 points(pca$x[, 1], pca$x[, 2], pch = 16, col = densCols(pca$x[, 1], pca$x[, 2], colramp = colorRampPalette(c(alpha("red", 0), "red"), alpha = T)))
 
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = alpha("blue", Sel_Crit[, 27]/100), main = "RBP2GO_Score", xlab = "PC1", ylab = "PC2")
-
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = densCols(pca$x[, 1], pca$x[, 2], colramp = colorRampPalette(c(alpha("red", 0), "red"), alpha = T)), main = "Point Density", xlab = "PC1", ylab = "PC2")
-abline(h = 0, lty =3, col = "grey")
-abline(v = 0, lty = 3, col = "grey")
-
 rm(pca)
 ```
 
-###### 5.3.3 Linear Regression
+###### 5.2.4 RBP2GO-Score: Linear Regression
 
 Using linear regression we test how well our selection criteria can predict the RBP2GO score:
 
@@ -2706,140 +2702,111 @@ summary(fit)$r.squared
 
 Seems like not very well :(
 
-###### 5.3.4 t-Test
+###### 5.2.5 RBP2GO-Score: t-Test
+
+We will calculate the **mean RBP2GO score** for each of our RDP groups (RDPs, partial RDPs and non RDPs) and using a two-sided Welch two-sample t-test we can determine if the differences between these means is significant (H0: *The mean values are not significantly different from each other*, H1: *The mean values are significantly different from each other*):
 
 ```{r}
+# ---> Mittelwert des RBP2GO scores für RDPs
 mean(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 27], na.rm = T)
+
+# ---> Mittelwert des RBP2GO scores für partial RDPs
 mean(Sel_Crit[which(Sel_Crit[, 26] == "partial"), 27], na.rm = T)
+
+# ---> Mittelwert des RBP2GO scores für non RDPs
 mean(Sel_Crit[which(Sel_Crit[, 26] == "no"), 27], na.rm = T)
 
-sd(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 27], na.rm = T)
-sd(Sel_Crit[which(Sel_Crit[, 26] == "partial"), 27], na.rm = T)
-sd(Sel_Crit[which(Sel_Crit[, 26] == "no"), 27], na.rm = T)
 
+# ---> Standardfehler des RBP2GO scores für RDPs
+sd(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 27], na.rm = T)/sqrt(length(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 27]))
+
+# ---> Standardfehler des RBP2GO scores für partial RDPs
+sd(Sel_Crit[which(Sel_Crit[, 26] == "partial"), 27], na.rm = T)/sqrt(length(Sel_Crit[which(Sel_Crit[, 26] == "partial"), 27]))
+
+# ---> Standardfehler des RBP2GO scores für non RDPs
+sd(Sel_Crit[which(Sel_Crit[, 26] == "no"), 27], na.rm = T)/sqrt(length(Sel_Crit[which(Sel_Crit[, 26] == "no"), 27]))
+
+# ---> p-value of t.test between RDPs and non RDPs
 t.test(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 27], Sel_Crit[which(Sel_Crit[, 26] == "no"), 27], alternative = "two.sided")$p.value
+
+# ---> p-value of t.test between RDPs and partial RDPs
 t.test(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 27], Sel_Crit[which(Sel_Crit[, 26] == "partial"), 27], alternative = "two.sided")$p.value
+
+# ---> p-value of t.test between partial RDPs and non RDPs
 t.test(Sel_Crit[which(Sel_Crit[, 26] == "partial"), 27], Sel_Crit[which(Sel_Crit[, 26] == "no"), 27], alternative = "two.sided")$p.value
 ```
 
-
-###### 5.3.5 Cluster Comparison with t-Test
-
-Maybe we can go back to our k-means clustering. By calculating the **mean RBP2GO-score** for each cluster, we can estimate how RNA-dependent a cluster is. 
-Furthermore, we can use a t-Test to calculate how significant the differences between the mean values are (H0: *The mean values are not significantly different from each other*, H1: *The mean values are significantly different from each other* (two-sided t-test)):
-
-```{r}
-# ---> PCA
-pca = prcomp(Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
-
-# ---> k-Means-Clustering für 3 Cluster
-kmeans = kmeans(pca$x, 3, iter.max = 10, nstart = 1)
-
-# ---> Erstellen eines Farbenvektors basierend auf den Clustern
-col = rep(NA, nrow(Sel_Crit))
-col[which(kmeans$cluster == 1)] = "blue"
-col[which(kmeans$cluster == 2)] = "red"
-col[which(kmeans$cluster == 3)] = "orange"
-
-# ---> Erstellen des Biplots mit entsprechender Einfärbung und t-Test Berechnungen in der Legende
-par(mar=c(4, 4, 4, 11), xpd=F)
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "k-Means Clustering (n = 3)", xlab = "PC1", ylab = "PC2")
-par(xpd=T)
-legend("topright", inset = c(-0.39,0), legend = c(paste("Cluster 1 (", length(which(kmeans$cluster == 1)), ")", sep = ""), paste("Cluster 2 (", length(which(kmeans$cluster == 2)), ")", sep = ""), paste("Cluster 3 (", length(which(kmeans$cluster == 3)), ")", sep = "")), pch = 16, col = c("blue", "red", "orange"))
-
-
-# ---> Gleiche Berechnungen für die 4 ausgewählten Selektionskriterien
-pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
-
-kmeans = kmeans(pca$x, 2, iter.max = 10, nstart = 1)
-
-col = rep(NA, nrow(Sel_Crit))
-col[which(kmeans$cluster == 1)] = "blue"
-col[which(kmeans$cluster == 2)] = "red"
-
-par(mar=c(4, 4, 4, 11), xpd=F)
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "k-Means Clustering (n = 2)", xlab = "PC1", ylab = "PC2")
-par(xpd=T)
-legend("topright", 
-       inset = c(-0.39,0), 
-       legend = c(paste("Cluster 1 (", length(which(kmeans$cluster == 1)), ")", sep = ""), paste("Cluster 2 (", length(which(kmeans$cluster == 2)), ")", sep = "")), 
-       pch = 16, 
-       col = c("blue", "red"))
-
-rm(pca, kmeans, col)
-```
-
-###### 5.3.6 Venn-Diagram & Barplot
+###### 5.2.6 Barplots (& Venn-Diagrams)
 
 Maybe this is not the right approach. Let us just compare the number of RDPs and non RDPs between the datasets using venn diagrams:
 
 ```{r}
-library("VennDiagram")
+#library("VennDiagram")
 
-grid.newpage()
+#grid.newpage()
 
-draw.triple.venn(
-  area1 = length(which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial")),   # Our identified RDPs
-  area2 = nrow(Table_HS_RBP),  # RBPs in RBP2GO-Databank
-  area3 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),   # RDPs from the R-Deep-Databank
-  n12 = length(which(rownames(Table_HS_RBP) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))), 
-  n23 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),
-  n13 = length(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))), 
-  n123 = length(which(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ])) %in% which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Table_HS_RBP)))),
-  fill = c("dodgerblue", "darkorange", "red"),
-  lwd = 1,
-  category = c(paste("Our RDPs (", length(which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial")), ")", sep = ""), paste("RBP2GO RBPs (", nrow(Table_HS_RBP), ")", sep =""), paste("R-Deep (", length(which(Table_HS_RBP$R.DeeP_HeLa == "X")), ")", sep = "")),
-  fontfamily = "plain",
-  cat.fontfamily = "plain",
-  cat.fontface = "bold",
-  cat.dist = c(0.09, 0.085, 0.08),
-  cat.pos = c(-25, 24, 150),
-  cat.col = c("dodgerblue", "darkorange", "red")
-)
-
-
-grid.newpage()
-
-draw.triple.venn(
-  area1 = length(which(Sel_Crit[, 26] == "no")),   # Our identified non RDPs
-  area2 = nrow(Table_HS_RBP),  # RBPs in RBP2GO-Databank
-  area3 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),   # RDPs from the R-Deep-Databank
-  n12 = length(which(rownames(Table_HS_RBP) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))), 
-  n23 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),
-  n13 = length(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))), 
-  n123 = length(which(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ])) %in% which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Table_HS_RBP)))),
-  fill = c("dodgerblue", "darkorange", "red"),
-  lwd = 1,
-  category = c(paste("Our non RDPs (", length(which(Sel_Crit[, 26] == "no")), ")", sep = ""), paste("RBP2GO RBPs (", nrow(Table_HS_RBP), ")", sep =""), paste("R-Deep (", length(which(Table_HS_RBP$R.DeeP_HeLa == "X")), ")", sep = "")),
-  fontfamily = "plain",
-  cat.fontfamily = "plain",
-  cat.fontface = "bold",
-  cat.dist = c(0.09, 0.085, 0.08),
-  cat.pos = c(-25, 24, 150),
-  cat.col = c("dodgerblue", "darkorange", "red")
-)
+#draw.triple.venn(
+#  area1 = length(which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial")),   # Our identified RDPs
+#  area2 = nrow(Table_HS_RBP),  # RBPs in RBP2GO-Databank
+#  area3 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),   # RDPs from the R-Deep-Databank
+#  n12 = length(which(rownames(Table_HS_RBP) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))), 
+#  n23 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),
+#  n13 = length(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))), 
+#  n123 = length(which(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ])) %in% which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Table_HS_RBP)))),
+#  fill = c("dodgerblue", "darkorange", "red"),
+#  lwd = 1,
+#  category = c(paste("Our RDPs (", length(which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial")), ")", sep = ""), paste("RBP2GO RBPs (", nrow(Table_HS_RBP), ")", sep =""), paste("R-Deep (", length(which(Table_HS_RBP$R.DeeP_HeLa == "X")), ")", sep = "")),
+#  fontfamily = "plain",
+#  cat.fontfamily = "plain",
+#  cat.fontface = "bold",
+#  cat.dist = c(0.09, 0.085, 0.08),
+#  cat.pos = c(-25, 24, 150),
+#  cat.col = c("dodgerblue", "darkorange", "red")
+#)
 
 
-grid.newpage()
+#grid.newpage()
 
-draw.triple.venn(
-  area1 = nrow(Sel_Crit),   # Our Genes
-  area2 = nrow(Table_HS_RBP),  # RBPs in RBP2GO-Databank
-  area3 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),   # RDPs from the R-Deep-Databank
-  n12 = length(which(rownames(Table_HS_RBP) %in% rownames(Sel_Crit))), 
-  n23 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),
-  n13 = length(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Sel_Crit))), 
-  n123 = length(which(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Sel_Crit)) %in% which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Table_HS_RBP)))),
-  fill = c("dodgerblue", "darkorange", "red"),
-  lwd = 1,
-  category = c(paste("Our Genes (", nrow(Sel_Crit), ")", sep = ""), paste("RBP2GO RBPs (", nrow(Table_HS_RBP), ")", sep =""), paste("R-Deep (", length(which(Table_HS_RBP$R.DeeP_HeLa == "X")), ")", sep = "")),
-  fontfamily = "plain",
-  cat.fontfamily = "plain",
-  cat.fontface = "bold",
-  cat.dist = c(0.09, 0.085, 0.08),
-  cat.pos = c(-25, 24, 150),
-  cat.col = c("dodgerblue", "darkorange", "red")
-)
+#draw.triple.venn(
+#  area1 = length(which(Sel_Crit[, 26] == "no")),   # Our identified non RDPs
+#  area2 = nrow(Table_HS_RBP),  # RBPs in RBP2GO-Databank
+#  area3 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),   # RDPs from the R-Deep-Databank
+#  n12 = length(which(rownames(Table_HS_RBP) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))), 
+#  n23 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),
+#  n13 = length(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))), 
+#  n123 = length(which(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ])) %in% which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Table_HS_RBP)))),
+#  fill = c("dodgerblue", "darkorange", "red"),
+#  lwd = 1,
+#  category = c(paste("Our non RDPs (", length(which(Sel_Crit[, 26] == "no")), ")", sep = ""), paste("RBP2GO RBPs (", nrow(Table_HS_RBP), ")", sep =""), paste("R-Deep (", length(which(Table_HS_RBP$R.DeeP_HeLa == "X")), ")", sep = "")),
+#  fontfamily = "plain",
+#  cat.fontfamily = "plain",
+#  cat.fontface = "bold",
+#  cat.dist = c(0.09, 0.085, 0.08),
+#  cat.pos = c(-25, 24, 150),
+#  cat.col = c("dodgerblue", "darkorange", "red")
+#)
+
+
+#grid.newpage()
+
+#draw.triple.venn(
+#  area1 = nrow(Sel_Crit),   # Our Genes
+#  area2 = nrow(Table_HS_RBP),  # RBPs in RBP2GO-Databank
+#  area3 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),   # RDPs from the R-Deep-Databank
+#  n12 = length(which(rownames(Table_HS_RBP) %in% rownames(Sel_Crit))), 
+#  n23 = length(which(Table_HS_RBP$R.DeeP_HeLa == "X")),
+#  n13 = length(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Sel_Crit))), 
+#  n123 = length(which(which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Sel_Crit)) %in% which(rownames(Table_HS_RBP[which(Table_HS_RBP$R.DeeP_HeLa == "X"),]) %in% rownames(Table_HS_RBP)))),
+#  fill = c("dodgerblue", "darkorange", "red"),
+#  lwd = 1,
+#  category = c(paste("Our Genes (", nrow(Sel_Crit), ")", sep = ""), paste("RBP2GO RBPs (", nrow(Table_HS_RBP), ")", sep =""), paste("R-Deep (", length(which(Table_HS_RBP$R.DeeP_HeLa == "X")), ")", sep = "")),
+#  fontfamily = "plain",
+#  cat.fontfamily = "plain",
+#  cat.fontface = "bold",
+#  cat.dist = c(0.09, 0.085, 0.08),
+#  cat.pos = c(-25, 24, 150),
+#  cat.col = c("dodgerblue", "darkorange", "red")
+#)
 
 # ---> Barplot 1: Vergleich unserer RDPs mit RBPs von der RBP2GO Datenbank
 par(mar=c(1, 3, 3, 7.5))
@@ -2949,7 +2916,7 @@ legend("topright",
 )
 ```
 
-##### 5.4 PCA with Local Peaks
+##### 5.3 PCA with Local Peaks
 
 ```{r}
 # 15, 17, 22, 24, 18, 19, 20
