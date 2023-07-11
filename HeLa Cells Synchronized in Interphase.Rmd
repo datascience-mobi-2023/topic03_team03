@@ -2924,6 +2924,8 @@ col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "no")] = "grey"
 plot(d_height, Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "yes"), 2], col = col, pch = 16, ylab = "Binding Specificity", xlab = "Binding Affinity")
 curve(fit$coefficients[1] + fit$coefficients[2]*x, add = T, lwd = 3, col = "orange")
 legend("topleft", inset = c(0.01, 0.031), legend = c(paste("y = ", round(fit$coefficients[2], 2), "x + ", round(fit$coefficients[1], 2), sep = ""), NA, paste("R² = ", round(summary(fit)$r.squared, 2), sep = "")), box.col = NA)
+
+rm(d_height, RNase_h, fit, col)
 ```
 
 ```{r}
