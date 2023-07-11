@@ -141,13 +141,13 @@ Furthermore, *partially* RNA-dependent proteins were defined as proteins that sa
 ## 2.6 Further Analysis
 
 ### 2.6.1 Comparison with the RBP2GO Database    
-To evaluate the accuracy of this method, the identified RDPs were compared with the existing RDPs in the RBP2Go Database and a barplot was created. 
+To evaluate the accuracy of this method, the identified RDPs were compared with the existing RDPs in the RBP2GO Database and a barplot was created. 
 
 #### 2.6.2.1 Direct comparison  
 In the direct comparison the categories RDP dependent yes or no were plotted in a biplot.
 
-#### 2.6.2.2 Comparison with RDP2Go-score  
-For more accurate results the in this method identified RDPs were compared to the RDP2Go score.
+#### 2.6.2.2 Comparison with RBP2GO-score  
+For more accurate results the in this method identified RDPs were compared to the RBP2GO score.
 
 #### 2.6.2.3 Cluster comparison with T-test  
 By calculating the **average RBP2GO-score** for each cluster identified by applying the optimal selection criteria, the RNA-dependence of a cluster was estimated. Using a two-sided t-Test. The significance of the differences between the mean values were calculated.The H0 and H1 hypotheses were defined as following: H0: The mean values are not significantly different from each other, H1: The mean values are significantly different from each other, with a False Positive Rate of 5%.
@@ -227,9 +227,9 @@ fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T
 
 ## 3.5 Comparison with the RBP2GO Database
 
-To determine the effectivess of our method, the proteins classified as RDPs in our analysis were compared to the proteins classified as RDPs in the RDP2Go database.. As depicted in *Fig.*, the RBP2GO-classified RDPs distribute homogeneously across the two clusters with no clear observable trend. 
+To determine the effectivess of our method, the proteins classified as RDPs in our analysis were compared to the proteins classified as RDPs in the RBP2GO database.. As depicted in *Fig.*, the RBP2GO-classified RDPs distribute homogeneously across the two clusters with no clear observable trend. 
 
-```{r comparison with RBP2Go Database, echo =F, out.width="50%"}
+```{r comparison with RBP2GO Database, echo =F, out.width="50%"}
 
 #n für die 4 ausgewählten Selektionskriterien
 pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
@@ -254,25 +254,11 @@ rm(pca, col)
 ```
 ## 3.6 Cluster Comparison with RBP2GO score and T-test
 
-To determine the significance of our clusters, the average RDP2Go score of these clusters was compared with a T-test. The average RDP2Go score of our RDPs is $21.5$ with a standard deviation of $19.9$, the average score of our partial RDPs is $13.6$ with a standard deviation of $15.6$ and the average score of our non-RDPs is $6.6$ with a standard deviation of $9.1$. For the comparison of the different clusters following p-values are calculated: RDP and non-RDP cluster:  p-value of $8.5*10^{-54}$, RDP and partial RDP cluster: p-value of $8.2*10^{-10}$, partial RDP and non RDP: p-value of $ 2.0*10^{-12}$. All clusters have significantly different p-values since each p-value is distinctly smaller than the False Positive Rate of $p=0,05$. 
+To determine the significance of our clusters, the average RBP2GO score of these clusters was compared with a T-test. The average RBP2GO score of our RDPs is $21.5$ with a standard deviation of $19.9$, the average score of our partial RDPs is $13.6$ with a standard deviation of $15.6$ and the average score of our non-RDPs is $6.6$ with a standard deviation of $9.1$. For the comparison of the different clusters following p-values are calculated: RDP and non-RDP cluster:  p-value of $8.5*10^{-54}$, RDP and partial RDP cluster: p-value of $8.2*10^{-10}$, partial RDP and non RDP: p-value of $ 2.0*10^{-12}$. All clusters have significantly different p-values since each p-value is distinctly smaller than the False Positive Rate of $p=0,05$. 
 
 
-
-=>Was ist mit den Proteinen mit hohem RBP2GO? Sind die wenigstens alle "richtig" klassifiziert?
-
-
-
-## 3.7 Linear Regression
-
-r^2 Wert: 
-
-```{r linear regression, echo=F, out.width="50%"}
-# linear regression
-
-
-```
-## 3.8 Bar plot
-Comparing the RDPs identified via our presented analysis with the RDPs classified as such in the RBP2GO database, 631 proteins were identified as RDPs in both analyses, 2946 proteins were listed as RDPs in the database but were not identified as RDPs in our performed analysis, and 182 proteins which we determined as RDPs are not classified as such on the RBP2Go database (see *Fig.*).
+## 3.7 Bar plot
+Comparing the RDPs identified via our presented analysis with the RDPs classified as such in the RBP2GO database, 631 proteins were identified as RDPs in both analyses, 2946 proteins were listed as RDPs in the database but were not identified as RDPs in our performed analysis, and 182 proteins which we determined as RDPs are not classified as such on the RBP2GO database (see *Fig.*).
 ```{r Bar plot RBPs, echo=F, out.width="50%"}
 
 # bar plot
@@ -294,6 +280,14 @@ barplot(matrix(c(
 
 ```
 
+## 3.8 Linear Regression
+
+r^2-Wert:
+```{r linear regression, echo=F, out.width="50%"}
+# linear regression
+
+
+```
 # 4. Discussion
 
 In conclusion, the protein distributions provided by Caudron-Herger *et al.* for HeLa cells synchronized in interphase were cleaned and normalized. Next, the arithmetic mean for each fraction was calculated (see Fig. X). The averaged protein distributions were smoothed using a three fraction sliding window and normalized (see Fig. X).  
@@ -317,7 +311,7 @@ The identification of RDPs was also compared directly to the RBP2GO databank: 22
 
 The differences between these results and the RBP2GO databank are possible the result of different human cell lineages used, different stages of the cell cycle analyzed and different experimental methods. Notably, the analysis presented here is only for HeLa cells synchronized in interphase, so poor comparability with the RBP2GO databank, which draws its data from many orthogonal experiments, should be expected.   
 The results of this analysis show that, besides the experimental methods used, bioinformatic analysis also plays a major role in determining the RNA-dependency of proteins. Multiple independent analysis of the same data could make results more reliable and more comparable with different studies.  
-The analysis of RNA-dependency in numerous different ways will undoubtably have important implications in the diagnosis and therapy of many human diseases.
+The analysis of RNA-dependency in numerous different ways will undoubtedly have important implications in the diagnosis and therapy of many human diseases.
 
 # 5. Appendix
 
@@ -375,73 +369,4 @@ pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
 plot(pca$x[, 1], pca$x[, 2], pch = 16, col = densCols(pca$x[, 1], pca$x[, 2], colramp = colorRampPalette(c("blue", "cyan", "green", "yellow", "orange", "red"))), main = "Point Density", xlab = "PC1", ylab = "PC2")
 abline(h = 0, lty =3, col = "grey")
 abline(v = 0, lty = 3, col = "grey")
-```
-
-Elbow Plot
-```{r Appendix Elbow Plot, echo=FALSE, out.width="50%"}
-# Vergleich mit kmeans clustering
-# Elbow plot
-pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
-plot(1:5, c(kmeans(pca$x[,1:2], 1, iter.max = 10, nstart = 1)$tot.withinss,
-            kmeans(pca$x[,1:2], 2, iter.max = 10, nstart = 1)$tot.withinss,
-            kmeans(pca$x[,1:2], 3, iter.max = 10, nstart = 1)$tot.withinss,
-            kmeans(pca$x[,1:2], 4, iter.max = 10, nstart = 1)$tot.withinss,
-            kmeans(pca$x[,1:2], 5, iter.max = 10, nstart = 1)$tot.withinss), type = "b", pch = 19, main = "Elbow Method", xlab = "Number of cluster", ylab = "Total within-cluster sum of squares")
-```
-
-# Comparison with RBP2GO score - kmeans clustering
-
-```{r Vergleich unserer Werte mit dem RBP2Go scores, echo = F, out.width="50%"}
-#Vergleich unserer Werte mit dem RBP2Go score
-library(scales)
-
-# ---> Gleiche Berechnungen für die 4 ausgewählten Selektionskriterien
-pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
-
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = alpha("blue", Sel_Crit[, 27]/100), main = "RBP2GO_Score", xlab = "PC1", ylab = "PC2")
-
-rm(pca)
-
-
-## 3.8 Bar plot with weird analysis?
-
-#load("Environment_with_RDP.RData")
-
-#col = rep(NA, nrow(Ctrl_RDeep))
-#col[which(Sel_Crit_PCA[, 8] == "left")] = "blue"
-#col[which(Sel_Crit_PCA[, 8] == "right")] = "red"
-#col[which(Sel_Crit_PCA[, 8] == "precipitated")] = "orange"
-#col[which(Sel_Crit_PCA[, 8] == "no")] = "grey"
-
-#plot(Ctrl_Gauss_Fit[, 1], RNase_Gauss_Fit[, 1], pch = 16, col = col, main = "Shifting Behavior", xlab = "Ctrl Gbl Peak Position", ylab = "RNase Gbl Peak Position")
-#legend("topleft", legend = c("left", "right", "precipitated", "no"), pch = 16, col = c("blue", "red", "orange", "grey"))
-#rm(col)
-```
-
-## 3.5 Comparison to k means clustering 
-
-Inkl. overlap of k means with our own selection criteria (Änderungen: 5.3.3, 5.3.4)
-
-```{r comparison to k means clustering, echo =F, out.width="50%"}
-# Vergleich mit kmeans Clustering
-
-# Diagramm
-pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
-
-kmeans = kmeans(pca$x, 2, iter.max = 10, nstart = 1)
-
-col = rep(NA, nrow(Sel_Crit))
-col[which(kmeans$cluster == 1)] = "blue"
-col[which(kmeans$cluster == 2)] = "red"
-
-par(mar=c(4, 4, 4, 11), xpd=F)
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "k-Means Clustering (n = 2)", xlab = "PC1", ylab = "PC2")
-par(xpd=T)
-legend("topright", 
-       inset = c(-0.49,0), 
-       legend = c(paste("Cluster 1 (", length(which(kmeans$cluster == 1)), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit[which(kmeans$cluster == 1), 27], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit[which(kmeans$cluster == 1), 27], na.rm = T)/sqrt(length(which(kmeans$cluster == 1))), 2), ")", sep = ""), paste("Cluster 2 (", length(which(kmeans$cluster == 2)), ")", sep = ""), paste("(mu = ", round(mean(Sel_Crit[which(kmeans$cluster == 2), 27], na.rm = T), 2),",", " sd = ", round(sd(Sel_Crit[which(kmeans$cluster == 2), 27], na.rm = T)/sqrt(length(which(kmeans$cluster == 2))), 2), ")", sep = "")), pch = 16, col = c("blue", NA, "red", NA, NA, NA))
-
-rm(pca, kmeans, col)
-
-#, "", paste("p(1&2) = ", signif(t.test(Sel_Crit[which(kmeans$cluster == 1), 27], Sel_Crit[which(kmeans$cluster == 2), 27], alternative = "two.sided")$p.value, 3), sep = "")
 ```
