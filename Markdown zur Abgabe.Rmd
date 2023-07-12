@@ -3,13 +3,13 @@ title: "Proteome-wide Screen for RNA-dependent Proteins in HeLa Cells Synchroniz
   in Interphase"
 author: "Hannah Brehm, Johann Blakytny, Kira Hoffmann, Viktor Bonin"
 date: "XX.07.2023"
-header-includes:
-   - \usepackage[default]{inter}
-   - \usepackage[T1]{fontenc}
-mainfont: Inter
 output:
   pdf_document: default
   word_document: default
+mainfont: Inter
+header-includes:
+- \usepackage[default]{inter}
+- \usepackage[T1]{fontenc}
 subtitle: Data Analysis Project 2023
 fontsize: 11pt
 ---
@@ -23,7 +23,6 @@ load("Table_HS_Non_RBP.RData")
 
 ***
 # Abstract
-
 
 ***
 \newpage
@@ -51,7 +50,7 @@ All rows containing only zeros, of which there were five, were deleted from the 
 ### 2.2.2 Pearson Correlation
 To test the reproducibility of the dataframe the pearson correlation was used. In seven cases one of the three replicates contained only zeros. These values were replaced in with NA values as determining the pearson correlation with these replicates would have been impossible. In five rows, two out of the three replicates contained only zeros. These genes were removed completely from the dataframes.
 
-The pearson correlation $r$ was computed via the following formula using the sample size $N$, individual sample points $x_i$ and $y_i$, sample means $\bar{x}$ and $\bar{y}$ and standard deviations $s_x$ and $s_y$: $r = \frac{1}{N-1} \sum_{i = 1}^{N}{\frac{x_i - \bar{x}}{s_x} \frac{y_i - \bar{y}}{s_y}}$
+The pearson correlation $r$ was computed via the following formula using the sample size $N$, individual sample points $x_i$ and $y_i$, sample means $\bar{x}$ and $\bar{y}$ and standard deviations $s_x$ and $s_y$: \[r = \frac{1}{N-1} \sum_{i = 1}^{N}{\frac{x_i - \bar{x}}{s_x} \frac{y_i - \bar{y}}{s_y}}\]
 
 For each gene and condition this resulted in three correlation coefficients with a determined threshold of over or equal to 0.95. The genes for which all three correlation coefficients fell below that threshold were removed from both dataframes. This applied to 1335 genes. If two out of three correlation coefficients were under 0.95 the replicate associated with both coefficients was replaced with NA. This was the case for 2594 replicates. Lastly, if one out of three correlation coefficients was below the determined threshold the replicate with the lower value in the other associated correlation coefficient was replaced with NA. This method was performed on 2285 replicates.
 
@@ -64,13 +63,13 @@ After testing for reproducibility and deleting unreliable values, the arithmetic
 ### 2.3.1 Smoothing the Data
 To determine the global and local maxima of the dataset, the dataframes *Ctrl_Mean* and *RNase_Mean* were smoothed separately. Otherwise, the determination would be influenced by outliers and wrong peaks.  
 
-Smoothing was achieved by changing the value of each fraction to the respective mean value of its defined neighborhood of \u00b1 1 with the following formula (applies to all fractions between 2 and 24): $y = \frac{f(x-1)+f(x)+f(x-1)}{3}$    
+Smoothing was achieved by changing the value of each fraction to the respective mean value of its defined neighborhood of 3 with the following formula (applies to all fractions between 2 and 24): \[y = \frac{f(x-1)+f(x)+f(x-1)}{3}\]    
 *$x$: fraction position ($2  \leq  x  \leq  24$);* $\quad$ *$f(x)$: mass spectrometry value at fraction position $x$;* $\quad$ *$y$: smoothed value for fraction position $x$*  
   
 For fraction position 1 and 25, the mean of fraction 1 and 2 as well as 24 and 25 were used instead.
 
 ### 2.3.2 Normalization of Smoothed data
-In order to be able to compare the different protein amounts, the smoothed dataframes were normalized to 100. This means that the sum of the mass spectrometry data in the different fractions for one protein adds up to 100: $y = \frac{f(x)}{\sum_{x=1}^{25}f(x)} *100$     
+In order to be able to compare the different protein amounts, the smoothed dataframes were normalized to 100. This means that the sum of the mass spectrometry data in the different fractions for one protein adds up to 100: \[y = \frac{f(x)}{\sum_{x=1}^{25}f(x)} *100\]     
 *$x$: fraction position ($1 \leq x \leq 25$);* $\quad$ *$f(x)$: mass spectrometry value at fraction position $x$;* $\quad$ *$y$: normalized value at fraction position $x$* The same procedure was then applied to the standard deviation.
 
 ### 2.3.3 Determination of Maxima
@@ -83,7 +82,7 @@ The global maximum for the smoothed and normalized dataframes were determined by
 The local maxima for the smoothed and normalized dataframes were determined by comparing the protein amount of each fraction position x to the protein amount in the fractions in a neighborhood of $n = 2$. If the protein amount in that fraction is greater or equal to its neighborhood, it was defined as a local maximum. For the fraction positions 2 and 24, the protein amounts had to be greater than or equal to the protein amounts in the fractions 1, 3 and 4 as well as fractions 22, 23, 25, and for the fraction positions 1 and 25, they had to be greater than or equal to fractions 2 and 3 as well as fractions 23 and 24. For proteins that had 2 or 3 fractions with the same mass spectrometry value, the mean fraction position was calculated. To distinguish local from global peaks, all global peaks were subtracted from the local peaks dataframe.  
 
 ## 2.4 Gaussian Fitting
-A Gaussian curve was fitted to the global peak and the local peak with the highest protein amount of each gene in the Control and RNase samples. A Gaussian curve can be described using the height $h$, standard deviation $\sigma$ and mean $\mu$ as: $f(x) = \frac {h} {\sqrt{2\pi} \cdot \sigma } \cdot e^{-\frac {1} {2} (\frac {x - \mu} {\sigma})^{2}}$. These parameters were first estimated and then optimized. $\mu$ was estimated as the fraction position of the global and largest local peak, $\sigma$ and $h$ were estimated as follows: $\sigma =\frac{HWHM}{\sqrt{2 \cdot ln(2)}};\qquad h = \frac{MPA}{sd \cdot \sqrt{2\pi}}\qquad$ *HWHM: half width at half maximum; MPA: maximum protein amount*. These estimated values were optimized by minimizing the sum of squares of the differences between protein amount values of the Gaussian curve $G$ and the smoothed and normalized protein distribution $p$ ($min(\sum(G-p)^2))$. This was used to calculate the protein amount under the Gaussian curve and the overlap of the Gaussian curves between the control and the RNase samples. 
+A Gaussian curve was fitted to the global peak and the local peak with the highest protein amount of each gene in the Control and RNase samples. A Gaussian curve can be described using the height $h$, standard deviation $\sigma$ and mean $\mu$ as: \[f(x) = \frac {h} {\sqrt{2\pi} \cdot \sigma } \cdot e^{-\frac {1} {2} (\frac {x - \mu} {\sigma})^{2}}\]. These parameters were first estimated and then optimized. $\mu$ was estimated as the fraction position of the global and largest local peak, $\sigma$ and $h$ were estimated as follows: \[\sigma =\frac{HWHM}{\sqrt{2 \cdot ln(2)}};\qquad h = \frac{MPA}{sd \cdot \sqrt{2\pi}}\qquad\] *HWHM: half width at half maximum; MPA: maximum protein amount*. These estimated values were optimized by minimizing the sum of squares of the differences between protein amount values of the Gaussian curve $G$ and the smoothed and normalized protein distribution $p$ ($min(\sum(G-p)^2))$. This was used to calculate the protein amount under the Gaussian curve and the overlap of the Gaussian curves between the control and the RNase samples. 
 
 ## 2.5 Selection Criteria for Identification of RNA-Dependent Proteins
 To determine the optimal selection criteria for an RNA-dependent protein, multiple parameters were compiled and applied to a principle component analysis. The best parameters were subsequently used to select between RDPs, non-RDPs and partial RDPs. 
@@ -178,20 +177,27 @@ Gene_Plotter("CTCF_HUMAN", Gauss =F, conf =F, Type= "Raw", grid=F, Gbl.Max=F, Lo
 Gene_Plotter("CTCF_HUMAN", Gauss=F, conf = F, Type="Smooth", grid=F, Gbl.Max=F, Loc.Max=F, Legend=F)
 
 ### smoothed and normalized
-Gene_Plotter("CTCF_HUMAN", Gauss=F, conf=F, Type="Smooth and Norm", grid=F, Gbl.Max=F, Loc.Max=F, Legend=F)
+Gene_Plotter("CTCF_HUMAN", Gauss=F, conf=F, Type="Smooth and Norm", grid=F, Gbl.Max=F, Loc.Max=F, Legend=T, Leg.Pos = c(0.05, 0))
 
 ```
+\footnotesize  
+**Figure 1: Data Cleanup.** The protein distributions for the gene *CTCF_HUMAN* were smoothed and then normalized.\normalsize 
+  
 
-```{r maxima and Gaussian fit, echo=FALSE, out.width = "50%"}
+```{r maxima and Gaussian fit, echo=FALSE, out.width = "65%"}
 ### Gaussian fitted
-Gene_Plotter("CTCF_HUMAN", grid =F)
+Gene_Plotter("CTCF_HUMAN", grid =F, Leg.Pos = c(0.05, 0))
 
 ```
+<br>  
+\footnotesize
+**Figure 2: Local and global Maxima and Gaussian Fitting.** Local and global maxima of the protein *CTCF_HUMAN* together with fitted Gaussian curves.
+\normalsize 
 
 ## 3.2 Shifting behavior
 In *Fig.*, the shifting behavior is represented by plotting the global peak positions of the Control against those of the RNase samples. Non-shifting proteins lie an a straight line through the origin with a slope of 1, signifying equal positions of both global peaks. Left-shifting proteins lie below this line, right-shifting proteins lie above. Precipitated proteins lie close to the right as well as to the top edge. Most proteins are non-shifting (5153 proteins). The largest group of shifting proteins are left-shifting (782 proteins).
 
-```{r shifting behavior, echo=FALSE, out.width="50%"}
+```{r shifting behavior, echo=FALSE, out.width = "65%"}
 
 # peak positions und Einfärben nach "left", "right", "precipitated" und "no" shifting
 
@@ -200,11 +206,14 @@ col[which(Sel_Crit[, 25] == "left")] = "blue"
 col[which(Sel_Crit[, 25] == "right")] = "red"
 col[which(Sel_Crit[, 25] == "precipitated")] = "orange"
 col[which(Sel_Crit[, 25] == "no")] = "grey"
-
+par(mar = c(4,5,5,9.5), xpd = T)
 plot(Ctrl_Gauss_Fit[, 1], RNase_Gauss_Fit[, 1], pch = 16, col = col, main = "Shifting Behavior", xlab = "Ctrl Gbl Peak Position", ylab = "RNase Gbl Peak Position")
-legend("topleft", legend = c(paste("left (", length(which(Sel_Crit[, 25] == "left")), ")", sep =""), paste("right (", length(which(Sel_Crit[, 25] == "right")), ")", sep =""), paste("precipitated (", length(which(Sel_Crit[, 25] == "precipitated")), ")", sep =""), paste("no (", length(which(Sel_Crit[, 25] == "no")), ")", sep ="")), pch = 16, col = c("blue", "red", "orange", "grey"))
+legend("topright", inset = c(-0.47, 0), legend = c(paste("left (", length(which(Sel_Crit[, 25] == "left")), ")", sep =""), paste("right (", length(which(Sel_Crit[, 25] == "right")), ")", sep =""), paste("precipitated (", length(which(Sel_Crit[, 25] == "precipitated")), ")", sep =""), paste("no (", length(which(Sel_Crit[, 25] == "no")), ")", sep ="")), pch = 16, col = c("blue", "red", "orange", "grey"))
 
 ```
+<br>  
+\footnotesize  
+**Figure 3: Shifting Behavior.** All analyzed proteins were classified into left, right and no shifting and precipitated using the criteria mentioned above. They were plotted using the global peak positions of the control and RNase samples.\normalsize  
 
 ## 3.3 Results of PCA
 In *Fig.* the PCA was applied to all selection criteria and the first and second principle component were plotted against each other. The different shifting behaviors of the proteins are shown by using different colors. Left shifting proteins (blue), the largest shifting group, spread along the following four selection criteria: delta_Glb_mu_%, Ctrl_Gbl_prt_porp_% and RNase_Gbl_prt_prop_% and negative Gbl_overlap_%. Therefore, they were defined as the optimal selection criteria. To illustrate this, *Fig.* shows the first and second principle component plotted against each other when PCA is performed solely of the optimal selection criteria. This shows that shifting proteins spread in the direction of delta_Glb_mu_%, Ctrl_Gbl_prt_porp_% and RNase_Gbl_prt_prop_%, whereas non-shifting proteins spread in the direction of the delta_Glb_mu_%. Since delta_Gbl_mu_% is the longest vector, it has the largest influence on the shifting behavior.
@@ -227,6 +236,8 @@ library(factoextra)
 fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T, col.ind = Sel_Crit[,25], pointshape=16, pointsize=1.5, palette = c("blue", "gray", "orange", "red"))
 
 ```
+\footnotesize  
+**Figure 4: PCA Biplots.** Sample Text.\normalsize 
 
 ## 3.4 Application of Selection Criteria and Determination of RDPs
 To determine the effectivess of our method, the proteins classified as RDPs in our analysis were compared to the proteins classified as RDPs in the RBP2GO database.. As depicted in *Fig.*, the RBP2GO-classified RDPs distribute homogeneously across the two clusters with no clear observable trend. 
@@ -263,6 +274,8 @@ legend("topright", legend = c(paste("RDP (", length(which(rownames(Sel_Crit) %in
 rm(pca, col)
 
 ```
+\footnotesize  
+**Figure 5: Identification of RDPs and Comparison to RBP2GO.** Sample Text.\normalsize
 
 ## 3.6 Cluster Comparison with RBP2GO Score and T-test
 To determine the significance of our clusters, the average RBP2GO score of these clusters was compared with a T-test. The average RBP2GO score of our RDPs is $21.5$ with a standard deviation of $19.9$, the average score of our partial RDPs is $13.6$ with a standard deviation of $15.6$ and the average score of our non-RDPs is $6.6$ with a standard deviation of $9.1$. For the comparison of the different clusters following p-values are calculated: RDP and non-RDP cluster:  p-value of $8.5*10^{-54}$, RDP and partial RDP cluster: p-value of $8.2*10^{-10}$, partial RDP and non RDP: p-value of $2.0*10^{-12}$. All clusters have significantly different p-values since each p-value is distinctly smaller than the False Positive Rate of $p=0.05$. 
@@ -273,7 +286,7 @@ To determine the significance of our clusters, the average RBP2GO score of these
 Comparing the RDPs identified via our presented analysis with the RDPs classified as such in the RBP2GO database, 631 proteins were identified as RDPs in both analyses, 2946 proteins were listed as RDPs in the database but were not identified as RDPs in our performed analysis, and 182 proteins which we determined as RDPs are not classified as such on the RBP2GO database (see *Fig.*).
 ```{r Bar plot RBPs, echo=F, out.width="50%"}
 # ---> Barplot 1: Vergleich unserer RDPs mit RBPs von der RBP2GO Datenbank
-par(mar=c(1, 3, 3, 7.5))
+par(mar=c(1, 3, 3, 8))
 barplot(
   matrix(
   c(
@@ -298,7 +311,8 @@ barplot(
   main = "Comparison with RBP2GO"
 )
 legend("topright", 
-       fill = c("green", "yellow", "orange", "red"), 
+       fill = c("green", "yellow", "orange", "red"),
+       inset = c(0.01, 0),
        legend = c( 
         paste("New RDPs (", 
               length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + 
@@ -309,7 +323,7 @@ legend("topright",
               length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))), 
               ")", sep = ""), 
         
-        paste("RDPs (only RBP2GO) (", 
+        paste("RBP2GO-RDPs (", 
               length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_RBP))), 
               ")", sep = ""),
         
@@ -319,6 +333,9 @@ legend("topright",
               ")", sep = ""))
 )
 ```
+<br>  
+\footnotesize  
+**Figure 6: Bar Plot.** Sample Text.\normalsize
 
 ## 3.8 Linear Regression
 Performing a linear regression to test whether or not binding affinity is a good predictor of binding specificity returns a very low coefficient of determination for all analyzed proteins (R² = 0.05) and a rather low coefficient of determination for only the RDPs (R² = 0.29). It is noticeable that the calculated correlation between binding affinity and specificity is in both cases inverse, meaning that on average the full width at half maximum decreases with an increasing difference between the protein amount of control and RNase samples at the global
@@ -336,11 +353,11 @@ col = rep(NA, length(Sel_Crit[, 26]))
 col[which(Sel_Crit[, 26] == "yes")] = "blue"
 col[which(Sel_Crit[, 26] == "partial")] = "orange"
 col[which(Sel_Crit[, 26] == "no")] = "grey"
-par(mar = c(5, 4, 4, 9.5), xpd = F)
+par(mar = c(5, 4, 4, 10.5), xpd = F)
 plot(affinity, specifity, col = col, pch = 16, ylab = "Binding Specificity [Fractions]", xlab = "Binding Affinity [Normalized Protein Amount]")
 curve(fit$coefficients[1] + fit$coefficients[2]*x, add = T, lwd = 3, col = "red")
 par(xpd = T)
-legend("topright", inset = c(-0.4, 0), legend = c("RDP", "partial RDP", "non RDP", "Regression line", paste("y = ", round(fit$coefficients[2], 2), "x + ", round(fit$coefficients[1], 2), sep = ""), paste("R² = ", round(summary(fit)$r.squared, 2), sep = "")), pch = c(16, 16, 16, NA, NA, NA), col = c("blue", "orange", "grey", "red", NA, NA), lwd = c(NA, NA, NA, 3, NA, NA))
+legend("topright", inset = c(-0.55, 0), legend = c("RDP", "partial RDP", "non RDP", "Regression line", paste("y = ", round(fit$coefficients[2], 2), "x + ", round(fit$coefficients[1], 2), sep = ""), paste("R² = ", round(summary(fit)$r.squared, 2), sep = "")), pch = c(16, 16, 16, NA, NA, NA), col = c("blue", "orange", "grey", "red", NA, NA), lwd = c(NA, NA, NA, 3, NA, NA))
 
 RNase_h = sapply(which(Sel_Crit[, 26] == "yes"), function(n) {RNase_Mean_Smooth_Norm100[n, unlist(round(Ctrl_Mean_Gbl_Max))[n]]})
 
@@ -353,15 +370,16 @@ col = rep(NA, length(which(Sel_Crit[, 26] == "yes")))
 col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "yes")] = "blue"
 col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "partial")] = "orange"
 col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "no")] = "grey"
-par(mar = c(5, 4, 4, 9.5), xpd = F)
+par(mar = c(5, 4, 4, 10.5), xpd = F)
 plot(affinity, specifity, col = col, pch = 16, ylab = "Binding Specificity [Fractions]", xlab = "Binding Affinity [Normalized Protein Amount]")
 curve(fit$coefficients[1] + fit$coefficients[2]*x, add = T, lwd = 3, col = "red")
 par(xpd = T)
-legend("topright", inset = c(-0.4, 0), legend = c("RDP", "Regression line", paste("y = ", round(fit$coefficients[2], 2), "x + ", round(fit$coefficients[1], 2), sep = ""), paste("R² = ", round(summary(fit)$r.squared, 2), sep = "")), pch = c(16, NA, NA, NA), col = c("blue", "red", NA, NA), lwd = c(NA, 3, NA, NA))
+legend("topright", inset = c(-0.55, 0), legend = c("RDP", "Regression line", paste("y = ", round(fit$coefficients[2], 2), "x + ", round(fit$coefficients[1], 2), sep = ""), paste("R² = ", round(summary(fit)$r.squared, 2), sep = "")), pch = c(16, NA, NA, NA), col = c("blue", "red", NA, NA), lwd = c(NA, 3, NA, NA))
 
 rm(affinity, RNase_h, fit, col, specifity)
 ```
-
+\footnotesize  
+**Figure 7: Linear Regression.** Sample Text.\normalsize
 
 
 # 4. Discussion
