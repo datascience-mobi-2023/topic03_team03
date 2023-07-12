@@ -317,6 +317,25 @@ legend("topright",
 ## 3.8 Linear Regression
 Performing a multivariate linear regression with our four selection criteria (Global peak shift, Protein loss under Ctrl global peak, Protein gain under RNase global peak, Overlap of the Gaussian curves) as variables to predict the RBP2GO score of the respective protein yields an $r^2$ value of 0.1650693, indicating a low correlation and therefore a low strength of prediction. 
 
+```{r, Linear Regression, echo=FALSE, out.width = "50%"}
+RNase_h = sapply(which(Sel_Crit[, 26] == "yes"), function(n) {RNase_Mean_Smooth_Norm100[n, unlist(round(Ctrl_Mean_Gbl_Max))[n]]})
+
+d_height = Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "yes"), 3] / (sqrt(2 * pi) * Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "yes"), 2])  - RNase_h
+specifity = 2 * sqrt(2 * log(2)) * Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "yes"), 2]
+
+fit <- lm(specifity ~ d_height)
+
+col = rep(NA, length(which(Sel_Crit[, 26] == "yes")))
+col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "yes")] = "blue"
+col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "partial")] = "orange"
+col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "no")] = "grey"
+plot(d_height, specifity, col = col, pch = 16, ylab = "Binding Specificity", xlab = "Binding Affinity")
+curve(fit$coefficients[1] + fit$coefficients[2]*x, add = T, lwd = 3, col = "orange")
+legend("topright", inset = c(0.02, 0.031), legend = c(paste("y = ", round(fit$coefficients[2], 2), "x + ", round(fit$coefficients[1], 2), sep = ""), NA, paste("R² = ", round(summary(fit)$r.squared, 2), sep = "")), box.col = NA)
+
+rm(d_height, RNase_h, fit, col, specifity)
+```
+
 # 4. Discussion
 In conclusion, the protein distributions provided by Caudron-Herger *et al.* for HeLa cells synchronized in interphase were cleaned and normalized. Next, the arithmetic mean for each fraction was calculated (see Fig. X). The averaged protein distributions were smoothed using a three fraction sliding window and normalized (see Fig. X).  
 Smoothing was performed to help with global and local peak determination, because the averaged protein distributions were sometimes too jagged for unambiguous peak determination.  
