@@ -2913,20 +2913,40 @@ We will now test how well of a predictor **binding affinity** is to **binding sp
 ```{r}
 RNase_h = sapply(which(Sel_Crit[, 26] == "yes"), function(n) {RNase_Mean_Smooth_Norm100[n, unlist(round(Ctrl_Mean_Gbl_Max))[n]]})
 
-d_height = Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "yes"), 3] / (sqrt(2 * pi) * Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "yes"), 2])  - RNase_h
+affinity = Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "yes"), 3] / (sqrt(2 * pi) * Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "yes"), 2])  - RNase_h
 specifity = 2 * sqrt(2 * log(2)) * Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "yes"), 2]
 
-fit <- lm(specifity ~ d_height)
+fit <- lm(specifity ~ affinity)
 
 col = rep(NA, length(which(Sel_Crit[, 26] == "yes")))
 col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "yes")] = "blue"
 col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "partial")] = "orange"
 col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "no")] = "grey"
-plot(d_height, specifity, col = col, pch = 16, ylab = "Binding Specificity [Fractions]", xlab = "Binding Affinity [Normalized Protein Amount]")
-curve(fit$coefficients[1] + fit$coefficients[2]*x, add = T, lwd = 3, col = "orange")
-legend("topright", inset = c(0.02, 0.031), legend = c(paste("y = ", round(fit$coefficients[2], 2), "x + ", round(fit$coefficients[1], 2), sep = ""), NA, paste("R² = ", round(summary(fit)$r.squared, 2), sep = "")), box.col = NA)
+par(mar = c(5, 4, 4, 9.5), xpd = F)
+plot(affinity, specifity, col = col, pch = 16, ylab = "Binding Specificity [Fractions]", xlab = "Binding Affinity [Normalized Protein Amount]")
+curve(fit$coefficients[1] + fit$coefficients[2]*x, add = T, lwd = 3, col = "red")
+par(xpd = T)
+legend("topright", inset = c(-0.4, 0), legend = c("RDP", "Regression line", paste("y = ", round(fit$coefficients[2], 2), "x + ", round(fit$coefficients[1], 2), sep = ""), paste("R² = ", round(summary(fit)$r.squared, 2), sep = "")), pch = c(16, NA, NA, NA), col = c("blue", "red", NA, NA), lwd = c(NA, 3, NA, NA))
 
-rm(d_height, RNase_h, fit, col, specifity)
+
+RNase_h = sapply(seq(1, nrow(Sel_Crit), 1), function(n) {RNase_Mean_Smooth_Norm100[n, unlist(round(Ctrl_Mean_Gbl_Max))[n]]})
+
+affinity = unlist(Ctrl_Gauss_Fit[, 3]) / (sqrt(2 * pi) * unlist(Ctrl_Gauss_Fit[, 2]))  - RNase_h
+specifity = 2 * sqrt(2 * log(2)) * Ctrl_Gauss_Fit[, 2]
+
+fit <- lm(specifity ~ affinity)
+
+col = rep(NA, length(Sel_Crit[, 26]))
+col[which(Sel_Crit[, 26] == "yes")] = "blue"
+col[which(Sel_Crit[, 26] == "partial")] = "orange"
+col[which(Sel_Crit[, 26] == "no")] = "grey"
+par(mar = c(5, 4, 4, 9.5), xpd = F)
+plot(affinity, specifity, col = col, pch = 16, ylab = "Binding Specificity [Fractions]", xlab = "Binding Affinity [Normalized Protein Amount]")
+curve(fit$coefficients[1] + fit$coefficients[2]*x, add = T, lwd = 3, col = "red")
+par(xpd = T)
+legend("topright", inset = c(-0.4, 0), legend = c("RDP", "partial RDP", "non RDP", "Regression line", paste("y = ", round(fit$coefficients[2], 2), "x + ", round(fit$coefficients[1], 2), sep = ""), paste("R² = ", round(summary(fit)$r.squared, 2), sep = "")), pch = c(16, 16, 16, NA, NA, NA), col = c("blue", "orange", "grey", "red", NA, NA), lwd = c(NA, NA, NA, 3, NA, NA))
+
+rm(affinity, RNase_h, fit, col, specifity)
 ```
 
 ```{r}
