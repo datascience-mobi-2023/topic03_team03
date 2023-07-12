@@ -118,7 +118,7 @@ A *shift* is a character variable that states whether a protein is *left*, *righ
 $\Delta\mu = \mu(Ctrl)-\mu(RNase)> +1$: right shift; $\Delta\mu = \mu(Ctrl)-\mu(RNase)< -1$: left shift; $-1 \leq\Delta\mu = \mu(Ctrl)-\mu(RNase)\leq +1$: no shift;$\mu(Ctrl)>24 \lor \mu(RNase)>24$: precipitated  
   
 ### 2.5.2 Principal Componant Analysis
-By applying a principle component analysis to the percentage values of the selection criteria, the optimal parameters to select for RNA-dependent proteins were examined by reducing the dimensions of the dataframe *Sel_Crit*. Only the variables calculated in percentages were used for the PCA for better comparison and the variables regarding main local peaks only serve at determining partially shifting proteins and were therefore not included in the principle component analysis. The selection criteria that separate the points the most in the plot of the first two principal components were chosen for further analysis.   
+By reducing the dimensions and applying a principle component analysis to the percentage values of all selection criteria, the optimal parameters to select for RNA-dependent proteins were examined. Only the variables calculated in percentages were used for the PCA for better comparison and the variables regarding main local peaks only serve at determining partially shifting proteins and were therefore not included in the principle component analysis. The selection criteria that separate the points the most in the plot of the first two principal components were chosen for further analysis.  
 
 ### 2.5.3 Application of Selection Criteria  
 Based on the PCA, four parameters were defined as most important for separating shifting from non-shifting proteins. Following thresholds for the four parameters were furthermore set for the classification of an RNA-dependent protein (RDP):
@@ -141,21 +141,24 @@ Furthermore, *partially* RNA-dependent proteins were defined as proteins that sa
 ## 2.6 Further Analysis
 
 ### 2.6.1 Comparison with the RBP2GO Database    
-To evaluate the accuracy of the performed analysis, the identified RDPs were compared with existing RDPs in the RBP2GO database, and a barplot was created. 
+To evaluate the accuracy of the performed analysis, the identified RDPs were compared with their respective RDP-categorization in the RBP2GO database. 
 
 
 #### 2.6.2.1 Direct Comparison  
-To further examine the relation between our RDP identification method and the RBP2GO classification, we plotted both RBP2Go-RDPs and -non-RDPs in the biplot of the first two principal components used in our analysis.
+To further examine the relation between our RDP identification method and the RBP2GO classification, we plotted both RBP2Go-RDPs and -non-RDPs in the biplot of the first two principal components used in the described analysis.
 
 #### 2.6.2.2 Comparison with RDP2GO-score  
 The RDPs identified in the performed analysis were then further compared to their respective RDP2GO score.
 
 
 #### 2.6.2.3 Cluster Comparison with t-Test  
-By calculating the **mean RBP2GO-score** for each cluster identified by applying the optimal selection criteria, the RNA-dependence of a cluster (non-/partial/RDP) was estimated. Using a two-sided Welch t-test, the significance of the differences between the mean RBP2GO-score values were calculated. The H0 and H1 hypotheses were defined as following: H0: The mean values are not significantly different from each other, H1: The mean values are significantly different from each other. The False Positive Rate was set at $p=0,05$. 
+By calculating the **mean RBP2GO-score** for each cluster identified by applying the optimal selection criteria, the RNA-dependence of a cluster (non-/partial/RDP) was estimated. Using a two-sided Welch t-test, the significance of the differences between the mean RBP2GO-score values were calculated. The H0 and H1 hypotheses were defined as following: H0: The mean values are not significantly different from each other, H1: The mean values are significantly different from each other. The false positive rate was set at $p=0,05$. 
+
+### 2.6.2.4 Barplot with all identified RDPs
+Finally, a barplot was created to compare the overlap between all identified RDPs via the performed analysis and all RDPs classified as such in the RBP2GO database.
 
 ### 2.6.3 Linear Regression    
-Finally, we investigated whether the RBP2Go-Score could be predicted via a multivariate linear regression based on how well the proteins fulfills the four selection criteria deployed in our performed analysis. 
+In order to apply the obtained data on RDPs to biological questions, a linear regression was performed to evaluate how well of a predictor **binding affinity** is to **binding specificity** for RDPs. In this case, the binding affinity is defined as the protein amount difference between the Ctrl and RNase samples at the fraction position of the global Ctrl peak, and the binding specificity as the standard deviation at the global Ctrl peak.
 
 
 # 3. Results
@@ -204,7 +207,7 @@ legend("topleft", legend = c(paste("left (", length(which(Sel_Crit[, 25] == "lef
 ```
 
 ## 3.3 Results of PCA
-In *Fig.* the PCA was applied to all selection criteria and the first and second principle component were plotted against each other. The different shifting behaviors of the proteins are shown by using different colors. Left shifting proteins (blue), the largest shifting group, spread along the following four selection criteria: delta_Glb_mu_%, Ctrl_Gbl_prt_porp_% and RNase_Gbl_prt_prop_% and negative Gbl_overlap_%. Therefore, they were defined as the optimal selection criteria. To illustrate this, *Fig.* shows the first and second principle component plotted against each other when PCA is performed solely of the optimal selection criteria. This shows that shifting proteins spread in the direction of delta_Glb_mu_%, Ctrl_Gbl_prt_porp_% and RNase_Gbl_prt_prop_%, whereas non-shifting proteins spread in the direction of the delta_Glb_mu_%. Since delta_Gbl_mu_% is the longest vector, it has the most influence on the shifting behavior.
+In *Fig.* the PCA was applied to all selection criteria and the first and second principle component were plotted against each other. The different shifting behaviors of the proteins are shown by using different colors. Left shifting proteins (blue), the largest shifting group, spread along the following four selection criteria: delta_Glb_mu_%, Ctrl_Gbl_prt_porp_% and RNase_Gbl_prt_prop_% and negative Gbl_overlap_%. Therefore, they were defined as the optimal selection criteria. To illustrate this, *Fig.* shows the first and second principle component plotted against each other when PCA is performed solely of the optimal selection criteria. This shows that shifting proteins spread in the direction of delta_Glb_mu_%, Ctrl_Gbl_prt_porp_% and RNase_Gbl_prt_prop_%, whereas non-shifting proteins spread in the direction of the delta_Glb_mu_%. Since delta_Gbl_mu_% is the longest vector, it has the largest influence on the shifting behavior.
 
 ```{r Principal components, echo=FALSE, out.width="50%"}
 
@@ -229,10 +232,13 @@ fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T
 To determine the effectivess of our method, the proteins classified as RDPs in our analysis were compared to the proteins classified as RDPs in the RBP2GO database.. As depicted in *Fig.*, the RBP2GO-classified RDPs distribute homogeneously across the two clusters with no clear observable trend. 
 
 Include locals too & show how including these righteously expands the number of RBPs
+Example: HNRH3_HUMAN, Heterogeneous nuclear ribonucleoprotein H3, RBP2GO score of 84,8, partial shifter
+and SRSF9_HUMAN, Serine/arginine-rich splicing factor 9, RBP2Go score 71.0
 
 ## 3.5 Comparison with the RBP2GO Database
 To determine the effectiveness of our method, the proteins classified as RDPs in our analysis were compared to the proteins classified as RDPs in the RDP2GO database. 
-In order to further analyse the relation between the RBP2GO classification and our analysis, both RBP2GO-RDPs and -non-RDPs were plotted in the biplot of the first two principal components used in our analysis. As depicted in *Fig.*, the RBP2GO-classified RDPs distribute homogeneously across the two clusters with no clear observable trend. 
+
+Firstly, both RBP2GO-RDPs and -non-RDPs were plotted in the biplot of the first two principal components used in our analysis. As depicted in *Fig.*, the RBP2GO-classified RDPs distribute homogeneously across the two clusters with no clear observable trend. 
 
 ```{r comparison with RBP2GO Database, echo =F, out.width="50%"}
 
@@ -316,6 +322,7 @@ legend("topright",
 
 ## 3.8 Linear Regression
 Performing a multivariate linear regression with our four selection criteria (Global peak shift, Protein loss under Ctrl global peak, Protein gain under RNase global peak, Overlap of the Gaussian curves) as variables to predict the RBP2GO score of the respective protein yields an $r^2$ value of 0.1650693, indicating a low correlation and therefore a low strength of prediction. 
+
 
 # 4. Discussion
 In conclusion, the protein distributions provided by Caudron-Herger *et al.* for HeLa cells synchronized in interphase were cleaned and normalized. Next, the arithmetic mean for each fraction was calculated (see Fig. X). The averaged protein distributions were smoothed using a three fraction sliding window and normalized (see Fig. X).  
