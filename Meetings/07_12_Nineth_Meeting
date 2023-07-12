@@ -3,9 +3,11 @@ Fragen:
 2. Brauchen wir ein Inhaltsverzeichnis? Carl hat das so geschrieben, aber es soll ja im Stil eines Papers sein...
 3. Ggf. wie ändert man den Zeilenabstand? Oder wie entfernt man den Absatz unter einer Überschrift?
 4. Wie bekommen wir die Figure-Unterschriften für mehrere Figures nebeneinander hin?
+5. Repo aufräumen?
 
 Antworten:
-1. 
-2. 
-3.
-4.
+1. Ja, ist okay
+2. Ja, im Zweifel an Carl halten. weniger als Paper sehen, mehr als Protkoll. 
+3. white space lieber drin lassen
+4. als Text unter die Figure schreiben
+5. Environment und so drin lassen, alles Unwichtige raus
