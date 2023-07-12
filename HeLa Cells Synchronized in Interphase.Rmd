@@ -2922,7 +2922,7 @@ col = rep(NA, length(which(Sel_Crit[, 26] == "yes")))
 col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "yes")] = "blue"
 col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "partial")] = "orange"
 col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "no")] = "grey"
-plot(d_height, specifity, col = col, pch = 16, ylab = "Binding Specificity", xlab = "Binding Affinity")
+plot(d_height, specifity, col = col, pch = 16, ylab = "Binding Specificity [Fractions]", xlab = "Binding Affinity [Normalized Protein Amount]")
 curve(fit$coefficients[1] + fit$coefficients[2]*x, add = T, lwd = 3, col = "orange")
 legend("topright", inset = c(0.02, 0.031), legend = c(paste("y = ", round(fit$coefficients[2], 2), "x + ", round(fit$coefficients[1], 2), sep = ""), NA, paste("R² = ", round(summary(fit)$r.squared, 2), sep = "")), box.col = NA)
 

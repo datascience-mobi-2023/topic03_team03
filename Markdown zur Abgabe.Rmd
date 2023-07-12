@@ -155,7 +155,7 @@ The RDPs identified in the performed analysis were then further compared to thei
 By calculating the **mean RBP2GO-score** for each cluster identified by applying the optimal selection criteria, the RNA-dependence of a cluster (non-/partial/RDP) was estimated. Using a two-sided Welch t-test, the significance of the differences between the mean RBP2GO-score values were calculated. The H0 and H1 hypotheses were defined as following: H0: The mean values are not significantly different from each other, H1: The mean values are significantly different from each other. The False Positive Rate was set at $p=0,05$. 
 
 ### 2.6.3 Linear Regression    
-Finally, we investigated whether the RBP2Go-Score could be predicted via a multivariate linear regression based on how well the proteins fulfills the four selection criteria deployed in our performed analysis. 
+Finally, using linear regression we investigated whether the difference in protein amount between the control and RNase samples at the fraction position of the control global peak (Binding Affinity) could predict the full width at half maximum of the Gaussian curve fitted to the control global peak (Binding Specificity). Note that only RDPs where investigated. 
 
 
 # 3. Results
@@ -315,7 +315,7 @@ legend("topright",
 ```
 
 ## 3.8 Linear Regression
-Performing a multivariate linear regression with our four selection criteria (Global peak shift, Protein loss under Ctrl global peak, Protein gain under RNase global peak, Overlap of the Gaussian curves) as variables to predict the RBP2GO score of the respective protein yields an $r^2$ value of 0.1650693, indicating a low correlation and therefore a low strength of prediction. 
+Performing a linear regression to test whether or not binding affinity is a good predictor of binding specificity returns a rather low coefficient of determination (R² = 0.29). It is noticeable that the calculated correlation between binding affinity and specificity is inverse, meaning that on average the full width at half maximum decreases with an increasing difference between the protein amounts of control and RNase samples at the global control peak position.
 
 ```{r, Linear Regression, echo=FALSE, out.width = "50%"}
 RNase_h = sapply(which(Sel_Crit[, 26] == "yes"), function(n) {RNase_Mean_Smooth_Norm100[n, unlist(round(Ctrl_Mean_Gbl_Max))[n]]})
@@ -329,7 +329,7 @@ col = rep(NA, length(which(Sel_Crit[, 26] == "yes")))
 col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "yes")] = "blue"
 col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "partial")] = "orange"
 col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "no")] = "grey"
-plot(d_height, specifity, col = col, pch = 16, ylab = "Binding Specificity", xlab = "Binding Affinity")
+plot(d_height, specifity, col = col, pch = 16, ylab = "Binding Specificity [Fractions]", xlab = "Binding Affinity [Normalized Protein Amount]")
 curve(fit$coefficients[1] + fit$coefficients[2]*x, add = T, lwd = 3, col = "orange")
 legend("topright", inset = c(0.02, 0.031), legend = c(paste("y = ", round(fit$coefficients[2], 2), "x + ", round(fit$coefficients[1], 2), sep = ""), NA, paste("R² = ", round(summary(fit)$r.squared, 2), sep = "")), box.col = NA)
 
