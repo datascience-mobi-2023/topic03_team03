@@ -73,14 +73,13 @@ For fraction position 1 and 25, the mean of fraction 1 and 2 as well as 24 and 2
 In order to be able to compare the different protein amounts, the smoothed dataframes were normalized to 100. This means that the sum of the mass spectrometry data in the different fractions for one protein adds up to 100: $y = \frac{f(x)}{\sum_{x=1}^{25}f(x)} *100$     
 *$x$: fraction position ($1 \leq x \leq 25$);* $\quad$ *$f(x)$: mass spectrometry value at fraction position $x$;* $\quad$ *$y$: normalized value at fraction position $x$* The same procedure was then applied to the standard deviation.
 
-
 ### 2.3.3 Determination of Maxima
 If a protein is an RNA-dependent protein, the maximum amount of protein should be situated in a different fraction in the RNase sample compared to the Control sample. To determine for which proteins this is the case, the global and local maxima of the mass spectrometry data was determined.  
   
-#### 2.3.3.1 Global Maxima \
+#### 2.3.3.1 Global Maxima
 The global maximum for the smoothed and normalized dataframes were determined by identifying the fraction of the largest mass spectrometry value in each dataframe. For proteins that had 2 or 3 fractions with the same value, the mean fraction position was calculated.  
   
-#### 2.3.3.2 Local Maxima \
+#### 2.3.3.2 Local Maxima
 The local maxima for the smoothed and normalized dataframes were determined by comparing the protein amount of each fraction position x to the protein amount in the fractions in a neighborhood of $n = 2$. If the protein amount in that fraction is greater or equal to its neighborhood, it was defined as a local maximum. For the fraction positions 2 and 24, the protein amounts had to be greater than or equal to the protein amounts in the fractions 1, 3 and 4 as well as fractions 22, 23, 25, and for the fraction positions 1 and 25, they had to be greater than or equal to fractions 2 and 3 as well as fractions 23 and 24. For proteins that had 2 or 3 fractions with the same mass spectrometry value, the mean fraction position was calculated. To distinguish local from global peaks, all global peaks were subtracted from the local peaks dataframe.  
 
 ## 2.4 Gaussian Fitting
@@ -117,13 +116,11 @@ between the gaussian curves of the main local peaks of Ctrl and RNase.
 
 A *shift* is a character variable that states whether a protein is *left*, *right*, *non* shifting or *precipitated* and is defined as following:
 $\Delta\mu = \mu(Ctrl)-\mu(RNase)> +1$: right shift; $\Delta\mu = \mu(Ctrl)-\mu(RNase)< -1$: left shift; $-1 \leq\Delta\mu = \mu(Ctrl)-\mu(RNase)\leq +1$: no shift;$\mu(Ctrl)>24 \lor \mu(RNase)>24$: precipitated  
-
   
 ### 2.5.2 Principal Componant Analysis
 By applying a principle component analysis to the percentage values of the selection criteria, the optimal parameters to select for RNA-dependent proteins were examined by reducing the dimensions of the dataframe *Sel_Crit*. Only the variables calculated in percentages were used for the PCA for better comparison and the variables regarding main local peaks only serve at determining partially shifting proteins and were therefore not included in the principle component analysis. The selection criteria that separate the points the most in the plot of the first two principal components were chosen for further analysis.   
 
 ### 2.5.3 Application of Selection Criteria  
-
 Based on the PCA, four parameters were defined as most important for separating shifting from non-shifting proteins. Following thresholds for the four parameters were furthermore set for the classification of an RNA-dependent protein (RDP):
 
   1. Global peak shift of more than **1 fraction**
@@ -144,7 +141,6 @@ Furthermore, *partially* RNA-dependent proteins were defined as proteins that sa
 ## 2.6 Further Analysis
 
 ### 2.6.1 Comparison with the RBP2GO Database    
-
 To evaluate the accuracy of the performed analysis, the identified RDPs were compared with existing RDPs in the RBP2GO database, and a barplot was created. 
 
 
@@ -163,6 +159,7 @@ Finally, we investigated whether the RBP2Go-Score could be predicted via a multi
 
 
 # 3. Results
+
 ## 3.1 Results of Data Cleanup, Localization of Maxima and Gaussian Fitting
 After performing all data cleanup steps, the original dataset *RDeep_HeLa_Interphase* was reduced from 7086 proteins to 5990 Proteins. Local and global maxima were determined and the Gaussian curve fitted to the peaks. As can be observed in the plots of "CTCF_HUMAN" below, the smoothing and normalization steps as well as the Gaussian Fitting applied to the dataset were successful.
 
@@ -187,7 +184,6 @@ Gene_Plotter("CTCF_HUMAN", Gauss=F, conf=F, Type="Smooth and Norm", grid=F, Gbl.
 Gene_Plotter("CTCF_HUMAN", grid =F)
 
 ```
-
 
 ## 3.2 Shifting behavior
 In *Fig.*, the shifting behavior is represented by plotting the global peak positions of the Control against those of the RNase samples. Non-shifting proteins lie an a straight line through the origin with a slope of 1, signifying equal positions of both global peaks. Left-shifting proteins lie below this line, right-shifting proteins lie above. Precipitated proteins lie close to the right as well as to the top edge. Most proteins are non-shifting (5153 proteins). The largest group of shifting proteins are left-shifting (782 proteins).
@@ -230,7 +226,6 @@ fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T
 ```
 
 ## 3.4 Application of Selection Criteria and Determination of RDPs
-
 To determine the effectivess of our method, the proteins classified as RDPs in our analysis were compared to the proteins classified as RDPs in the RBP2GO database.. As depicted in *Fig.*, the RBP2GO-classified RDPs distribute homogeneously across the two clusters with no clear observable trend. 
 
 Include locals too & show how including these righteously expands the number of RBPs
@@ -264,7 +259,6 @@ rm(pca, col)
 ```
 
 ## 3.6 Cluster Comparison with RBP2GO Score and T-test
-
 To determine the significance of our clusters, the average RBP2GO score of these clusters was compared with a T-test. The average RBP2GO score of our RDPs is $21.5$ with a standard deviation of $19.9$, the average score of our partial RDPs is $13.6$ with a standard deviation of $15.6$ and the average score of our non-RDPs is $6.6$ with a standard deviation of $9.1$. For the comparison of the different clusters following p-values are calculated: RDP and non-RDP cluster:  p-value of $8.5*10^{-54}$, RDP and partial RDP cluster: p-value of $8.2*10^{-10}$, partial RDP and non RDP: p-value of $2.0*10^{-12}$. All clusters have significantly different p-values since each p-value is distinctly smaller than the False Positive Rate of $p=0,05$. 
 
 =>Was ist mit den Proteinen mit hohem RBP2GO? Sind die wenigstens alle "richtig" klassifiziert?
@@ -272,36 +266,58 @@ To determine the significance of our clusters, the average RBP2GO score of these
 ## 3.7 Bar Plot
 Comparing the RDPs identified via our presented analysis with the RDPs classified as such in the RBP2GO database, 631 proteins were identified as RDPs in both analyses, 2946 proteins were listed as RDPs in the database but were not identified as RDPs in our performed analysis, and 182 proteins which we determined as RDPs are not classified as such on the RBP2GO database (see *Fig.*).
 ```{r Bar plot RBPs, echo=F, out.width="50%"}
-
-# bar plot
-par(mar=c(1, 3, 1, 7.5))
-barplot(matrix(c(
-  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))),
-  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_RBP))),
-  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))),
-  length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))),
-  rep(NA, 4)),
+# ---> Barplot 1: Vergleich unserer RDPs mit RBPs von der RBP2GO Datenbank
+par(mar=c(1, 3, 3, 7.5))
+barplot(
+  matrix(
+  c(
+    length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) +
+    length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))), 
+    # RED: which protein are identified as non RDPs in our analysis and in RBP2GO? + which proteins from our dataset are not included in RBP2GO?
+  
+    length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_RBP))), 
+    # ORANGE: which of our non RDPs are in the RBP dataset from RBP2GO?
+  
+    length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))),
+    # YELLOW: which of our RDPs or partial RDPs are also listed in the RBP2GO databank?
+  
+    length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + 
+    length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))), 
+    # GREEN: which of our RDPs are not listed in the RBP2GO Databank?
+  
+    rep(NA, 4)),
   nrow = 4),
   axes = F,
   col = c("red", "orange", "yellow", "green"), 
-  legend.text = c(paste("Non RDPs (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))), ")", sep = ""), 
-                  paste("RDPs (only RBP2GO) (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_RBP))), ")", sep = ""), 
-                  paste("RDPs (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))), ")", sep = ""), 
-                  paste("New RDPs (", length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))), ")", sep = "")),
-  )
-
+  main = "Comparison with RBP2GO"
+)
+legend("topright", 
+       fill = c("green", "yellow", "orange", "red"), 
+       legend = c( 
+        paste("New RDPs (", 
+              length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_Non_RBP))) + 
+              length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]))), 
+              ")", sep = ""),
+        
+        paste("RDPs (", 
+              length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "yes" | Sel_Crit[, 26] == "partial"), ]) %in% rownames(Table_HS_RBP))), 
+              ")", sep = ""), 
+        
+        paste("RDPs (only RBP2GO) (", 
+              length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_RBP))), 
+              ")", sep = ""),
+        
+        paste("Non RDPs (", 
+              length(which(rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]) %in% rownames(Table_HS_Non_RBP))) + 
+              length(which(rownames(Ctrl_RDeep[which(!(rownames(Ctrl_RDeep) %in% rownames(Table_HS_RBP)) & !(rownames(Ctrl_RDeep) %in% rownames(Table_HS_Non_RBP))), ]) %in% rownames(Sel_Crit[which(Sel_Crit[, 26] == "no"), ]))), 
+              ")", sep = ""))
+)
 ```
-
-
-
 
 ## 3.8 Linear Regression
 Performing a multivariate linear regression with our four selection criteria (Global peak shift, Protein loss under Ctrl global peak, Protein gain under RNase global peak, Overlap of the Gaussian curves) as variables to predict the RBP2GO score of the respective protein yields an $r^2$ value of 0.1650693, indicating a low correlation and therefore a low strength of prediction. 
 
-
-
 # 4. Discussion
-
 In conclusion, the protein distributions provided by Caudron-Herger *et al.* for HeLa cells synchronized in interphase were cleaned and normalized. Next, the arithmetic mean for each fraction was calculated (see Fig. X). The averaged protein distributions were smoothed using a three fraction sliding window and normalized (see Fig. X).  
 Smoothing was performed to help with global and local peak determination, because the averaged protein distributions were sometimes too jagged for unambiguous peak determination.  
 However, this approach has three problems: First, single fraction peaks result, upon smoothing, in multiple peaks in neighboring fractions. This problem was fixed by calculating the mean fraction position for multiple peaks.  
@@ -400,4 +416,22 @@ pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
 plot(pca$x[, 1], pca$x[, 2], pch = 16, col = densCols(pca$x[, 1], pca$x[, 2], colramp = colorRampPalette(c("blue", "cyan", "green", "yellow", "orange", "red"))), main = "Point Density", xlab = "PC1", ylab = "PC2")
 abline(h = 0, lty =3, col = "grey")
 abline(v = 0, lty = 3, col = "grey")
+```
+
+
+```{r Exemplary Graphs, echo=FALSE, out.width="50%"}
+#Non RDP:
+Gene_Plotter("PZP_HUMAN", cus.main = "PZP_HUMAN (non RDP)")
+
+# RDP:
+Gene_Plotter("HNRPL_HUMAN", cus.main = "HNRPL_HUMAN (RDP)")
+
+# partial RDP: 
+# categorized based on local peaks
+Gene_Plotter("OLA1_HUMAN", cus.main = "OLA1_HUMAN (partial RDP)")
+# categrozied based on 2. | 3.
+Gene_Plotter("RTCA_HUMAN", cus.main = "RTCA_HUMAN (partial RDP)")
+
+#Sel_Crit[which(max(Sel_Crit[, 27], na.rm = T) == Sel_Crit[, 27]), 25:27]
+#Sel_Crit[which(min(Sel_Crit[, 27], na.rm = T) == Sel_Crit[, 27]), 25:27]
 ```
