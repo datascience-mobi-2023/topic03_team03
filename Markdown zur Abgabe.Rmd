@@ -259,7 +259,7 @@ rm(pca, col)
 ```
 
 ## 3.6 Cluster Comparison with RBP2GO Score and T-test
-To determine the significance of our clusters, the average RBP2GO score of these clusters was compared with a T-test. The average RBP2GO score of our RDPs is $21.5$ with a standard deviation of $19.9$, the average score of our partial RDPs is $13.6$ with a standard deviation of $15.6$ and the average score of our non-RDPs is $6.6$ with a standard deviation of $9.1$. For the comparison of the different clusters following p-values are calculated: RDP and non-RDP cluster:  p-value of $8.5*10^{-54}$, RDP and partial RDP cluster: p-value of $8.2*10^{-10}$, partial RDP and non RDP: p-value of $2.0*10^{-12}$. All clusters have significantly different p-values since each p-value is distinctly smaller than the False Positive Rate of $p=0,05$. 
+To determine the significance of our clusters, the average RBP2GO score of these clusters was compared with a T-test. The average RBP2GO score of our RDPs is $21.5$ with a standard deviation of $19.9$, the average score of our partial RDPs is $13.6$ with a standard deviation of $15.6$ and the average score of our non-RDPs is $6.6$ with a standard deviation of $9.1$. For the comparison of the different clusters following p-values are calculated: RDP and non-RDP cluster:  p-value of $8.5*10^{-54}$, RDP and partial RDP cluster: p-value of $8.2*10^{-10}$, partial RDP and non RDP: p-value of $2.0*10^{-12}$. All clusters have significantly different p-values since each p-value is distinctly smaller than the False Positive Rate of $p=0.05$. 
 
 =>Was ist mit den Proteinen mit hohem RBP2GO? Sind die wenigstens alle "richtig" klassifiziert?
 
