@@ -9,11 +9,12 @@ Fragen:
 8. Aufteilung der Präsentation
 9. RBP2GO-Score: inwiefern sind RDPs gleichwertig zu RBPs berücksichtigt?
 10. Lineare Regression
+11. Präsie
 
 Antworten:
 1. Ja, ist okay
 2. Ja, im Zweifel an Carl halten. weniger als Paper sehen, mehr als Protkoll. 
-3. white space lieber drin lassen
+3. white space lieber drin lassen, aber theoretisch über "pdf_document" ganz oben im Markdown einstellbar
 4. als Text unter die Figure schreiben
 5. Environment und so drin lassen, alles Unwichtige raus
 6. mit HTML-Format regeln
@@ -29,3 +30,4 @@ Antworten:
  - wir müssen nicht in unseren Ergebnissen die biologische Komponente mit einfügen
  - in der Theorie würde das so aussehen blabla, die Variablen fehlen noch (POSITIV FORMULIEREN)
  - z.B. Anzahl an local peaks gegen shift der global peaks als Alternative
+11. Methoden sehr verkürzt aufnehmen (eine Folie mit Flowchart, der zeigt, welche Analyse-Schritte durchgeführt wurden)
