@@ -4,6 +4,11 @@ Fragen:
 3. Ggf. wie ändert man den Zeilenabstand? Oder wie entfernt man den Absatz unter einer Überschrift?
 4. Wie bekommen wir die Figure-Unterschriften für mehrere Figures nebeneinander hin?
 5. Repo aufräumen?
+6. Formeln in Latex
+7. Ernsthaftigkeit der Präsentation
+8. Aufteilung der Präsentation
+9. RBP2GO-Score: inwiefern sind RDPs gleichwertig zu RBPs berücksichtigt?
+10. Lineare Regression
 
 Antworten:
 1. Ja, ist okay
@@ -11,3 +16,16 @@ Antworten:
 3. white space lieber drin lassen
 4. als Text unter die Figure schreiben
 5. Environment und so drin lassen, alles Unwichtige raus
+6. mit HTML-Format regeln
+7. Mischung: davon ausgehen, dass Maiwen nichts weiß aber nicht so viel, dass wir uns nicht damit beschäftigt haben
+8. Erwähnung der Methoden: Flowchart für alledurchgeführten Schritte kurz erklären, was da passiert ist, erst dann die Results
+9. es ist okay, wenn wir unsere Ergebnisse einfach darauf anwenden
+10. *skeptisches hmmm*
+ - Einheit hinzufügen
+ - Parameter h *das ist ja total intuitiv* (hier x-Achse nochmal überarbeiten)
+ - ist natürlich kein 1:1-Abbild
+ - sollte eigentlich der Vorhersage dienen (RBPs, Bindungsspezifität, ...)
+ - logistische Regression wäre für Vorhersage von partial, full, non shifters
+ - wir müssen nicht in unseren Ergebnissen die biologische Komponente mit einfügen
+ - in der Theorie würde das so aussehen blabla, die Variablen fehlen noch (POSITIV FORMULIEREN)
+ - z.B. Anzahl an local peaks gegen shift der global peaks als Alternative
