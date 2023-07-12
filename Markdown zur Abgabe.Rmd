@@ -29,13 +29,13 @@ load("Table_HS_Non_RBP.RData")
 \newpage
 
 # 1. Introduction
-RNA and its interacting proteins are relevant for essential cellular activity. Especially in posttranscriptional processes, RNA-binding proteins mediate the regulation of posttranscriptional modification, transport through the cytoplasm, translation, and stability of the RNA template. Different RNA-binding motifs have been characterized so far allowing the linkage of proteins to ribonucleic acid (Burd and Dreyfuss, 1994). The structure of most RNA-binding domains is highly conserved; nevertheless, many RBPs bind with high specificity and affinity to distinct RNAs (Lunde *et al.*, 2007). As RBPs are crucial for certain housekeeping mechanisms, mutations or other alterations in human RBPs can have pathological effects (Gebauer *et al.*, 2021).
+RNA and its interacting proteins are relevant for essential cellular activity. Especially in posttranscriptional processes, RNA-binding proteins (RBPs) mediate the regulation of posttranscriptional modification, transport through the cytoplasm, translation, and stability of the RNA template. Different RNA-binding motifs have been characterized so far allowing the linkage of proteins to ribonucleic acid (Burd and Dreyfuss, 1994). The structure of most RNA-binding domains is highly conserved; nevertheless, many RBPs bind with high specificity and affinity to distinct RNAs (Lunde *et al.*, 2007). As RBPs are crucial for certain housekeeping mechanisms, mutations or other alterations in human RBPs can have pathological effects (e.g. alterations in the expression of the *zinc finger protein SNAI1* are associated with cancer metastasis) (Gebauer *et al.*, 2021).
 
 There are multiple classifications for interactions between proteins and RNA. RBPs can be characterized in a binary system of being “specific” or “nonspecific” where specific RBPs interact with defined RNA motifs and nonspecific RBPs bind to RNA with an absence of definite motifs (Jankowsky and Harris, 2015). Further differentiation can lead to RBP classes defined by specific RNA-binding domains such as zinc-finger domains or RNA recognition motifs. Additionally, the targets of RBPs can be considered for creating subgroups. Thus, for instance mRNA‑binding or tRNA‑binding RBPs are classified (Gerstberger *et al.*, 2014).
 
 Furthermore, RBPs can be classified as a subcategory of RNA-interacting proteins themselves. The concept of RNA-dependency combines RBPs with proteins which are interacting indirectly with RNA. The latter can also be called RBP-interacting proteins. Thus, RNA-dependent proteins (RDPs) allow for a broader comprehension of the RNA interactome (Caudron-Herger *et al.*, 2020).
 
-Various methods have been applied to identify RNA recognition elements so far, for example crosslinking and immunoprecipitation followed by sequencing (CLIP-seq) (Gerstberger *et al.*, 2014;2013). This enables identification of RNAs bound to proteins. Detecting the proteins interacting with RNA requires other methods such as comprehensive identification of RBPs by mass spectrometry (CHIRP-MS) (Licatalosi *et al.*, 2020). Introducing the method R-DeeP, Caudron-Herger *et al.* promise a “proteome-wide, unbiased, and enrichment-free screen” that is solely based on disrupting the RNA-protein and RNA-protein-protein interaction (Caudron-Herger *et al.*, 2020;2019). Through R-DeeP, we aim to identify more human RBPs and RBP-interacting proteins in this project.
+Various methods have been applied to identify RNA recognition elements so far, for example crosslinking and immunoprecipitation followed by sequencing (CLIP-seq) (Gerstberger *et al.*, 2014; 2013). This enables identification of RNAs bound to proteins. Detecting the proteins interacting with RNA requires other methods such as comprehensive identification of RBPs by mass spectrometry (CHIRP-MS) (Licatalosi *et al.*, 2020). Introducing the method R-DeeP, Caudron-Herger *et al.* promise a “proteome-wide, unbiased, and enrichment-free screen” that is solely based on disrupting the RNA-protein and RNA-protein-protein interaction (Caudron-Herger *et al.*, 2020; 2019). Through R-DeeP, we aim to identify more human RBPs and RBP-interacting proteins in this project.
 
 # 2. Material and Methods
 
@@ -118,7 +118,7 @@ A *shift* is a character variable that states whether a protein is *left*, *righ
 $\Delta\mu = \mu(Ctrl)-\mu(RNase)> +1$: right shift; $\Delta\mu = \mu(Ctrl)-\mu(RNase)< -1$: left shift; $-1 \leq\Delta\mu = \mu(Ctrl)-\mu(RNase)\leq +1$: no shift;$\mu(Ctrl)>24 \lor \mu(RNase)>24$: precipitated  
   
 ### 2.5.2 Principal Componant Analysis
-By applying a principle component analysis to the percentage values of the selection criteria, the optimal parameters to select for RNA-dependent proteins were examined by reducing the dimensions of the dataframe *Sel_Crit*. Only the variables calculated in percentages were used for the PCA for better comparison and the variables regarding main local peaks only serve at determining partially shifting proteins and were therefore not included in the principle component analysis. The selection criteria that separate the points the most in the plot of the first two principal components were chosen for further analysis.   
+By reducing the dimensions and applying a principle component analysis to the percentage values of all selection criteria, the optimal parameters to select for RNA-dependent proteins were examined. Only the variables calculated in percentages were used for the PCA for better comparison and the variables regarding main local peaks only serve at determining partially shifting proteins and were therefore not included in the principle component analysis. The selection criteria that separate the points the most in the plot of the first two principal components were chosen for further analysis.  
 
 ### 2.5.3 Application of Selection Criteria  
 Based on the PCA, four parameters were defined as most important for separating shifting from non-shifting proteins. Following thresholds for the four parameters were furthermore set for the classification of an RNA-dependent protein (RDP):
@@ -141,21 +141,24 @@ Furthermore, *partially* RNA-dependent proteins were defined as proteins that sa
 ## 2.6 Further Analysis
 
 ### 2.6.1 Comparison with the RBP2GO Database    
-To evaluate the accuracy of the performed analysis, the identified RDPs were compared with existing RDPs in the RBP2GO database, and a barplot was created. 
+To evaluate the accuracy of the performed analysis, the identified RDPs were compared with their respective RDP-categorization in the RBP2GO database. 
 
 
 #### 2.6.2.1 Direct Comparison  
-To further examine the relation between our RDP identification method and the RBP2GO classification, we plotted both RBP2Go-RDPs and -non-RDPs in the biplot of the first two principal components used in our analysis.
+To further examine the relation between our RDP identification method and the RBP2GO classification, we plotted both RBP2Go-RDPs and -non-RDPs in the biplot of the first two principal components used in the described analysis.
 
 #### 2.6.2.2 Comparison with RDP2GO-score  
 The RDPs identified in the performed analysis were then further compared to their respective RDP2GO score.
 
 
 #### 2.6.2.3 Cluster Comparison with t-Test  
-By calculating the **mean RBP2GO-score** for each cluster identified by applying the optimal selection criteria, the RNA-dependence of a cluster (non-/partial/RDP) was estimated. Using a two-sided Welch t-test, the significance of the differences between the mean RBP2GO-score values were calculated. The H0 and H1 hypotheses were defined as following: H0: The mean values are not significantly different from each other, H1: The mean values are significantly different from each other. The False Positive Rate was set at $p=0,05$. 
+By calculating the **mean RBP2GO-score** for each cluster identified by applying the optimal selection criteria, the RNA-dependence of a cluster (non-/partial/RDP) was estimated. Using a two-sided Welch t-test, the significance of the differences between the mean RBP2GO-score values were calculated. The H0 and H1 hypotheses were defined as following: H0: The mean values are not significantly different from each other, H1: The mean values are significantly different from each other. The false positive rate was set at $p=0,05$. 
+
+### 2.6.2.4 Barplot with all identified RDPs
+Finally, a barplot was created to compare the overlap between all identified RDPs via the performed analysis and all RDPs classified as such in the RBP2GO database.
 
 ### 2.6.3 Linear Regression    
-Finally, we investigated whether the RBP2Go-Score could be predicted via a multivariate linear regression based on how well the proteins fulfills the four selection criteria deployed in our performed analysis. 
+In order to apply the obtained data on RDPs to biological questions, a linear regression was performed to evaluate how well of a predictor **binding affinity** is to **binding specificity**. Binding affinity is defined as the difference in protein amount between the control and RNase samples at the fraction position of the control global peak and binding specificity is defined as the full width at half maximum of the Gaussian curve fitted to the control global peak.
 
 
 # 3. Results
@@ -204,7 +207,7 @@ legend("topleft", legend = c(paste("left (", length(which(Sel_Crit[, 25] == "lef
 ```
 
 ## 3.3 Results of PCA
-In *Fig.* the PCA was applied to all selection criteria and the first and second principle component were plotted against each other. The different shifting behaviors of the proteins are shown by using different colors. Left shifting proteins (blue), the largest shifting group, spread along the following four selection criteria: delta_Glb_mu_%, Ctrl_Gbl_prt_porp_% and RNase_Gbl_prt_prop_% and negative Gbl_overlap_%. Therefore, they were defined as the optimal selection criteria. To illustrate this, *Fig.* shows the first and second principle component plotted against each other when PCA is performed solely of the optimal selection criteria. This shows that shifting proteins spread in the direction of delta_Glb_mu_%, Ctrl_Gbl_prt_porp_% and RNase_Gbl_prt_prop_%, whereas non-shifting proteins spread in the direction of the delta_Glb_mu_%. Since delta_Gbl_mu_% is the longest vector, it has the most influence on the shifting behavior.
+In *Fig.* the PCA was applied to all selection criteria and the first and second principle component were plotted against each other. The different shifting behaviors of the proteins are shown by using different colors. Left shifting proteins (blue), the largest shifting group, spread along the following four selection criteria: delta_Glb_mu_%, Ctrl_Gbl_prt_porp_% and RNase_Gbl_prt_prop_% and negative Gbl_overlap_%. Therefore, they were defined as the optimal selection criteria. To illustrate this, *Fig.* shows the first and second principle component plotted against each other when PCA is performed solely of the optimal selection criteria. This shows that shifting proteins spread in the direction of delta_Glb_mu_%, Ctrl_Gbl_prt_porp_% and RNase_Gbl_prt_prop_%, whereas non-shifting proteins spread in the direction of the delta_Glb_mu_%. Since delta_Gbl_mu_% is the longest vector, it has the largest influence on the shifting behavior.
 
 ```{r Principal components, echo=FALSE, out.width="50%"}
 
@@ -229,10 +232,13 @@ fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T
 To determine the effectivess of our method, the proteins classified as RDPs in our analysis were compared to the proteins classified as RDPs in the RBP2GO database.. As depicted in *Fig.*, the RBP2GO-classified RDPs distribute homogeneously across the two clusters with no clear observable trend. 
 
 Include locals too & show how including these righteously expands the number of RBPs
+Example: HNRH3_HUMAN, Heterogeneous nuclear ribonucleoprotein H3, RBP2GO score of 84,8, partial shifter
+and SRSF9_HUMAN, Serine/arginine-rich splicing factor 9, RBP2Go score 71.0
 
 ## 3.5 Comparison with the RBP2GO Database
 To determine the effectiveness of our method, the proteins classified as RDPs in our analysis were compared to the proteins classified as RDPs in the RDP2GO database. 
-In order to further analyse the relation between the RBP2GO classification and our analysis, both RBP2GO-RDPs and -non-RDPs were plotted in the biplot of the first two principal components used in our analysis. As depicted in *Fig.*, the RBP2GO-classified RDPs distribute homogeneously across the two clusters with no clear observable trend. 
+
+Firstly, both RBP2GO-RDPs and -non-RDPs were plotted in the biplot of the first two principal components used in our analysis. As depicted in *Fig.*, the RBP2GO-classified RDPs distribute homogeneously across the two clusters with no clear observable trend. 
 
 ```{r comparison with RBP2GO Database, echo =F, out.width="50%"}
 
@@ -315,7 +321,48 @@ legend("topright",
 ```
 
 ## 3.8 Linear Regression
-Performing a multivariate linear regression with our four selection criteria (Global peak shift, Protein loss under Ctrl global peak, Protein gain under RNase global peak, Overlap of the Gaussian curves) as variables to predict the RBP2GO score of the respective protein yields an $r^2$ value of 0.1650693, indicating a low correlation and therefore a low strength of prediction. 
+Performing a linear regression to test whether or not binding affinity is a good predictor of binding specificity returns a very low coefficient of determination for all analyzed proteins (R² = 0.05) and a rather low coefficient of determination for only the RDPs (R² = 0.29). It is noticeable that the calculated correlation between binding affinity and specificity is in both cases inverse, meaning that on average the full width at half maximum decreases with an increasing difference between the protein amount of control and RNase samples at the global
+control peak position.
+
+```{r Linear Regression, echo=F, out.width="50%"}
+RNase_h = sapply(seq(1, nrow(Sel_Crit), 1), function(n) {RNase_Mean_Smooth_Norm100[n, unlist(round(Ctrl_Mean_Gbl_Max))[n]]})
+
+affinity = unlist(Ctrl_Gauss_Fit[, 3]) / (sqrt(2 * pi) * unlist(Ctrl_Gauss_Fit[, 2]))  - RNase_h
+specifity = 2 * sqrt(2 * log(2)) * Ctrl_Gauss_Fit[, 2]
+
+fit <- lm(specifity ~ affinity)
+
+col = rep(NA, length(Sel_Crit[, 26]))
+col[which(Sel_Crit[, 26] == "yes")] = "blue"
+col[which(Sel_Crit[, 26] == "partial")] = "orange"
+col[which(Sel_Crit[, 26] == "no")] = "grey"
+par(mar = c(5, 4, 4, 9.5), xpd = F)
+plot(affinity, specifity, col = col, pch = 16, ylab = "Binding Specificity [Fractions]", xlab = "Binding Affinity [Normalized Protein Amount]")
+curve(fit$coefficients[1] + fit$coefficients[2]*x, add = T, lwd = 3, col = "red")
+par(xpd = T)
+legend("topright", inset = c(-0.4, 0), legend = c("RDP", "partial RDP", "non RDP", "Regression line", paste("y = ", round(fit$coefficients[2], 2), "x + ", round(fit$coefficients[1], 2), sep = ""), paste("R² = ", round(summary(fit)$r.squared, 2), sep = "")), pch = c(16, 16, 16, NA, NA, NA), col = c("blue", "orange", "grey", "red", NA, NA), lwd = c(NA, NA, NA, 3, NA, NA))
+
+RNase_h = sapply(which(Sel_Crit[, 26] == "yes"), function(n) {RNase_Mean_Smooth_Norm100[n, unlist(round(Ctrl_Mean_Gbl_Max))[n]]})
+
+affinity = Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "yes"), 3] / (sqrt(2 * pi) * Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "yes"), 2])  - RNase_h
+specifity = 2 * sqrt(2 * log(2)) * Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "yes"), 2]
+
+fit <- lm(specifity ~ affinity)
+
+col = rep(NA, length(which(Sel_Crit[, 26] == "yes")))
+col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "yes")] = "blue"
+col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "partial")] = "orange"
+col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "no")] = "grey"
+par(mar = c(5, 4, 4, 9.5), xpd = F)
+plot(affinity, specifity, col = col, pch = 16, ylab = "Binding Specificity [Fractions]", xlab = "Binding Affinity [Normalized Protein Amount]")
+curve(fit$coefficients[1] + fit$coefficients[2]*x, add = T, lwd = 3, col = "red")
+par(xpd = T)
+legend("topright", inset = c(-0.4, 0), legend = c("RDP", "Regression line", paste("y = ", round(fit$coefficients[2], 2), "x + ", round(fit$coefficients[1], 2), sep = ""), paste("R² = ", round(summary(fit)$r.squared, 2), sep = "")), pch = c(16, NA, NA, NA), col = c("blue", "red", NA, NA), lwd = c(NA, 3, NA, NA))
+
+rm(affinity, RNase_h, fit, col, specifity)
+```
+
+
 
 # 4. Discussion
 In conclusion, the protein distributions provided by Caudron-Herger *et al.* for HeLa cells synchronized in interphase were cleaned and normalized. Next, the arithmetic mean for each fraction was calculated (see Fig. X). The averaged protein distributions were smoothed using a three fraction sliding window and normalized (see Fig. X).  
