@@ -3717,7 +3717,7 @@ rm(col, pca)
 
 Our function `Gene_Plotter` generates plots of protein distributions of specified genes. The default function is:
 
-Gene_Plotter(gene.name, col = c("green", "red", "dodgerblue", "darkorange"), main = TRUE, ylab = "Relative Protein Amount", xlab = "Protein Fractions", fs = c(1.2, 1, 1), Leg.Size = 1, Leg.Pos = c(0, 0), mar = c(5, 4, 4, 7), Legend = TRUE, Ctrl = TRUE, RNase = TRUE, Gbl.Max = TRUE, Loc.Max = TRUE, Gauss = TRUE, conf = TRUE, grid = TRUE, Type = "Smooth and Norm")
+Gene_Plotter(gene.name, col = c("green", "red", "dodgerblue", "darkorange"), main = TRUE, cus.main = NULL, ylab = "Relative Protein Amount", xlab = "Protein Fractions", fs = c(1.2, 1, 1), Leg.Size = 1, Leg.Pos = c(0, 0), mar = c(5, 4, 4, 7), Legend = TRUE, Ctrl = TRUE, RNase = TRUE, Gbl.Max = TRUE, Loc.Max = TRUE, Gauss = TRUE, conf = TRUE, grid = TRUE, Type = "Smooth and Norm")
 
 In its most basic form you can just type in the gene name of your gene of interest (e.g. *Gene_Plotter("CTCF_HUMAN")*) and get the normalized and smoothed protein distributions for the Control and RNase samples with global and local peaks and gaussian fitting for each global peak as an output.
 
@@ -3726,8 +3726,9 @@ But you can also specify the arguments to your liking:
   * **gene.name**: either just the name of a gene or a vector with multiple gene names (e.g. c("CTCF_HUMAN", "NAT10_HUMAN", "RL32_HUMAN")) (note: different genes are plotted separately)
   * **col**: vector specifying the colors used in the plot (col = c(**Control, RNase, Gauss Control, Gauss RNase**))
   * **main**: logical argument (TRUE or FALSE) that specifies whether or not the main heading is shown
-  * **ylab**: Text that is displayed on the y-axis
-  * **xlab**: Text that is displayed on the x-axis
+  * **cus.main**: customizable text option for the main heading of the plot 
+  * **ylab**: text that is displayed on the y-axis
+  * **xlab**: text that is displayed on the x-axis
   * **fs**: vector that specifies the font size for the elements of the plot (c(**main Heading, Axis Names, Axis Labels**))
   * **Leg.Size**: numeric that specifies the size of the legend
   * **Leg.Pos**: vector that specifies the position of the legend (c(x, y))
@@ -3746,7 +3747,7 @@ But you can also specify the arguments to your liking:
 ## To-Do
   # ggplot Unterstützung
 
-Gene_Plotter <- function(gene.name, col = c("green", "red", "dodgerblue", "darkorange"), main = T, ylab = "Relative Protein Amount", xlab = "Protein Fractions", fs = c(1.2, 1, 1), Leg.Size =  1, Leg.Pos = c(0, 0), mar = c(5, 4, 4, 7), Legend = T, Ctrl = T, RNase = T, Gbl.Max = T, Loc.Max = T, Gauss = T, conf = T, grid = T, Type = "Smooth and Norm" #, "Norm", "Smooth", "Raw", "Compare"
+Gene_Plotter <- function(gene.name, col = c("green", "red", "dodgerblue", "darkorange"), main = T, cus.main = NULL, ylab = "Relative Protein Amount", xlab = "Protein Fractions", fs = c(1.2, 1, 1), Leg.Size =  1, Leg.Pos = c(0, 0), mar = c(5, 4, 4, 7), Legend = T, Ctrl = T, RNase = T, Gbl.Max = T, Loc.Max = T, Gauss = T, conf = T, grid = T, Type = "Smooth and Norm" #, "Norm", "Smooth", "Raw", "Compare"
                           ) {
 library(scales)
   
@@ -3758,7 +3759,7 @@ plots = sapply(seq(1, length(Type), 1), function (k) {
 if(Type[k] == "Smooth and Norm" & (Ctrl == T | RNase == T)) {
 par(mar=mar, xpd=F)
   
-plot(1:25, rep(NA, 25),xlab=xlab,ylab=ylab,main = if(main == T) {paste(gene.name[j], "(Smoothed and Normalized)")}, ylim=c(0, 1.1 * max(
+plot(1:25, rep(NA, 25),xlab=xlab,ylab=ylab,main = if(main == T) {if(length(cus.main) == 0) {paste(gene.name[j], "(Smoothed and Normalized)")} else {cus.main}}, ylim=c(0, 1.1 * max(
   if(Ctrl == T) {max(Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
   if(RNase == T) {max(RNase_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])})),
   cex.main = fs[1],
@@ -3848,7 +3849,7 @@ if(Type[k] == "Norm" & (Ctrl == T | RNase == T)) {
   
 par(mar=mar, xpd=F)
 
-plot(1:25, rep(NA, 25),xlab=xlab,ylab=ylab,main=if(main == T) {paste(gene.name[j], "(Normalized)")}, ylim=c(0, 1.1 * max(
+plot(1:25, rep(NA, 25),xlab=xlab,ylab=ylab,main=if(main == T) {if(length(cus.main) == 0) {paste(gene.name[j], "(Normalized)")} else {cus.main}}, ylim=c(0, 1.1 * max(
   if(Ctrl == T) {max(Ctrl_Mean_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
   if(RNase == T) {max(RNase_Mean_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])})),
   cex.main = fs[1],
@@ -3892,7 +3893,7 @@ if(Type[k] == "Smooth" & (Ctrl == T | RNase == T)) {
   
 par(mar=mar, xpd=F)
   
-plot(1:25, rep(NA, 25),xlab=xlab,ylab=ylab,main=if(main == T) {paste(gene.name[j], "(Smoothed)")}, ylim=c(0, 1.1 * max(
+plot(1:25, rep(NA, 25),xlab=xlab,ylab=ylab,main=if(main == T) {if(length(cus.main) == 0) {paste(gene.name[j], "(Smoothed)")} else {cus.main}}, ylim=c(0, 1.1 * max(
   if(Ctrl == T) {max(Ctrl_Mean_Smooth[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
   if(RNase == T) {max(RNase_Mean_Smooth[which(rownames(Ctrl_Mean)==gene.name[j]),])})),
   cex.main = fs[1],
@@ -3973,7 +3974,7 @@ if(Type[k] == "Raw" & (Ctrl == T | RNase == T)) {
   
 par(mar=mar, xpd=F)
   
-plot(1:25, rep(NA, 25),xlab=xlab,ylab=ylab,main=if(main == T) {paste(gene.name[j], "(Raw Data)")}, ylim=c(0, 1.1 * max(
+plot(1:25, rep(NA, 25),xlab=xlab,ylab=ylab,main=if(main == T) {if(length(cus.main) == 0) {paste(gene.name[j], "(Raw Data)")} else {cus.main}}, ylim=c(0, 1.1 * max(
   if(Ctrl == T) {max(Ctrl_Mean[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
   if(RNase == T) {max(RNase_Mean[which(rownames(Ctrl_Mean)==gene.name[j]),])})),
   cex.main = fs[1],
@@ -4033,7 +4034,7 @@ if(Type[k] == "Compare" & (Ctrl == T | RNase == T)) {
   
 par(mar=mar + c(0,0,0,3), xpd=F)
   
-plot(1:25, rep(NA, 25),xlab=xlab,ylab=ylab,main=if(main == T) {paste(gene.name[j], "(Norm/Smooth v. Norm)")}, ylim=c(0, 1.1 * max(
+plot(1:25, rep(NA, 25),xlab=xlab,ylab=ylab,main=if(main == T) {if(length(cus.main) == 0) {paste(gene.name[j], "(Norm/Smooth v. Norm)")} else {cus.main}}, ylim=c(0, 1.1 * max(
   if(Ctrl == T) {max(Ctrl_Mean_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
   if(RNase == T) {max(RNase_Mean_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
   if(Ctrl == T) {max(Ctrl_Mean_Smooth_Norm100[which(rownames(Ctrl_Mean)==gene.name[j]),])}, 
