@@ -11,7 +11,7 @@ header-includes:
 - \usepackage[default]{inter}
 - \usepackage[T1]{fontenc}
 subtitle: Data Analysis Project 2023
-geometry: "left=1cm,right=1cm,top=1cm,bottom=2cm"
+geometry: "left=1.5cm,right=1.5cm,top=1.5cm,bottom=2cm"
 fontsize: 11pt
 ---
 
@@ -24,6 +24,7 @@ load("Table_HS_Non_RBP.RData")
 
 ***
 # Abstract
+Nicht mehr als 250 Wörter
 
 ***
 \newpage
@@ -285,9 +286,9 @@ rm(pca, col)
 **Figure 5: Identification of RDPs and Comparison to RBP2GO.** Sample Text.\normalsize
 
 ## 3.6 Cluster Comparison with RBP2GO Score and T-test
-To determine the significance of our clusters, the average RBP2GO score of these clusters was compared with a T-test. The average RBP2GO score of our RDPs is $21.5$ with a standard deviation of $19.9$, the average score of our partial RDPs is $13.6$ with a standard deviation of $15.6$ and the average score of our non-RDPs is $6.6$ with a standard deviation of $9.1$. For the comparison of the different clusters following p-values are calculated: RDP and non-RDP cluster:  p-value of $8.5*10^{-54}$, RDP and partial RDP cluster: p-value of $8.2*10^{-10}$, partial RDP and non RDP: p-value of $2.0*10^{-12}$. All clusters have significantly different p-values since each p-value is distinctly smaller than the False Positive Rate of $p=0.05$. 
+To determine the significance of our clusters, the average RBP2GO score of these clusters was compared with a t-test. The average RBP2GO score of our RDPs is 21.5 with a standard error of 0.9, the average score of our partial RDPs is 13.6 with a standard error of 0.9 and the average score of our non-RDPs is 6.6 with a standard error of 0.1.  
+For the comparison of the different clusters following p-values were calculated: p(RDP, non RDP) = 8.5e-54, p(RDP, partial RDP) = 8.2e-10, p(partial RDP, non RDP) = 2.0e-12. All clusters have significant p-values since each p-value is smaller than the False Positive Rate of p = 0.05.  
 
-=>Was ist mit den Proteinen mit hohem RBP2GO? Sind die wenigstens alle "richtig" klassifiziert?
 
 ## 3.7 Bar Plot
 Comparing the RDPs identified via our presented analysis with the RDPs classified as such in the RBP2GO database, 631 proteins were identified as RDPs in both analyses, 2946 proteins were listed as RDPs in the database but were not identified as RDPs in our performed analysis, and 182 proteins which we determined as RDPs are not classified as such on the RBP2GO database (see *Fig.*).
@@ -390,28 +391,30 @@ rm(affinity, RNase_h, fit, col, specifity)
 
 
 # 4. Discussion
-In conclusion, the protein distributions provided by Caudron-Herger *et al.* for HeLa cells synchronized in interphase were cleaned and normalized. Next, the arithmetic mean for each fraction was calculated (see Fig. X). The averaged protein distributions were smoothed using a three fraction sliding window and normalized (see Fig. X).  
-Smoothing was performed to help with global and local peak determination, because the averaged protein distributions were sometimes too jagged for unambiguous peak determination.  
+In conclusion, the protein distributions provided by Caudron-Herger *et al.* for HeLa cells synchronized in interphase were cleaned and normalized. Next, the arithmetic mean for each fraction was calculated. The averaged protein distributions were smoothed using a three fraction sliding window and normalized (*Fig. 1*, p. 7).  
+Smoothing was performed to help with global and local peak determination, because the averaged protein distributions were sometimes too jagged for unambiguous peak determination (*Fig. 2*, p. 7).  
 However, this approach has three problems: First, single fraction peaks result, upon smoothing, in multiple peaks in neighboring fractions. This problem was fixed by calculating the mean fraction position for multiple peaks.  
 Second, smoothing sometimes caused the fraction position of peaks to change. But this did not have an influence on analysis, because the change in fraction position between raw and smoothed data was very slight (no more than one fraction position).  
 Third, smoothing changed the protein amount which sometimes led to global peaks in the raw data becoming local peaks in the smoothed data and *vice versa*. This problem was partly fixed by defining additional selection criteria for partial RDPs using the main local peaks. 
   
-Next, the shifting behavior of the proteins was analyzed. There were 782 left-shifting, 41 right-shifting, 5153 non-shifting and 14 precipitated proteins.  
+Next, the shifting behavior of the proteins was analyzed. There were 782 left-shifting, 41 right-shifting, 5153 non-shifting and 14 precipitated proteins (*Fig. 3*, p. 8).  
   
-PCA helped with determining the optimal selection criteria for an RDP, namely the fraction shift between global peaks, the overlap of the Gaussian curves fitted to the global peaks and the protein amount gained or lost under the global peaks (see Fig. X). Two rough clusters emerged from plotting the first two principal components. Most of the non-shifting proteins were in the left cluster and most of the left-shifting proteins were in the right cluster.  
+PCA helped with determining the optimal selection criteria for an RDP, namely the fraction shift between global peaks, the overlap of the Gaussian curves fitted to the global peaks and the protein amount gained or lost under the global peaks after treatment with RNase (*Fig. 4*, p. 8). Two rough clusters emerged from plotting the first two principal components. In the right plot, most of the non-shifting proteins were in the left cluster and most of the left-shifting proteins were in the right cluster.  
   
-Application of the selection criteria resulted in 539 RDPs, 274 partial RDPs and 5177 non RDPs (see Fig. X). 
-These results compare well with the genes’ identified shifting behavior (823 are categorized as either right- or left-shifting compared to 813 identified RDPs and partial RDPs). Note that this does not mean that the individual genes are classified in the same way (compare Fig. (Biplot rocket) with Fig. (“Our RDPs and non RDPs” rocket)). 
+Application of the selection criteria resulted in 539 RDPs, 274 partial RDPs and 5177 non RDPs (*Fig. 5 left plot*, p. 9). 
+These results compare well with the genes’ identified shifting behavior (823 are categorized as either right- or left-shifting compared to 813 identified RDPs and partial RDPs). Note that this does not mean that the individual genes are classified in the same way (compare *Fig. 4 right plot* with *Fig. 5 left plot*). 
 
-The identified RDPs are only partly comparable to the RBP2GO databank (see Fig. “Our RDPs and non RDPs” and “RBP2GO RDPs and non RDPs”).  
-The mean for the RBP2GO scores for the identified RDPs was 21.5, compared to 13.6 for partial RDPs and 6.6 for non RDPs. The differences in the mean values between RDPs, partial RDPs and non RDPs are all highly significant based on p-values calculated using a two-sided Welch two-sample t-test. It is noticeable that the p-value of the t-test for the difference between the mean values of the RBP2GO score of RDPs and non RDPs is by most the smallest ($p(RDPs, \ non \ RDPs) = 8.5 \cdot 10^{-54}$ compared to ($p(RDPs, \ partial \ RDPs) = 8.2 \cdot 10^{-10}$ and ($p(non \ RDPs, \ partial \ RDPs) = 2.0 \cdot 10^{-12}$). But these findings are of limited use because the RBP2GO score was calculated very differently from the analysis presented here.  
-This is also illustrated by the finding that multivariant linear regression applied to the four optimal selection criteria was not able to accurately predict the RBP2GO score (based on an $R^{2}$ value of 0.17). So, if there is a relation between these selection criteria and the RBP2GO score it is not linear.   
-
-The identification of RDPs was also compared directly to the RBP2GO databank: 2231 genes (37 % of all analyzed genes) which are categorized as non RDPs are also listed as non RBPs in the RBP2GO databank. In addition, 631 (11 %) RDPs are included as RBPs in RBP2GO. Yet, nearly half of the analyzed genes (2946 (49 %)) are categorized as non RDPs, even though RBP2GO lists them as RBPs. Moreover, 182 (3 %) RDPs are listed as non RBPs in the RBP2GO databank.   
+The identified RDPs are only partly comparable to the RBP2GO databank (813 RDPs and partial RDPs and 5177 non RDPs compared to 3577 RDPs and 2393 non RDPs) (*Fig. 5*, p. 9).  
+Another way to compare the identified RDPs with the RBP2GO databank is the RBP2GO score. The means of the RBP2GO scores for RDPs, partial RDPs and non RDPs was calculated The mean of the RBP2GO scores for the identified RDPs was 21.5, compared to 13.6 for partial RDPs and 6.6 for non RDPs. The differences in the mean values between RDPs, partial RDPs and non RDPs are all highly significant based on p-values calculated using a two-sided Welch two-sample t-test. It is noticeable that the p-value of the t-test for the difference between the mean values of the RBP2GO score of RDPs and non RDPs is by most the smallest (p(RDP, non RDP) = 8.5e-54 compared to p(RDP, partial RDP) = 8.2e-10 and p(partial RDP, non RDP) = 2.0e-12). But these findings are of limited use because the RBP2GO score was calculated very differently from the analysis presented here.  
+  
+The identification of RDPs was also compared directly to the RBP2GO databank (*Fig. 6*, p. 10): 2231 genes (37 % of all analyzed genes) which are categorized as non RDPs are also listed as non RBPs in the RBP2GO databank. In addition, 631 (11 %) RDPs are included as RBPs in RBP2GO. Yet, nearly half of the analyzed genes (2946 (49 %)) are categorized as non RDPs, even though RBP2GO lists them as RBPs. Moreover, 182 (3 %) RDPs are listed as non RBPs in the RBP2GO databank. These "new" RDPs include proteins from which it is known that they interact with RNA either directly or indirectly (e.g. *CDK13_HUMAN*, *Fig. A.4*, p. 14).  
 
 The differences between these results and the RBP2GO databank are possible the result of different human cell lineages used, different stages of the cell cycle analyzed and different experimental methods. Notably, the analysis presented here is only for HeLa cells synchronized in interphase, so poor comparability with the RBP2GO databank, which draws its data from many orthogonal experiments, should be expected.   
-The results of this analysis show that, besides the experimental methods used, bioinformatic analysis also plays a major role in determining the RNA-dependency of proteins. Multiple independent analysis of the same data could make results more reliable and more comparable with different studies.  
-The analysis of RNA-dependency in numerous different ways will undoubtedly have important implications in the diagnosis and therapy of many human diseases.
+
+Linear regression was used to examine if biological questions could be answered using the protein distributions. It would be expected that an RDP which binds tightly to its RNA target also forms very specific structures and therefore has a high binding specificity. This was partially observed when applying linear regression modeling only to the identified RDPs (*Fig. 7 right plot*, p. 10). Analysis of all proteins or partial RDPs or non RDPs show a lower coefficient of correlation (*Fig. 7 left plot*, p. 10 and *Fig. A.5*, p. 14). However, due to the highly diverse nature of RNA-protein interactions further research would be needed.  
+
+The results of this analysis show that, besides the experimental methods used, bioinformatic analysis also plays a major role in determining the RNA-dependency of proteins.  
+Further improvements of analysis in RNA-protein interactions will undoubtedly lead to better understanding and new therapies of human diseases associated with RBPs and RDPs. 
 \newpage
 
 # 5. References
@@ -436,9 +439,7 @@ Lunde, B.M., Moore, C., and Varani, G. (2007). RNA-binding proteins: modular des
 
 # 6. Appendix
 
-shifting behavior PCA
-
-```{r Appendix Shifting Behavior, echo=FALSE}
+```{r Appendix Shifting Behavior, echo=FALSE, out.width="50%"}
 # shifiting behavior PCA all sel. criteria
 pca = prcomp(Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
 
@@ -469,9 +470,11 @@ col[which(Sel_Crit[, 25] == "no")] = "grey"
 plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Shifting Behavior with Optimal Selection Criteria", xlab = "PC1", ylab = "PC2")
 legend("topright", legend = c(paste("left (", length(which(Sel_Crit[, 25] == "left")), ")", sep =""), paste("right (", length(which(Sel_Crit[, 25] == "right")), ")", sep =""), paste("precipitated (", length(which(Sel_Crit[, 25] == "precipitated")), ")", sep =""), paste("no (", length(which(Sel_Crit[, 25] == "no")), ")", sep ="")), pch = 16, col = c("blue", "red", "orange", "grey"))
 ```
+\footnotesize  
+**Figure A.1: PCA with Shifting Behavior.** Sample Text.\normalsize
 
+<br>  
 
-Point Density
 ```{r Appendix Point Density, echo=FALSE, out.width="50%"}
 
 # shifiting behavior PCA all sel. criteria
@@ -491,21 +494,76 @@ plot(pca$x[, 1], pca$x[, 2], pch = 16, col = densCols(pca$x[, 1], pca$x[, 2], co
 abline(h = 0, lty =3, col = "grey")
 abline(v = 0, lty = 3, col = "grey")
 ```
+\footnotesize  
+**Figure A.2: PCA Densitiy Plots.** Sample Text.\normalsize
 
+<br>  
 
 ```{r Exemplary Graphs, echo=FALSE, out.width="50%"}
 #Non RDP:
-Gene_Plotter("PZP_HUMAN", cus.main = "PZP_HUMAN (non RDP)")
+Gene_Plotter("PZP_HUMAN", cus.main = "PZP_HUMAN (non RDP)", Leg.Pos = c(0.05, 0), grid = F)
 
 # RDP:
-Gene_Plotter("HNRPL_HUMAN", cus.main = "HNRPL_HUMAN (RDP)")
+Gene_Plotter("HNRPL_HUMAN", cus.main = "HNRPL_HUMAN (RDP)", Leg.Pos = c(0.05, 0), grid = F)
 
 # partial RDP: 
 # categorized based on local peaks
-Gene_Plotter("OLA1_HUMAN", cus.main = "OLA1_HUMAN (partial RDP)")
+Gene_Plotter("HEXI1_HUMAN", cus.main = "HEXI1_HUMAN (partial RDP)", Leg.Pos = c(0.05, 0), grid = F)
 # categrozied based on 2. | 3.
-Gene_Plotter("RTCA_HUMAN", cus.main = "RTCA_HUMAN (partial RDP)")
-
-#Sel_Crit[which(max(Sel_Crit[, 27], na.rm = T) == Sel_Crit[, 27]), 25:27]
-#Sel_Crit[which(min(Sel_Crit[, 27], na.rm = T) == Sel_Crit[, 27]), 25:27]
+Gene_Plotter("RTCA_HUMAN", cus.main = "RTCA_HUMAN (partial RDP)", Leg.Pos = c(0.05, 0), grid = F)
 ```
+\footnotesize  
+**Figure A.3: Application on Selection Criteria.** Sample Text.\normalsize
+
+<br>  
+
+```{r New RDP with RNA function, echo=FALSE, out.width="50%"}
+Gene_Plotter("CDK13_HUMAN", grid = F, Leg.Pos = c(0.05, 0))
+# CDK13_HUMAN: Cyclin-dependent kinase 13. "Cyclin-dependent kinase which displays CTD kinase activity and is required for RNA splicing"
+```
+<br>  
+
+\footnotesize  
+**Figure A.4: New RDP with RNA associating.** CDK13_HUMAN: Cyclin-dependent kinase 13. "Cyclin-dependent kinase which displays CTD kinase activity and is required for RNA splicing.\normalsize
+
+<br>  
+
+```{r Linear Regression Appendix, echo=F, out.width="50%"}
+RNase_h = sapply(which(Sel_Crit[, 26] == "partial"), function(n) {RNase_Mean_Smooth_Norm100[n, unlist(round(Ctrl_Mean_Gbl_Max))[n]]})
+
+affinity = Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "partial"), 3] / (sqrt(2 * pi) * Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "partial"), 2])  - RNase_h
+specifity = (2 * sqrt(2 * log(2)) * Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "partial"), 2])^(-1)
+
+fit <- lm(specifity ~ affinity)
+
+col = rep(NA, length(which(Sel_Crit[, 26] == "partial")))
+col[which(Sel_Crit[which(Sel_Crit[, 26] == "partial"), 26] == "partial")] = "blue"
+col[which(Sel_Crit[which(Sel_Crit[, 26] == "partial"), 26] == "partial")] = "orange"
+col[which(Sel_Crit[which(Sel_Crit[, 26] == "partial"), 26] == "no")] = "grey"
+par(mar = c(5, 4, 4, 10.5), xpd = F)
+plot(affinity, specifity, col = col, pch = 16, ylab = "Binding Specificity [1/FWHM]", xlab = "Binding Affinity [Normalized Protein Amount]")
+curve(fit$coefficients[1] + fit$coefficients[2]*x, add = T, lwd = 3, col = "red")
+par(xpd = T)
+legend("topright", inset = c(-0.54, 0), legend = c("partial RDP", "Regression line", paste("y = ", round(fit$coefficients[2], 4), "x + ", round(fit$coefficients[1], 2), sep = ""), paste("R² = ", round(summary(fit)$r.squared, 3), sep = "")), pch = c(16, NA, NA, NA), col = c("orange", "red", NA, NA), lwd = c(NA, 3, NA, NA))
+
+RNase_h = sapply(which(Sel_Crit[, 26] == "no"), function(n) {RNase_Mean_Smooth_Norm100[n, unlist(round(Ctrl_Mean_Gbl_Max))[n]]})
+
+affinity = Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "no"), 3] / (sqrt(2 * pi) * Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "no"), 2])  - RNase_h
+specifity = (2 * sqrt(2 * log(2)) * Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "no"), 2])^(-1)
+
+fit <- lm(specifity ~ affinity)
+
+col = rep(NA, length(which(Sel_Crit[, 26] == "no")))
+col[which(Sel_Crit[which(Sel_Crit[, 26] == "no"), 26] == "no")] = "blue"
+col[which(Sel_Crit[which(Sel_Crit[, 26] == "no"), 26] == "partial")] = "orange"
+col[which(Sel_Crit[which(Sel_Crit[, 26] == "no"), 26] == "no")] = "grey"
+par(mar = c(5, 4, 4, 10.5), xpd = F)
+plot(affinity, specifity, col = col, pch = 16, ylab = "Binding Specificity [1/FWHM]", xlab = "Binding Affinity [Normalized Protein Amount]")
+curve(fit$coefficients[1] + fit$coefficients[2]*x, add = T, lwd = 3, col = "red")
+par(xpd = T)
+legend("topright", inset = c(-0.54, 0), legend = c("non RDP", "Regression line", paste("y = ", round(fit$coefficients[2], 3), "x + ", round(fit$coefficients[1], 2), sep = ""), paste("R² = ", round(summary(fit)$r.squared, 2), sep = "")), pch = c(16, NA, NA, NA), col = c("grey", "red", NA, NA), lwd = c(NA, 3, NA, NA))
+
+rm(affinity, RNase_h, fit, col, specifity)
+```
+\footnotesize  
+**Figure A.5: Linear Regression for Partial RDPs and Non RDPs.** Sample Text.\normalsize
