@@ -2,7 +2,7 @@
 title: "Proteome-wide Screen for RNA-dependent Proteins in HeLa Cells Synchronized
   in Interphase"
 author: "Hannah Brehm, Johann Blakytny, Kira Hoffmann, Viktor Bonin"
-date: "XX.07.2023"
+date: "17.07.2023"
 output:
   pdf_document: default
   word_document: default
@@ -11,6 +11,7 @@ header-includes:
 - \usepackage[default]{inter}
 - \usepackage[T1]{fontenc}
 subtitle: Data Analysis Project 2023
+geometry: "left=1cm,right=1cm,top=1cm,bottom=2cm"
 fontsize: 11pt
 ---
 
@@ -25,6 +26,8 @@ load("Table_HS_Non_RBP.RData")
 # Abstract
 
 ***
+\newpage
+
 \newpage
 
 # 1. Introduction
@@ -157,7 +160,7 @@ By calculating the **mean RBP2GO-score** for each cluster identified by applying
 Finally, a barplot was created to compare the overlap between all identified RDPs via the performed analysis and all RDPs classified as such in the RBP2GO database.
 
 ### 2.6.3 Linear Regression    
-In order to apply the obtained data on RDPs to biological questions, a linear regression was performed to evaluate how well of a predictor **binding affinity** is to **binding specificity**. Binding affinity is defined as the difference in protein amount between the control and RNase samples at the fraction position of the control global peak and binding specificity is defined as the full width at half maximum of the Gaussian curve fitted to the control global peak.
+In order to apply the obtained data on RDPs to biological questions, a linear regression was performed to evaluate how well of a predictor **binding affinity** is to **binding specificity**. Binding affinity is defined as the difference in protein amount between the control and RNase samples at the fraction position of the control global peak and binding specificity is defined as the reciprocal value of the full width at half maximum of the Gaussian curve fitted to the control global peak.
 
 
 # 3. Results
@@ -342,14 +345,14 @@ legend("topright",
 **Figure 6: Bar Plot.** Sample Text.\normalsize
 
 ## 3.8 Linear Regression
-Performing a linear regression to test whether or not binding affinity is a good predictor of binding specificity returns a very low coefficient of determination for all analyzed proteins (R² = 0.05) and a rather low coefficient of determination for only the RDPs (R² = 0.29). It is noticeable that the calculated correlation between binding affinity and specificity is in both cases inverse, meaning that on average the full width at half maximum decreases with an increasing difference between the protein amount of control and RNase samples at the global
+Performing a linear regression to test whether or not binding affinity is a good predictor of binding specificity returns a very low coefficient of determination for all analyzed proteins (R² = 0.03) and a rather low coefficient of determination for only the RDPs (R² = 0.29). It is noticeable that the calculated correlation between binding affinity and specificity is positive in both cases, meaning that on average the reciprocal value of the full width at half maximum decreases with an increasing difference between the protein amount of control and RNase samples at the global
 control peak position.
 
 ```{r Linear Regression, echo=F, out.width="50%"}
 RNase_h = sapply(seq(1, nrow(Sel_Crit), 1), function(n) {RNase_Mean_Smooth_Norm100[n, unlist(round(Ctrl_Mean_Gbl_Max))[n]]})
 
 affinity = unlist(Ctrl_Gauss_Fit[, 3]) / (sqrt(2 * pi) * unlist(Ctrl_Gauss_Fit[, 2]))  - RNase_h
-specifity = 2 * sqrt(2 * log(2)) * Ctrl_Gauss_Fit[, 2]
+specifity = (2 * sqrt(2 * log(2)) * Ctrl_Gauss_Fit[, 2])^(-1)
 
 fit <- lm(specifity ~ affinity)
 
@@ -358,15 +361,15 @@ col[which(Sel_Crit[, 26] == "yes")] = "blue"
 col[which(Sel_Crit[, 26] == "partial")] = "orange"
 col[which(Sel_Crit[, 26] == "no")] = "grey"
 par(mar = c(5, 4, 4, 10.5), xpd = F)
-plot(affinity, specifity, col = col, pch = 16, ylab = "Binding Specificity [Fractions]", xlab = "Binding Affinity [Normalized Protein Amount]")
+plot(affinity, specifity, col = col, pch = 16, ylab = "Binding Specificity [1/FWHM]", xlab = "Binding Affinity [Normalized Protein Amount]")
 curve(fit$coefficients[1] + fit$coefficients[2]*x, add = T, lwd = 3, col = "red")
 par(xpd = T)
-legend("topright", inset = c(-0.55, 0), legend = c("RDP", "partial RDP", "non RDP", "Regression line", paste("y = ", round(fit$coefficients[2], 2), "x + ", round(fit$coefficients[1], 2), sep = ""), paste("R² = ", round(summary(fit)$r.squared, 2), sep = "")), pch = c(16, 16, 16, NA, NA, NA), col = c("blue", "orange", "grey", "red", NA, NA), lwd = c(NA, NA, NA, 3, NA, NA))
+legend("topright", inset = c(-0.55, 0), legend = c("RDP", "partial RDP", "non RDP", "Regression line", paste("y = ", round(fit$coefficients[2], 3), "x + ", round(fit$coefficients[1], 2), sep = ""), paste("R² = ", round(summary(fit)$r.squared, 2), sep = "")), pch = c(16, 16, 16, NA, NA, NA), col = c("blue", "orange", "grey", "red", NA, NA), lwd = c(NA, NA, NA, 3, NA, NA))
 
 RNase_h = sapply(which(Sel_Crit[, 26] == "yes"), function(n) {RNase_Mean_Smooth_Norm100[n, unlist(round(Ctrl_Mean_Gbl_Max))[n]]})
 
 affinity = Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "yes"), 3] / (sqrt(2 * pi) * Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "yes"), 2])  - RNase_h
-specifity = 2 * sqrt(2 * log(2)) * Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "yes"), 2]
+specifity = (2 * sqrt(2 * log(2)) * Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "yes"), 2])^(-1)
 
 fit <- lm(specifity ~ affinity)
 
@@ -375,10 +378,10 @@ col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "yes")] = "blue"
 col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "partial")] = "orange"
 col[which(Sel_Crit[which(Sel_Crit[, 26] == "yes"), 26] == "no")] = "grey"
 par(mar = c(5, 4, 4, 10.5), xpd = F)
-plot(affinity, specifity, col = col, pch = 16, ylab = "Binding Specificity [Fractions]", xlab = "Binding Affinity [Normalized Protein Amount]")
+plot(affinity, specifity, col = col, pch = 16, ylab = "Binding Specificity [1/FWHM]", xlab = "Binding Affinity [Normalized Protein Amount]")
 curve(fit$coefficients[1] + fit$coefficients[2]*x, add = T, lwd = 3, col = "red")
 par(xpd = T)
-legend("topright", inset = c(-0.55, 0), legend = c("RDP", "Regression line", paste("y = ", round(fit$coefficients[2], 2), "x + ", round(fit$coefficients[1], 2), sep = ""), paste("R² = ", round(summary(fit)$r.squared, 2), sep = "")), pch = c(16, NA, NA, NA), col = c("blue", "red", NA, NA), lwd = c(NA, 3, NA, NA))
+legend("topright", inset = c(-0.515, 0), legend = c("RDP", "Regression line", paste("y = ", round(fit$coefficients[2], 2), "x + ", round(fit$coefficients[1], 2), sep = ""), paste("R² = ", round(summary(fit)$r.squared, 2), sep = "")), pch = c(16, NA, NA, NA), col = c("blue", "red", NA, NA), lwd = c(NA, 3, NA, NA))
 
 rm(affinity, RNase_h, fit, col, specifity)
 ```
@@ -409,6 +412,7 @@ The identification of RDPs was also compared directly to the RBP2GO databank: 22
 The differences between these results and the RBP2GO databank are possible the result of different human cell lineages used, different stages of the cell cycle analyzed and different experimental methods. Notably, the analysis presented here is only for HeLa cells synchronized in interphase, so poor comparability with the RBP2GO databank, which draws its data from many orthogonal experiments, should be expected.   
 The results of this analysis show that, besides the experimental methods used, bioinformatic analysis also plays a major role in determining the RNA-dependency of proteins. Multiple independent analysis of the same data could make results more reliable and more comparable with different studies.  
 The analysis of RNA-dependency in numerous different ways will undoubtedly have important implications in the diagnosis and therapy of many human diseases.
+\newpage
 
 # 5. References
 Burd, C.G., and Dreyfuss, G. (1994). Conserved Structures and Diversity of Functions of RNA-Binding Proteins. Science *265*, 615-621.
@@ -428,6 +432,7 @@ Jankowsky, E., and Harris, M.E. (2015). Specificity and nonspecificity in RNA–
 Licatalosi, D.D., Ye, X., and Jankowsky, E. (2020). Approaches for measuring the dynamics of RNA–protein interactions. WIREs RNA *11*, e1565.
 
 Lunde, B.M., Moore, C., and Varani, G. (2007). RNA-binding proteins: modular design for efficient function. Nature Reviews Molecular Cell Biology *8*, 479-490.
+\newpage
 
 # 6. Appendix
 
