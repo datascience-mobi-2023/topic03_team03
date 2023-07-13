@@ -240,11 +240,15 @@ fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T
 **Figure 4: PCA Biplots.** Sample Text.\normalsize 
 
 ## 3.4 Application of Selection Criteria and Determination of RDPs
-To determine the effectivess of our method, the proteins classified as RDPs in our analysis were compared to the proteins classified as RDPs in the RBP2GO database.. As depicted in *Fig.*, the RBP2GO-classified RDPs distribute homogeneously across the two clusters with no clear observable trend. 
+All proteins are plotted in a biplot of the first and second principle components and colored depending on the classification based on the optimal selection criteria *(Fig. 5 left plot)* Two main clusters are formed, one containing RDPs (blue) and one containing non-RDPs and partial RDPs (gray and orange). As a result of the optimal selection criteria 539 proteins are classified as RDPs (blue), 274 are classified as partial RDPs (orange) and 5177 are classified as non-RDPs (gray).
 
-Include locals too & show how including these righteously expands the number of RBPs
-Example: HNRH3_HUMAN, Heterogeneous nuclear ribonucleoprotein H3, RBP2GO score of 84,8, partial shifter
-and SRSF9_HUMAN, Serine/arginine-rich splicing factor 9, RBP2Go score 71.0
+
+
+```{r, echo=F}
+#Include locals too & show how including these righteously expands the number of RBPs
+#Example: HNRH3_HUMAN, Heterogeneous nuclear ribonucleoprotein H3, RBP2GO score of 84,8, partial shifter
+#and SRSF9_HUMAN, Serine/arginine-rich splicing factor 9, RBP2Go score 71.0
+```
 
 ## 3.5 Comparison with the RBP2GO Database
 To determine the effectiveness of our method, the proteins classified as RDPs in our analysis were compared to the proteins classified as RDPs in the RDP2GO database. 
