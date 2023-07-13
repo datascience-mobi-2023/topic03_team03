@@ -171,8 +171,6 @@ After performing all data cleanup steps, the original dataset *RDeep_HeLa_Interp
 
 ```{r smoothed and normalized, echo=FALSE, out.width = "33%"}
 
-# hier muss ich es noch irgendwie hinbekommen, eine Bildcaption für beide Bilder nebeneinander zu erzeugen...
-
 
 ### not smoothed and normalized
 Gene_Plotter("CTCF_HUMAN", Gauss =F, conf =F, Type= "Raw", grid=F, Gbl.Max=F, Loc.Max=F, Legend=F)
@@ -241,7 +239,7 @@ fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T
 
 ```
 \footnotesize  
-**Figure 4: PCA Biplots.** Sample Text.\normalsize 
+**Figure 4: PCA Biplots.** Principle Component Analysis of all selection criteria (left). Principle Component Analysis of optimal selection criteria (right). The first two principle components are plotted against each other, the shift classification of the proteins is shown via different colors.\normalsize 
 
 ## 3.4 Application of Selection Criteria and Determination of RDPs
 All proteins are plotted in a biplot of the first and second principle components and colored depending on the classification based on the optimal selection criteria *(Fig. 5 left plot)* Two main clusters are formed, one containing RDPs (blue) and one containing non-RDPs and partial RDPs (gray and orange). As a result of the optimal selection criteria 539 proteins are classified as RDPs (blue), 274 are classified as partial RDPs (orange) and 5177 are classified as non-RDPs (gray).
@@ -283,7 +281,7 @@ rm(pca, col)
 
 ```
 \footnotesize  
-**Figure 5: Identification of RDPs and Comparison to RBP2GO.** Sample Text.\normalsize
+**Figure 5: Identification of RDPs and Comparison to RBP2GO.** The first two principle components of the optimal selection criteria PCA are plotted against each other. The classification of the proteins (RDP, partial RDP, non-RDP) achieved in the performed analysis is shown by using different colors (left). The classification of the proteins (RDP, non-RDP) from the RDP2GO database is shown by using different colors (right).\normalsize
 
 ## 3.6 Cluster Comparison with RBP2GO Score and T-test
 To determine the significance of our clusters, the average RBP2GO score of these clusters was compared with a t-test. The average RBP2GO score of our RDPs is 21.5 with a standard error of 0.9, the average score of our partial RDPs is 13.6 with a standard error of 0.9 and the average score of our non-RDPs is 6.6 with a standard error of 0.1.  
@@ -343,7 +341,7 @@ legend("topright",
 ```
 <br>  
 \footnotesize  
-**Figure 6: Bar Plot.** Sample Text.\normalsize
+**Figure 6: Bar Plot.** The new proteins classified as RDPs via the performed analysis and the RDP2GO database is illustrated in this bar plot.\normalsize
 
 ## 3.8 Linear Regression
 Performing a linear regression to test whether or not binding affinity is a good predictor of binding specificity returns a very low coefficient of determination for all analyzed proteins (R² = 0.03) and a rather low coefficient of determination for only the RDPs (R² = 0.29). It is noticeable that the calculated correlation between binding affinity and specificity is positive in both cases, meaning that on average the reciprocal value of the full width at half maximum decreases with an increasing difference between the protein amount of control and RNase samples at the global
@@ -387,7 +385,7 @@ legend("topright", inset = c(-0.515, 0), legend = c("RDP", "Regression line", pa
 rm(affinity, RNase_h, fit, col, specifity)
 ```
 \footnotesize  
-**Figure 7: Linear Regression.** Sample Text.\normalsize
+**Figure 7: Linear Regression.** The linear regression is applied to the binding affinity and the binding specificity for all proteins (right) and for only RDPs classified in this analysis.\normalsize
 
 
 # 4. Discussion
@@ -471,7 +469,7 @@ plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "Shifting Behavior with
 legend("topright", legend = c(paste("left (", length(which(Sel_Crit[, 25] == "left")), ")", sep =""), paste("right (", length(which(Sel_Crit[, 25] == "right")), ")", sep =""), paste("precipitated (", length(which(Sel_Crit[, 25] == "precipitated")), ")", sep =""), paste("no (", length(which(Sel_Crit[, 25] == "no")), ")", sep ="")), pch = 16, col = c("blue", "red", "orange", "grey"))
 ```
 \footnotesize  
-**Figure A.1: PCA with Shifting Behavior.** Sample Text.\normalsize
+**Figure A.1: PCA with Shifting Behavior.** The first two principle components of the PCA applied to all selection criteria (left) and of the PCA applied to the optimal selection criteria are plottet against each other. The shifting classification of the proteins is shown by different colors.\normalsize
 
 <br>  
 
@@ -495,7 +493,7 @@ abline(h = 0, lty =3, col = "grey")
 abline(v = 0, lty = 3, col = "grey")
 ```
 \footnotesize  
-**Figure A.2: PCA Densitiy Plots.** Sample Text.\normalsize
+**Figure A.2: PCA Densitiy Plots.** The first two principle components of the PCA applied to all selection criteria (left) and of the PCA applied to the optimal selection criteria are plottet against each other. The point density of the proteins is shown by the usage of different colors.\normalsize
 
 <br>  
 
@@ -513,7 +511,7 @@ Gene_Plotter("HEXI1_HUMAN", cus.main = "HEXI1_HUMAN (partial RDP)", Leg.Pos = c(
 Gene_Plotter("RTCA_HUMAN", cus.main = "RTCA_HUMAN (partial RDP)", Leg.Pos = c(0.05, 0), grid = F)
 ```
 \footnotesize  
-**Figure A.3: Application on Selection Criteria.** Sample Text.\normalsize
+**Figure A.3: Application on Selection Criteria.** Protein and Gaussian distributions for the Control and RNAse sample for following for different proteins are plotted for comparison: PZP_HUMAN (non RDP), HNRPL_HUMAN (RDP), HEXI1_HUMAN (partial RDP), RTCA_HUMAN (partial RDP) .\normalsize
 
 <br>  
 
@@ -566,4 +564,4 @@ legend("topright", inset = c(-0.54, 0), legend = c("non RDP", "Regression line",
 rm(affinity, RNase_h, fit, col, specifity)
 ```
 \footnotesize  
-**Figure A.5: Linear Regression for Partial RDPs and Non RDPs.** Sample Text.\normalsize
+**Figure A.5: Linear Regression for Partial RDPs and Non RDPs.**  The linear regression is applied to the binding affinity and the binding specificity for only partial RDPs (left) and for only non-RDPs (right). Both linear regressions have considerably smaller R^2 values compared to the linear regression of only RDPs.\normalsize
