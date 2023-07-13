@@ -2914,7 +2914,7 @@ We will now test how well of a predictor **binding affinity** is to **binding sp
 RNase_h = sapply(which(Sel_Crit[, 26] == "yes"), function(n) {RNase_Mean_Smooth_Norm100[n, unlist(round(Ctrl_Mean_Gbl_Max))[n]]})
 
 affinity = Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "yes"), 3] / (sqrt(2 * pi) * Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "yes"), 2])  - RNase_h
-specifity = 2 * sqrt(2 * log(2)) * Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "yes"), 2]
+specifity = (2 * sqrt(2 * log(2)) * Ctrl_Gauss_Fit[which(Sel_Crit[, 26] == "yes"), 2])^(-1)
 
 fit <- lm(specifity ~ affinity)
 
@@ -2932,7 +2932,7 @@ legend("topright", inset = c(-0.4, 0), legend = c("RDP", "Regression line", past
 RNase_h = sapply(seq(1, nrow(Sel_Crit), 1), function(n) {RNase_Mean_Smooth_Norm100[n, unlist(round(Ctrl_Mean_Gbl_Max))[n]]})
 
 affinity = unlist(Ctrl_Gauss_Fit[, 3]) / (sqrt(2 * pi) * unlist(Ctrl_Gauss_Fit[, 2]))  - RNase_h
-specifity = 2 * sqrt(2 * log(2)) * Ctrl_Gauss_Fit[, 2]
+specifity = (2 * sqrt(2 * log(2)) * Ctrl_Gauss_Fit[, 2])^(-1)
 
 fit <- lm(specifity ~ affinity)
 
@@ -2944,7 +2944,7 @@ par(mar = c(5, 4, 4, 9.5), xpd = F)
 plot(affinity, specifity, col = col, pch = 16, ylab = "Binding Specificity [Fractions]", xlab = "Binding Affinity [Normalized Protein Amount]")
 curve(fit$coefficients[1] + fit$coefficients[2]*x, add = T, lwd = 3, col = "red")
 par(xpd = T)
-legend("topright", inset = c(-0.4, 0), legend = c("RDP", "partial RDP", "non RDP", "Regression line", paste("y = ", round(fit$coefficients[2], 2), "x + ", round(fit$coefficients[1], 2), sep = ""), paste("R² = ", round(summary(fit)$r.squared, 2), sep = "")), pch = c(16, 16, 16, NA, NA, NA), col = c("blue", "orange", "grey", "red", NA, NA), lwd = c(NA, NA, NA, 3, NA, NA))
+legend("topright", inset = c(-0.4, 0), legend = c("RDP", "partial RDP", "non RDP", "Regression line", paste("y = ", round(fit$coefficients[2], 3), "x + ", round(fit$coefficients[1], 2), sep = ""), paste("R² = ", round(summary(fit)$r.squared, 2), sep = "")), pch = c(16, 16, 16, NA, NA, NA), col = c("blue", "orange", "grey", "red", NA, NA), lwd = c(NA, NA, NA, 3, NA, NA))
 
 rm(affinity, RNase_h, fit, col, specifity)
 ```
