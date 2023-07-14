@@ -171,7 +171,6 @@ In order to apply the obtained data on RDPs to biological questions, a linear re
 # 3. Results
 
 ## 3.1 Results of Data Cleanup, Localization of Maxima and Gaussian Fitting
-<<<<<<< Updated upstream
 After performing all data cleanup steps, the original dataset *RDeep_HeLa_Interphase* was reduced from 7086 proteins to 5990 Proteins. Local and global maxima were determined and the Gaussian curve fitted to the peaks. As can be observed in the plots of "CTCF_HUMAN" (*Fig.1*), the smoothing and normalization steps as well as the Gaussian Fitting applied to the dataset (*Fig. 2*) were successful.
 
 ```{r smoothed and normalized, echo=FALSE, out.width = "33%"}
@@ -202,7 +201,6 @@ Gene_Plotter("CTCF_HUMAN", grid =F, Leg.Pos = c(0.05, 0))
 \normalsize 
 
 ## 3.2 Shifting behavior
-<<<<<<< Updated upstream
 In *Fig. 3*, the shifting behavior is represented by plotting the global peak positions of the Control against those of the RNase samples. Non-shifting proteins lie an a straight line through the origin with a slope of 1, signifying equal positions of both global peaks. Left-shifting proteins lie below this line, right-shifting proteins lie above. Precipitated proteins lie close to the right as well as to the top edge which means, that either one of the peaks is in the 25th fraction. Most proteins are non-shifting (5153 proteins). The largest group of shifting proteins are left-shifting (782 proteins).
 
 ```{r shifting behavior, echo=FALSE, out.width = "65%"}
@@ -349,7 +347,7 @@ legend("topright",
 **Figure 6: Bar Plot.** The new proteins classified as RDPs via the performed analysis and the RBP2GO database are illustrated in this bar plot.\normalsize
 
 ## 3.8 Linear Regression
-Performing a linear regression to test whether binding affinity is a good predictor of binding specificity returns a very low coefficient of determination for all analyzed proteins (R² = 0.03) (*Fig. 7(left)*) and a rather low coefficient of determination for only the RDPs (R² = 0.29) (*Fig. 7 (right)*). It is noticeable that the calculated correlation between binding affinity and specificity is positive in both cases, meaning that on average the reciprocal value of the full width at half maximum decreases with an increasing difference between the protein amount of Control and RNase samples at the global Control peak position.
+Performing a linear regression to test whether binding affinity is a good predictor of binding specificity returns a very low coefficient of determination for all analyzed proteins (R² = 0.03) (*Fig. 7, left*) and a rather low coefficient of determination for only the RDPs (R² = 0.29) (*Fig. 7, right*). It is noticeable that the calculated correlation between binding affinity and specificity is positive in both cases, meaning that on average the reciprocal value of the full width at half maximum decreases with an increasing difference between the protein amount of Control and RNase samples at the global Control peak position.
 
 ```{r Linear Regression, echo=F, out.width="50%"}
 RNase_h = sapply(seq(1, nrow(Sel_Crit), 1), function(n) {RNase_Mean_Smooth_Norm100[n, unlist(round(Ctrl_Mean_Gbl_Max))[n]]})
@@ -393,27 +391,27 @@ rm(affinity, RNase_h, fit, col, specifity)
 
 
 # 4. Discussion
-In conclusion, the protein distributions provided by Caudron-Herger *et al.* for HeLa cells synchronized in interphase were cleaned and normalized. Next, the arithmetic mean for each fraction was calculated. The averaged protein distributions were smoothed using a three fraction sliding window and normalized (*Fig. 1*, p. 7).  
-Smoothing was performed to help with global and local peak determination, because the averaged protein distributions were sometimes too jagged for unambiguous peak determination (*Fig. 2*, p. 7).  
+In conclusion, the protein distributions provided by Caudron-Herger *et al.* for HeLa cells synchronized in interphase were cleaned and normalized. Next, the arithmetic mean for each fraction was calculated. The averaged protein distributions were smoothed using a three fraction sliding window and normalized (*Fig. 1*).  
+Smoothing was performed to help with global and local peak determination, because the averaged protein distributions were sometimes too jagged for unambiguous peak determination (*Fig. 2*).  
 However, this approach has three problems: First, single fraction peaks result, upon smoothing, in multiple peaks in neighboring fractions. This problem was fixed by calculating the mean fraction position for multiple peaks.  
 Second, smoothing sometimes caused the fraction position of peaks to change. But this did not have an influence on analysis, because the change in fraction position between raw and smoothed data was very slight (no more than one fraction position).  
 Third, smoothing changed the protein amount which sometimes led to global peaks in the raw data becoming local peaks in the smoothed data and *vice versa*. This problem was partly fixed by defining additional selection criteria for partial RDPs using the main local peaks. 
   
-Next, the shifting behavior of the proteins was analyzed. There were 782 left-shifting, 41 right-shifting, 5153 non-shifting and 14 precipitated proteins (*Fig. 3*, p. 8).  
+Next, the shifting behavior of the proteins was analyzed. There were 782 left-shifting, 41 right-shifting, 5153 non-shifting and 14 precipitated proteins (*Fig. 3*).  
   
-PCA helped with determining the optimal selection criteria for an RDP, namely the fraction shift between global peaks, the overlap of the Gaussian curves fitted to the global peaks and the protein amount gained or lost under the global peaks after treatment with RNase (*Fig. 4*, p. 8). Two rough clusters emerged from plotting the first two principal components. In the right plot, most of the non-shifting proteins were in the left cluster and most of the left-shifting proteins were in the right cluster.  
+PCA helped with determining the optimal selection criteria for an RDP, namely the fraction shift between global peaks, the overlap of the Gaussian curves fitted to the global peaks and the protein amount gained or lost under the global peaks after treatment with RNase (*Fig. 4*). Two rough clusters emerged from plotting the first two principal components. In the right plot, most of the non-shifting proteins were in the left cluster and most of the left-shifting proteins were in the right cluster.  
   
-Application of the selection criteria resulted in 539 RDPs, 274 partial RDPs and 5177 non RDPs (*Fig. 5 (left)*, p. 9). 
-These results compare well with the genes’ identified shifting behavior of which 823 are categorized as either right- or left-shifting compared to 813 identified RDPs and partial RDPs. Note that this does not mean that the individual genes are classified in the same way (compare *Fig. 4 (right)* with *Fig. 5 (left)*). 
+Application of the selection criteria resulted in 539 RDPs, 274 partial RDPs and 5177 non RDPs (*Fig. 5, left*). 
+These results compare well with the genes’ identified shifting behavior of which 823 are categorized as either right- or left-shifting compared to 813 identified RDPs and partial RDPs. Note that this does not mean that the individual genes are classified in the same way (compare *Fig. 4, right* with *Fig. 5, left*). 
 
-The identified RDPs are only partly comparable to the RBP2GO databank (813 RDPs and partial RDPs and 5177 non RDPs compared to 3577 RDPs and 2393 non RDPs) (*Fig. 5*, p. 9).  
+The identified RDPs are only partly comparable to the RBP2GO databank (813 RDPs and partial RDPs and 5177 non RDPs compared to 3577 RDPs and 2393 non RDPs) (*Fig. 5*).  
 Another way to compare the identified RDPs with the RBP2GO databank is the RBP2GO score. The means of the RBP2GO scores for RDPs, partial RDPs and non RDPs was calculated. The mean of the RBP2GO scores for the identified RDPs was 21.5, compared to 13.6 for partial RDPs and 6.6 for non RDPs. The differences in the mean values between RDPs, partial RDPs and non RDPs are all highly significant based on p-values calculated using a two-sided Welch two-sample t-test. It is noticeable that the p-value of the t-test for the difference between the mean values of the RBP2GO score of RDPs and non RDPs is by most the smallest (p(RDP, non RDP) = 8.5e-54 compared to p(RDP, partial RDP) = 8.2e-10 and p(partial RDP, non RDP) = 2.0e-12). But these findings are of limited use because the RBP2GO score was calculated very differently from the analysis presented here.  
   
-The identification of RDPs was also compared directly to the RBP2GO databank (*Fig. 6*, p. 10): 2231 genes (37 % of all analyzed genes) which are categorized as non RDPs are also listed as non RBPs in the RBP2GO databank. In addition, 631 (11 %) RDPs are included as RBPs in RBP2GO. Yet, nearly half of the analyzed genes (2946 (49 %)) are categorized as non RDPs, even though RBP2GO lists them as RBPs. Moreover, 182 (3 %) RDPs are listed as non RBPs in the RBP2GO databank. These "new" RDPs include proteins from which it is known that they interact with RNA either directly or indirectly (e.g. *CDK13_HUMAN*, *Fig. A.4*, p. 14).  
+The identification of RDPs was also compared directly to the RBP2GO databank (*Fig. 6*): 2231 genes (37 % of all analyzed genes) which are categorized as non RDPs are also listed as non RBPs in the RBP2GO databank. In addition, 631 (11 %) RDPs are included as RBPs in RBP2GO. Yet, nearly half of the analyzed genes (2946 (49 %)) are categorized as non RDPs, even though RBP2GO lists them as RBPs. Moreover, 182 (3 %) RDPs are listed as non RBPs in the RBP2GO databank. These "new" RDPs include proteins from which it is known that they interact with RNA either directly or indirectly (e.g. *CDK13_HUMAN*, *Fig. A.4*).  
 
 The differences between these results and the RBP2GO databank are possibly the result of different human cell lineages used, different stages of the cell cycle analyzed and different experimental methods. Notably, the analysis presented here is only for HeLa cells synchronized in interphase, so poor comparability with the RBP2GO databank, which draws its data from many orthogonal experiments, should be expected.   
 
-Linear regression was used to examine if biological questions could be answered using the protein distributions. It would be expected that an RDP which binds tightly to its RNA target also forms very specific structures and, therefore, has a high binding specificity. This was partially observed when applying linear regression modeling only to the identified RDPs (*Fig. 7 (right)*, p. 10). Analysis of all proteins or partial RDPs or non RDPs show a lower coefficient of correlation (*Fig. 7 (left)*, p. 10 and *Fig. A.5*, p. 14). However, due to the highly diverse nature of RNA-protein interactions further research would be needed.  
+Linear regression was used to examine if biological questions could be answered using the protein distributions. It would be expected that an RDP which binds tightly to its RNA target also forms very specific structures and, therefore, has a high binding specificity. This was partially observed when applying linear regression modeling only to the identified RDPs (*Fig. 7, right*). Analysis of all proteins or partial RDPs or non RDPs show a lower coefficient of correlation (*Fig. 7, left* and *Fig. A.5*). However, due to the highly diverse nature of RNA-protein interactions further research would be needed.  
 
 The results of this analysis show that, besides the experimental methods used, bioinformatical analysis also plays a major role in determining the RNA-dependency of proteins.  
 Further improvements of analysis in RNA-protein interactions will undoubtedly lead to better understanding and new therapies of human diseases associated with RBPs and RDPs. 
