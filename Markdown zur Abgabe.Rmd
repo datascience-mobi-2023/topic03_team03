@@ -22,7 +22,7 @@ subtitle: Data Analysis Project 2023
 geometry: "left=1.5cm,right=1.5cm,top=1.5cm,bottom=2cm"
 fontsize: 11pt
 ---
-
+\pagenumbering{gobble} 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, dev="cairo_pdf")
 load("Environment.RData")
@@ -37,7 +37,7 @@ Nicht mehr als 250 Wörter
 \newpage
 [Table of Contents]
 \newpage
-
+\pagenumbering{arabic} 
 # 1. Introduction
 RNA and its interacting proteins are relevant for essential cellular activity. Especially in posttranscriptional processes, RNA-binding proteins (RBPs) mediate the regulation of posttranscriptional modification, transport through the cytoplasm, translation, and stability of the RNA template. Different RNA-binding motifs have been characterized so far allowing the linkage of proteins to ribonucleic acid (Burd and Dreyfuss, 1994). The structure of most RNA-binding domains is highly conserved; nevertheless, many RBPs bind with high specificity and affinity to distinct RNAs (Lunde *et al.*, 2007). As RBPs are crucial for certain housekeeping mechanisms, mutations or other alterations in human RBPs can have pathological effects; for instance, alterations in the expression of the *zinc-finger protein SNAI1* are associated with cancer metastasis (Gebauer *et al.*, 2021).
 
