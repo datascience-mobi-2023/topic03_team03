@@ -30,12 +30,16 @@ load("Table_HS_Non_RBP.RData")
 ```
 
 ***
-# Abstract
+# Abstract {.unlisted .unnumbered}
 Nicht mehr als 250 Wörter
 
 ***
 \newpage
-[Table of Contents]
+
+\renewcommand*\contentsname{Table of Contents}
+\setcounter{tocdepth}{2}
+\tableofcontents
+
 \newpage
 \pagenumbering{arabic} 
 # 1. Introduction
@@ -277,8 +281,8 @@ col = rep(NA, nrow(Sel_Crit))
 col[which(rownames(Sel_Crit) %in% rownames(Table_HS_RBP))] = "blue"
 col[which(rownames(Sel_Crit) %in% rownames(Table_HS_Non_RBP))] = "grey"
 
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "RBP2GO RDPs and non RDPs", xlab = "PC1", ylab = "PC2")
-legend("topright", legend = c(paste("RDP (", length(which(rownames(Sel_Crit) %in% rownames(Table_HS_RBP))), ")", sep =""), paste("non RDP (", length(which(rownames(Sel_Crit) %in% rownames(Table_HS_Non_RBP))), ")", sep ="")), pch = 16, col = c("blue", "grey"))
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "RBP2GO RBPs and non RBPs", xlab = "PC1", ylab = "PC2")
+legend("topright", legend = c(paste("RBP (", length(which(rownames(Sel_Crit) %in% rownames(Table_HS_RBP))), ")", sep =""), paste("non RBP (", length(which(rownames(Sel_Crit) %in% rownames(Table_HS_Non_RBP))), ")", sep ="")), pch = 16, col = c("blue", "grey"))
 
 rm(pca, col)
 
@@ -544,14 +548,44 @@ col = rep(NA, nrow(Sel_Crit))
 col[which(rownames(Sel_Crit) %in% rownames(Table_HS_RBP))] = "blue"
 col[which(rownames(Sel_Crit) %in% rownames(Table_HS_Non_RBP))] = "grey"
 
-plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "RBP2GO RDPs and non RDPs", xlab = "PC1", ylab = "PC2")
-legend("bottomright", legend = c(paste("RDP (", length(which(rownames(Sel_Crit) %in% rownames(Table_HS_RBP))), ")", sep =""), paste("non RDP (", length(which(rownames(Sel_Crit) %in% rownames(Table_HS_Non_RBP))), ")", sep ="")), pch = 16, col = c("blue", "grey"))
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "RBP2GO RBPs and non RBPs", xlab = "PC1", ylab = "PC2")
+legend("bottomright", legend = c(paste("RBP (", length(which(rownames(Sel_Crit) %in% rownames(Table_HS_RBP))), ")", sep =""), paste("non RBP (", length(which(rownames(Sel_Crit) %in% rownames(Table_HS_Non_RBP))), ")", sep ="")), pch = 16, col = c("blue", "grey"))
 ```
 \footnotesize  
 **Figure A.3: Identification of RDPs and Comparison to RBP2GO.** The first two principle components of the PCA for all selection criteria are plotted. The classification of the proteins (RDP, partial RDP, non-RDP) achieved in the performed analysis is shown by using different colors (left). The classification of the proteins (RDP, non-RDP) from the RBP2GO database is shown by using different colors (right).\normalsize
 
 <br>  
 <br>  
+
+```{r k-Means Clustering, echo=FALSE, out.width="50%"}
+pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
+
+kmeans = kmeans(pca$x, 2, iter.max = 10, nstart = 1)
+
+col = rep(NA, nrow(Sel_Crit))
+col[which(kmeans$cluster == 1)] = "blue"
+col[which(kmeans$cluster == 2)] = "red"
+
+par(mar = c(5, 4, 4, 2) + 0.1)
+plot(pca$x[, 1], pca$x[, 2], pch = 16, col = col, main = "k-Means Clustering (n = 2)", xlab = "PC1", ylab = "PC2")
+par(xpd=T)
+legend("topright", 
+       legend = c(paste("Cluster 1 (", length(which(kmeans$cluster == 1)), ")", sep = ""), paste("Cluster 2 (", length(which(kmeans$cluster == 2)), ")", sep = "")), 
+       pch = 16, 
+       col = c("blue", "red"))
+
+# ---> Erstellung eines Elbow-
+par(mar = c(5, 4, 4, 2) + 0.1)
+plot(1:5, c(kmeans(pca$x[,1:2], 1, iter.max = 10, nstart = 1)$tot.withinss,
+            kmeans(pca$x[,1:2], 2, iter.max = 10, nstart = 1)$tot.withinss,
+            kmeans(pca$x[,1:2], 3, iter.max = 10, nstart = 1)$tot.withinss,
+            kmeans(pca$x[,1:2], 4, iter.max = 10, nstart = 1)$tot.withinss,
+            kmeans(pca$x[,1:2], 5, iter.max = 10, nstart = 1)$tot.withinss), type = "b", pch = 19, main = "Elbow Method", xlab = "Number of cluster", ylab = "Total within-cluster sum of squares")
+```
+\footnotesize  
+**Figure A.4:** ***k*****-Means Clustering of PCA Biplot of Optimal Selection Criteria.** Sample Text.\normalsize
+\newpage  
+
 
 ```{r Exemplary Graphs, echo=FALSE, out.width="50%"}
 #Non RDP:
@@ -567,7 +601,7 @@ Gene_Plotter("HEXI1_HUMAN", cus.main = "HEXI1_HUMAN (partial RDP)", Leg.Pos = c(
 Gene_Plotter("RTCA_HUMAN", cus.main = "RTCA_HUMAN (partial RDP)", Leg.Pos = c(0.05, 0), grid = F)
 ```
 \footnotesize  
-**Figure A.4: Application on Selection Criteria.** Protein and Gaussian distributions for the Control and RNAse sample for following for different proteins are plotted for comparison: *PZP_HUMAN* (non RDP), *HNRPL_HUMAN* (RDP), *HEXI1_HUMAN* (partial RDP), *RTCA_HUMAN* (partial RDP).\normalsize
+**Figure A.5: Application on Selection Criteria.** Protein and Gaussian distributions for the Control and RNAse sample for following for different proteins are plotted for comparison: *PZP_HUMAN* (non RDP), *HNRPL_HUMAN* (RDP), *HEXI1_HUMAN* (partial RDP), *RTCA_HUMAN* (partial RDP).\normalsize
 
 <br>  
 <br>  
@@ -579,7 +613,7 @@ Gene_Plotter("CDK13_HUMAN", grid = F, Leg.Pos = c(0.05, 0))
 <br>  
 
 \footnotesize  
-**Figure A.5: New RDP with RNA associating.** *CDK13_HUMAN*: Cyclin-dependent kinase 13. "Cyclin-dependent kinase which displays CTD kinase activity and is required for RNA splicing.\normalsize
+**Figure A.6: New RDP with RNA associating.** *CDK13_HUMAN*: Cyclin-dependent kinase 13. "Cyclin-dependent kinase which displays CTD kinase activity and is required for RNA splicing.\normalsize
 
 <br>  
 <br>  
@@ -622,4 +656,4 @@ legend("topright", inset = c(-0.54, 0), legend = c("non RDP", "Regression line",
 rm(affinity, RNase_h, fit, col, specifity)
 ```
 \footnotesize  
-**Figure A.6: Linear Regression for Partial RDPs and Non RDPs.**  The linear regression is applied to the binding affinity and the binding specificity for only partial RDPs (left) and for only non-RDPs (right). Both linear regressions have considerably smaller R^2 values compared to the linear regression of only RDPs.\normalsize
+**Figure A.7: Linear Regression for Partial RDPs and Non RDPs.**  The linear regression is applied to the binding affinity and the binding specificity for only partial RDPs (left) and for only non-RDPs (right). Both linear regressions have considerably smaller R^2 values compared to the linear regression of only RDPs.\normalsize
