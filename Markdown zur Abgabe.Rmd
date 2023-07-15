@@ -38,14 +38,9 @@ load("Table_HS_Non_RBP.RData")
 
 ***
 # Abstract {.unlisted .unnumbered}
-RNA-protein interactions are key mediators of integral cellular and metabolic processes. Therefore, alterations in RNA-binding proteins play a central role in the initiation and progression of many human diseases.  
-The method R-DeeP allows to investigate the RNA-dependence of proteins, meaning that not only RNA-protein interactions are detected but also RNA-protein-protein interactions. Untreated and RNase-treated cell lysates are separated on a sucrose gradient into fractions. The proteins in these fractions are analyzed through mass spectrometry. Based on this spectrometry data, we aim to identify RNA-dependent proteins (RDPs).  
-After cleaning the data, the protein distributions were smoothed using a three-fraction window. Global and local maxima of the smoothed protein distributions were then determined. Each global maximum and the highest local maximum were fitted with Gaussian curves.  
-The subsequent data was used to define a set of selection criteria. The optimal selection criteria for identifying RDPs were found using principal component analysis combined with manually determined shifting behavior.  
-For each optimal selection criterium, a threshold for RNA-dependence was set. This resulted in the identification of 539 RDPs, 274 partial RDPs and 5177 non-RDPs. These findings were compared to the RBP2GO database.  
-Linear regression was used to investigate if the mass spectrometry data could be used to examine cellular parameters, such as the kinetics of RNA-protein interactions.  
-  
-This analysis shows how important bioinformatic methods are in the identification of RDPs. Future work based on R-DeeP and methods like it will undoubtedly have important implications in the treatment of many human diseases. 
+RNA-protein interactions are key mediators of integral cellular and metabolic processes. Therefore, alterations in RNA-binding proteins play a central role in the initiation and progression of many human diseases. The method R-DeeP allows to investigate the RNA-dependence of proteins, meaning that not only RNA-protein interactions are detected but also RNA-protein-protein interactions. Untreated and RNase-treated cell lysates are separated on a sucrose gradient into fractions. The proteins in these fractions are analyzed through mass spectrometry. Based on this spectrometry data, we aim to identify RNA-dependent proteins (RDPs). After cleaning the data, the protein distributions were smoothed using a three-fraction window. Global and local maxima of the smoothed protein distributions were then determined. Each global maximum and the highest local maximum were fitted with Gaussian curves. The subsequent data was used to define a set of selection criteria. The optimal selection criteria for identifying RDPs were found using principal component analysis combined with manually determined shifting behavior. For each optimal selection criterion, a threshold for RNA-dependence was set. This resulted in the identification of 539 RDPs, 274 partial RDPs and 5177 non-RDPs. These findings were compared to the RBP2GO database. Linear regression was performed to investigate if the mass spectrometry data could be used to examine cellular parameters, such as the kinetics of RNA-protein interactions.
+
+This analysis shows how important bioinformatical methods are in the identification of RDPs. Future work based on R-DeeP and similar methods will undoubtedly have important implications in the treatment of many human diseases. 
 
 
 ***
