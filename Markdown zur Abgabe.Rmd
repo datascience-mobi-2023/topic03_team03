@@ -1,7 +1,6 @@
 ---
 title: "Proteome-wide Screen for RNA-dependent Proteins in HeLa Cells Synchronized in Interphase"
-author: "Hannah Brehm, Johann Blakytny, Kira Hoffmann, Viktor Bonin"
-date: "17.07.2023"
+subtitle: Data Analysis Project 2023
 output:
   pdf_document: default
   word_document: default
@@ -14,11 +13,6 @@ header-includes:
   - \usepackage{titling}
   - \pretitle{\begin{center}\huge\bfseries}
   - \posttitle{\end{center}} 
-  - \preauthor{\begin{center}}
-  - \postauthor{\end{center}}  
-  - \predate{\begin{center}}
-  - \postdate{\end{center}}
-subtitle: Data Analysis Project 2023
 geometry: "left=1.5cm,right=1.5cm,top=1.5cm,bottom=2cm"
 fontsize: 11pt
 ---
@@ -28,8 +22,17 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, dev="cairo_
 load("Environment.RData")
 load("Table_HS_Non_RBP.RData")
 ```
-<br>  
-<br>  
+
+\begin{center}
+Hannah Brehm, Johann Blakytny, Kira Hoffmann, Viktor Bonin  
+
+Supervisor: Dr. Maïwen Caudron-Herger  
+
+Tutor: Fabio Rauscher  
+
+17.07.2023
+\end{center}
+
 <br>  
 <br>  
 <br>  
@@ -40,7 +43,8 @@ load("Table_HS_Non_RBP.RData")
 # Abstract {.unlisted .unnumbered}
 RNA-protein interactions are key mediators of integral cellular and metabolic processes. Therefore, alterations in RNA-binding proteins play a central role in the initiation and progression of many human diseases. The method R-DeeP allows to investigate the RNA-dependence of proteins, meaning that not only RNA-protein interactions are detected but also RNA-protein-protein interactions. Untreated and RNase-treated cell lysates are separated on a sucrose gradient into fractions. The proteins in these fractions are analyzed through mass spectrometry. Based on this spectrometry data, we aim to identify RNA-dependent proteins (RDPs). After cleaning the data, the protein distributions were smoothed using a three-fraction window. Global and local maxima of the smoothed protein distributions were then determined. Each global maximum and the highest local maximum were fitted with Gaussian curves. The subsequent data was used to define a set of selection criteria. The optimal selection criteria for identifying RDPs were found using principal component analysis combined with manually determined shifting behavior. For each optimal selection criterion, a threshold for RNA-dependence was set. This resulted in the identification of 539 RDPs, 274 partial RDPs and 5177 non-RDPs. These findings were compared to the RBP2GO database. Linear regression was performed to investigate if the mass spectrometry data could be used to examine cellular parameters, such as the kinetics of RNA-protein interactions.
 This analysis shows how important bioinformatical methods are in the identification of RDPs. Future work based on R-DeeP and similar methods will undoubtedly have important implications in the treatment of many human diseases. 
-
+<br>  
+<br>  
 
 ***
 \newpage
@@ -92,7 +96,7 @@ Smoothing was achieved by calculating the mean value for each fraction through i
   
 For fraction position 1 and 25, the mean of fraction 1 and 2 and accordingly 24 and 25 were used instead.
 
-### 2.3.2 Normalization of Smoothed data
+### 2.3.2 Normalization of Smoothed Data
 In order to be able to compare the different protein amounts, the smoothed dataframes were normalized to 100. This means the sum of the mass spectrometry data in the different fractions for one protein added up to 100: \[y = \frac{f(x)}{\sum_{x=1}^{25}f(x)} *100\]     
 *$x$: fraction position ($1 \leq x \leq 25$);* $\quad$ *$f(x)$: mass spectrometry value at fraction position $x$;* $\quad$ *$y$: normalized value at fraction position $x$* The same procedure was then applied to the standard deviation.
 
@@ -214,7 +218,7 @@ Gene_Plotter("CTCF_HUMAN", grid =F, Leg.Pos = c(0.05, 0))
 **Figure 2: Local and global Maxima and Gaussian Fitting.** Local and global maxima of the protein *CTCF_HUMAN* together with fitted Gaussian curves.
 \normalsize 
 
-## 3.2 Shifting behavior
+## 3.2 Shifting Behavior
 In *Fig. 3*, the shifting behavior is represented by plotting the global peak positions of the Control against those of the RNase samples. Non-shifting proteins lie an a straight line through the origin with a slope of 1, signifying equal positions of both global peaks. Left shifting proteins lie below this line, right shifting proteins lie above. Precipitated proteins lie close to the right as well as to the top edge which means, that either one of the peaks is in the 25th fraction. Most proteins are non-shifting (5153 proteins). The largest group of shifting proteins are left shifting (782 proteins).
 
 ```{r shifting behavior, echo=FALSE, out.width = "65%"}
@@ -300,7 +304,7 @@ rm(pca, col)
 \footnotesize  
 **Figure 5: Identification of RDPs and Comparison to RBP2GO.** The first two principle components of the optimal selection criteria PCA are plotted against each other. The classification of the proteins (RDP, partial RDP, non-RDP) achieved in the performed analysis is shown by using different colors (left). The classification of the proteins (RDP, non-RDP) from the RBP2GO database is shown by using different colors (right).\normalsize
 
-## 3.6 Cluster Comparison with RBP2GO Score and T-test
+## 3.6 Cluster Comparison with RBP2GO Score and t-Test
 To determine the significance of our clusters, the average RBP2GO score of these clusters was compared with a t-test. The average RBP2GO score of our RDPs is 21.5 with a standard error of 0.9, the average score of our partial RDPs is 13.6 with a standard error of 0.9 and the average score of our non-RDPs is 6.6 with a standard error of 0.1.  
 For the comparison of the different clusters following p-values were calculated: p(RDP, non-RDP) = 8.5e-54, p(RDP, partial RDP) = 8.2e-10, p(partial RDP, non-RDP) = 2.0e-12. All clusters have significant p-values since each p-value is smaller than the False Positive Rate of p = 0.05.  
 
