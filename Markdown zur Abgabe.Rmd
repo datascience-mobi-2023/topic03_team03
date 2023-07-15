@@ -28,10 +28,25 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, dev="cairo_
 load("Environment.RData")
 load("Table_HS_Non_RBP.RData")
 ```
+<br>  
+<br>  
+<br>  
+<br>  
+<br>  
+<br>  
+
 
 ***
 # Abstract {.unlisted .unnumbered}
-Nicht mehr als 250 Wörter
+RNA-protein interactions are key mediators of integral cellular and metabolic processes. Therefore, alterations in RNA-binding proteins play a central role in the initiation and progression of many human diseases.  
+The method R-DeeP allows to investigate the RNA-dependence of proteins, meaning that not only RNA-protein interactions are detected but also RNA-protein-protein interactions. Untreated and RNase-treated cell lysates are separated on a sucrose gradient into fractions. The proteins in these fractions are analyzed through mass spectrometry. Based on this spectrometry data, we aim to identify RNA-dependent proteins (RDPs).  
+After cleaning the data, the protein distributions were smoothed using a three-fraction window. Global and local maxima of the smoothed protein distributions were then determined. Each global maximum and the highest local maximum were fitted with Gaussian curves.  
+The subsequent data was used to define a set of selection criteria. The optimal selection criteria for identifying RDPs were found using principal component analysis combined with manually determined shifting behavior.  
+For each optimal selection criterium, a threshold for RNA-dependence was set. This resulted in the identification of 539 RDPs, 274 partial RDPs and 5177 non RDPs. These findings were compared to the RBP2GO database.  
+Linear regression was used to investigate if the mass spectrometry data could be used to examine cellular parameters, such as the kinetics of RNA-protein interactions.  
+  
+This analysis shows how important bioinformatic methods are in the identification of RDPs. Future work based on R-DeeP and methods like it will undoubtedly have important implications in the treatment of many human diseases. 
+
 
 ***
 \newpage
@@ -216,6 +231,7 @@ col[which(Sel_Crit[, 25] == "left")] = "blue"
 col[which(Sel_Crit[, 25] == "right")] = "red"
 col[which(Sel_Crit[, 25] == "precipitated")] = "orange"
 col[which(Sel_Crit[, 25] == "no")] = "grey"
+
 par(mar = c(4,5,5,9.5), xpd = T)
 plot(Ctrl_Gauss_Fit[, 1], RNase_Gauss_Fit[, 1], pch = 16, col = col, main = "Shifting Behavior", xlab = "Control Gbl Peak Position", ylab = "RNase Gbl Peak Position")
 legend("topright", inset = c(-0.47, 0), legend = c(paste("left (", length(which(Sel_Crit[, 25] == "left")), ")", sep =""), paste("right (", length(which(Sel_Crit[, 25] == "right")), ")", sep =""), paste("precipitated (", length(which(Sel_Crit[, 25] == "precipitated")), ")", sep =""), paste("no (", length(which(Sel_Crit[, 25] == "no")), ")", sep ="")), pch = 16, col = c("blue", "red", "orange", "grey"))
@@ -235,7 +251,6 @@ pca = prcomp(Sel_Crit[, c(2, 4, 6, 8, 10, 12, 13)])
 
 library(ggplot2)
 library(factoextra)
-
 fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T, col.ind = Sel_Crit[,25], pointshape =16, pointsize =1.5, palette = c("blue", "gray", "orange", "red"))
 
 # PCA applied to following 4 selection criteria: delta_Gbl_mu_%**, **Ctrl_Gbl_prt_prop_%**, **RNase_Gbl_prt_prop_%** and **Gbl_overlap_%
