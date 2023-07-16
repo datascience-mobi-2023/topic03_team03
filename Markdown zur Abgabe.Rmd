@@ -19,8 +19,8 @@ fontsize: 11pt
 \pagenumbering{gobble} 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, dev="cairo_pdf")
-load("Environment.RData")
-load("Table_HS_Non_RBP.RData")
+load("Data/Environment.RData")
+load("Data/Table_HS_Non_RBP.RData")
 ```
 
 \begin{center}
