@@ -33,4 +33,3 @@ In this project, we investigated RNA dependence in the human proteome by analyzi
 | Data: `Datensätze.xlsx` | Excel spreadsheet describing all dataframes contained in `Environment.RData` (in German) |
 | Data: `HNRPL_HUMAN.svg` | Vector graphic used for figure 1 |
 | `Project_Proposal` | Folder that contains .pdf and .pptx versions of the initial project proposal with planned analysis steps |
-| `Project_Presentation.pdf` | Slides of the presentation of project results |
