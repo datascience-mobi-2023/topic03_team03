@@ -158,7 +158,7 @@ Based on the PCA, four parameters were defined as most important for separating 
   3. Protein loss under Control global peak of more than **20 %** after RNase treatment
   4. Protein gain under RNase global peak of more than **20 %** after RNase treatment
   
-Furthermore, *partial* RDPs were defined as proteins that satisfy the first and fourth criterion and either the second or third criterion for RNA-dependence. More *partial* RDPs were identified using the following criteria: 
+Furthermore, *partial* RDPs were defined as proteins that satisfy the first and second criterion and either the third or fourth criterion for RNA-dependence. More *partial* RDPs were identified using the following criteria: 
 
   1. Fraction shift between global and main local peak positions of more than **1 fraction**
   2. Overlap between the Gaussian curves of global and main local peaks of less than **75 %**
