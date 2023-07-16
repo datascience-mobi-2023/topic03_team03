@@ -24,13 +24,13 @@ In this project, we investigated RNA dependence in the human proteome by analyzi
 
 | Name | Description |
 | --- | --- |
-| `Project_Report.pdf` | Documentation of project, including an Introduction, Materials & Methods, Results and Discussion |
-| `Markdown.Rmd` | R code used to generate the project report |
-| `Project_Presentation.pdf` | Slides of the presentation of project results |
+| `Final_Report.pdf` | Documentation of project, including an Introduction, Materials & Methods, Results and Discussion |
+| `Final_Report.Rmd` | R code used to generate the project report |
 | `HeLa Cells Synchronized in Interphase.Rmd` | Entire R code that was used for analysis |
-| `Environment.RData` | R workspace containing all dataframes generated and used in our analysis |
-| `Table_HS_Non_RBP.RData` | R workspace that contains the dataframe for all non RBPs from the RBP2GO databank |
-| `Datensätze.xlsx` | Excel spreadsheet describing all dataframes contained in `Environment.RData` (in German) |
-| `Project_Proposal` | Folder that contains .pdf and .pptx versions of the initial project proposal with planned analysis steps |
 | `README.md` | This file |
-| `HNRPL_HUMAN.svg` | Vector graphic used for figure 1 |
+| Data: `Environment.RData` | R workspace containing all dataframes generated and used in our analysis |
+| Data: `Table_HS_Non_RBP.RData` | R workspace that contains the dataframe for all non RBPs from the RBP2GO databank |
+| Data: `Datensätze.xlsx` | Excel spreadsheet describing all dataframes contained in `Environment.RData` (in German) |
+| Data: `HNRPL_HUMAN.svg` | Vector graphic used for figure 1 |
+| `Project_Proposal` | Folder that contains .pdf and .pptx versions of the initial project proposal with planned analysis steps |
+| `Project_Presentation.pdf` | Slides of the presentation of project results |
