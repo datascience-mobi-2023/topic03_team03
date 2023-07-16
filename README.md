@@ -9,6 +9,9 @@
   
 Contributors: Hannah Brehm, Johann Blakytny, Kira Hoffmann, Viktor Bonin
 
+Supervisor: Dr. Maïwen Caudron-Herger  
+Tutor: Fabio Rauscher  
+
 <br />
 <div class="figure" style="text-align: center">
 <img src="Data\HNRPL_HUMAN.svg" alt="Fig. 1 - R-DeeP principle" width="80%" />
