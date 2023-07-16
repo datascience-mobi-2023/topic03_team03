@@ -41,7 +41,7 @@ Tutor: Fabio Rauscher
 
 ***
 # Abstract {.unlisted .unnumbered}
-RNA-protein interactions are key mediators of integral cellular and metabolic processes. Therefore, alterations in RNA-binding proteins play a central role in the initiation and progression of many human diseases. The method R-DeeP allows to investigate the RNA-dependence of proteins, meaning that not only RNA-protein interactions are detected but also RNA-protein-protein interactions. Untreated and RNase-treated cell lysates are separated on a sucrose gradient into fractions. The proteins in these fractions are analyzed through mass spectrometry. Based on this spectrometry data, we aim to identify RNA-dependent proteins (RDPs). After cleaning the data, the protein distributions were smoothed using a three-fraction window. Global and local maxima of the smoothed protein distributions were then determined. Each global maximum and the highest local maximum were fitted with Gaussian curves. The subsequent data was used to define a set of selection criteria. The optimal selection criteria for identifying RDPs were found using principal component analysis combined with manually determined shifting behavior. For each optimal selection criterion, a threshold for RNA-dependence was set. This resulted in the identification of 539 RDPs, 274 partial RDPs and 5177 non-RDPs. These findings were compared to the RBP2GO database. Linear regression was performed to investigate if the mass spectrometry data could be used to examine cellular parameters, such as the kinetics of RNA-protein interactions.  
+RNA-protein interactions are key mediators of integral cellular and metabolic processes. Therefore, alterations in RNA-binding proteins play a central role in the initiation and progression of many human diseases. The method R-DeeP allows to investigate the RNA-dependence of proteins, meaning that not only RNA-protein interactions are detected but also RNA-protein-protein interactions. Untreated and RNase-treated cell lysates are separated on a sucrose gradient into fractions. The proteins in these fractions are analyzed through mass spectrometry. Based on this spectrometry data, we aim to identify RNA-dependent proteins (RDPs). After cleaning the data, the protein distributions were smoothed using a three-fraction window. Global and local maxima of the smoothed protein distributions were then determined. Each global maximum and the highest local maximum were fitted with Gaussian curves. The subsequent data was used to define a set of selection criteria. The optimal selection criteria for identifying RDPs were found using principal component analysis combined with manually determined shifting behavior. For each optimal selection criterion, a threshold for RNA-dependence was set. This resulted in the identification of 539 RDPs, 274 partial RDPs, and 5177 non-RDPs. These findings were compared to the RBP2GO database. Linear regression was performed to investigate if the mass spectrometry data could be used to examine cellular parameters, such as the kinetics of RNA-protein interactions.  
 This analysis shows how important bioinformatical methods are in the identification of RDPs. Future work based on R-DeeP and similar methods will undoubtedly have important implications in the treatment of many human diseases. 
 <br>  
 <br>  
@@ -70,20 +70,20 @@ Various methods have been applied to identify RNA recognition elements so far, f
 The protocol for an R-DeeP Screen was performed on HeLa cells synchronized in interphase (Caudron-Herger *et al.*, 2020b): Untreated and RNase-treated cell lysates were separated into 25 fractions on a sucrose gradient. The proteins in these fractions were identified and their amount quantified using mass spectrometry. This yielded the distribution of each protein over the 25 fractions with three replicates per fraction.   
 
 ## 2.2 Data Cleanup
-The original mass spectrometry dataset was split into two separate datasets containing the values for all RNase fractions and Control fractions respectively. The following steps were performed on both datasets.
+The original mass spectrometry dataset was split into two separate datasets containing the values for all RNase fractions and Control fractions, respectively. The following steps were performed on both datasets.
 
 ### 2.2.1 NA Values and Zero Rows
 All rows containing only zeros, of which there were five, were deleted from the datasets. No NA values were found.
 
 ### 2.2.2 Pearson Correlation
-The Pearson correlation was used to test the reproducibility of the data. In seven cases one of the three replicates contained only zeros. These replicates were replaced with NA values as determining the Pearson correlation with these values would have been impossible. In five rows, two out of the three replicates contained only zeros. These genes were removed completely from the datasets.
+The Pearson correlation was used to test the reproducibility of the data. In seven cases, one of the three replicates contained only zeros. These replicates were replaced with NA values as determining the Pearson correlation with these values would have been impossible. In five rows, two out of the three replicates contained only zeros. These genes were removed completely from the datasets.
 
 The Pearson correlation $r$ was computed as follows for each pair of replicates at a time using the sample size $N$, individual sample points $x_i$ and $y_i$, sample means $\bar{x}$ and $\bar{y}$ and standard deviations $s_x$ and $s_y$: \[r = \frac{1}{N-1} \sum_{i = 1}^{N}{\frac{x_i - \bar{x}}{s_x} \frac{y_i - \bar{y}}{s_y}}\]
 
 For each gene and condition this resulted in three correlation coefficients. The genes for which all three correlation coefficients fell below a threshold of 0.95 were removed from both datasets. This applied to 1086 genes. If two out of three correlation coefficients were under 0.95 the replicate associated with both coefficients was replaced with NA. Lastly, if one of three correlation coefficients was below the determined threshold the replicate with the lower value in the other associated correlation coefficient was replaced with NA.  
 
 ### 2.2.3 Mean and Standard Error of Replicates
-After testing for reproducibility and deleting unreliable values, the arithmetic mean and standard error was calculated for all triplicates and used for further analysis.
+After testing for reproducibility and deleting unreliable values, the arithmetic mean and standard error were calculated for all triplicates and used for further analysis.
 
 
 ## 2.3 Smoothing and Determination of Maxima
@@ -108,7 +108,7 @@ If a protein is RNA-dependent, the maximum amount of protein should be located i
 The global maxima of each protein for the smoothed and normalized datasets were determined by identifying the fraction which contained the highest mass spectrometry value. For proteins that had two or three fractions with the highest value, the mean fraction position was used as the fraction position of the global maximum.  
   
 ### 2.3.3.2 Local Maxima
-The local maxima for the smoothed and normalized datasets were determined by comparing the protein amount of each fraction to the protein amounts in the four neighboring fractions. If the protein amount in that fraction is greater or equal to its neighborhood, it was defined as a local maximum. For the fraction positions 2 and 24, the protein amounts had to be greater than or equal to the protein amounts in the fractions 1, 3 and 4 or fractions 22, 23 and 25 respectively. The fraction positions 1 and 25 had to be greater than or equal to fractions 2 and 3 and fractions 23 and 24 respectively. For proteins that had local maxima consisting of two or three neighboring fractions with the same mass spectrometry value, the mean fraction position was calculated. To distinguish local from global maxima, all global maxima were subtracted from the local maxima dataset.  
+The local maxima for the smoothed and normalized datasets were determined by comparing the protein amount of each fraction to the protein amounts in the four neighboring fractions. If the protein amount in that fraction is greater or equal to its neighborhood, it was defined as a local maximum. For the fraction positions 2 and 24, the protein amounts had to be greater than or equal to the protein amounts in the fractions 1, 3, and 4 or fractions 22, 23, and 25, respectively. The fraction positions 1 and 25 had to be greater than or equal to fractions 2 and 3 and fractions 23 and 24, respectively. For proteins that had local maxima consisting of two or three neighboring fractions with the same mass spectrometry value, the mean fraction position was calculated. To distinguish local from global maxima, all global maxima were subtracted from the local maxima dataset.  
 
 ## 2.4 Gaussian Fitting
 A Gaussian curve was fitted to the global peak and the local peak with the highest protein amount of each gene in the Control and RNase samples. A Gaussian curve $f(x)$ can be described using the height $h$, standard deviation $\sigma$ and mean $\mu$ as: \[f(x) = \frac {h} {\sqrt{2\pi} \cdot \sigma } \cdot e^{-\frac {1} {2} (\frac {x - \mu} {\sigma})^{2}}\]
@@ -116,7 +116,7 @@ These parameters were first estimated and then optimized. $\mu$ was estimated as
 These estimated values were optimized by minimizing the sum of squares of the differences between the protein amount values of the Gaussian curve $G$ and the smoothed and normalized protein distribution $p$ ($min(\sum(G-p)^2)$). The optimized parameters were used to calculate the protein amount under the Gaussian curve and the overlap of the Gaussian curves between the Control and the RNase samples. 
 
 ## 2.5 Selection Criteria for the Identification of RNA-Dependent Proteins
-To determine the optimal selection criteria for an RNA-dependent protein, multiple selection criteria were compiled and applied to a principle component analysis. The best criteria were subsequently used to differentiate between RDPs, partial RDPs and non-RDPs. 
+To determine the optimal selection criteria for an RNA-dependent protein, multiple selection criteria were compiled and applied to a principle component analysis. The best criteria were subsequently used to differentiate between RDPs, partial RDPs, and non-RDPs. 
 
 ### 2.5.1 Definition of Selection Criteria
 The following criteria were compiled to determine the optimal selection criteria for defining RNA-dependent proteins:
@@ -144,11 +144,11 @@ between the Gaussian curves of the main local peak and global peak of Control,
 between the Gaussian curves of the main local peak and global peak of RNase,
 between the Gaussian curves of the main local peaks of Control and RNase.  
 
-In addition, each protein was categorized as either *left*, *right* or *non* shifting or *precipitated*. The shifting behavior was defined as following:
+In addition, each protein was categorized as either *left*, *right* or *non-*shifting or *precipitated*. The shifting behavior was defined as following:
 $\Delta\mu = \mu(Control)-\mu(RNase)> +1$: left shift; $\Delta\mu = \mu(Control)-\mu(RNase)< -1$: right shift; $-1 \leq\Delta\mu = \mu(Control)-\mu(RNase)\leq +1$: no shift; $\mu(Control)>24 \lor \mu(RNase)>24$: precipitated.  
   
 ### 2.5.2 Principal Component Analysis
-Principal component analysis (PCA) was applied to the percentage values of the above mentioned selection criteria, so that they would be comparable to each other. The variables regarding main local peaks only served as determining partially shifting proteins and were therefore not included in PCA. The selection criteria which separated the proteins the most based on their shifting behavior in the plot of the first two principal components were chosen as optimal selection criteria for further analysis.  
+Principal component analysis (PCA) was applied to the percentage values of the selection criteria mentioned above, so that they would be comparable to each other. The variables regarding main local peaks only served as determining partially shifting proteins and were therefore not included in PCA. The selection criteria which separated the proteins the most based on their shifting behavior in the plot of the first two principal components were chosen as optimal selection criteria for further analysis.  
 
 ### 2.5.3 Application of Selection Criteria  
 Based on the PCA, four parameters were defined as most important for separating shifting from non-shifting proteins. The following thresholds for the four parameters were consecutively set for the classification of an RDP:
@@ -158,7 +158,7 @@ Based on the PCA, four parameters were defined as most important for separating 
   3. Protein loss under Control global peak of more than **20 %** after RNase treatment
   4. Protein gain under RNase global peak of more than **20 %** after RNase treatment
   
-Furthermore, *partial* RDPs were defined as proteins that satisfy the first and fourth criterion and either the second or third criterion for RNA dependence. More *partial* RDPs were identified using the following criteria: 
+Furthermore, *partial* RDPs were defined as proteins that satisfy the first and fourth criterion and either the second or third criterion for RNA-dependence. More *partial* RDPs were identified using the following criteria: 
 
   1. Fraction shift between global and main local peak positions of more than **1 fraction**
   2. Overlap between the Gaussian curves of global and main local peaks of less than **75 %**
@@ -225,7 +225,7 @@ Gene_Plotter("CTCF_HUMAN", grid =F, Leg.Pos = c(0.05, 0))
 \normalsize 
 
 ## 3.2 Shifting Behavior
-In *Fig. 3*, the shifting behavior is represented by plotting the global peak positions of the Control against those of the RNase samples. Non-shifting proteins lie in a straight line through the origin with a slope of 1, signifying equal positions of both global peaks. Left shifting proteins lie below this line, right shifting proteins lie above. Precipitated proteins lie close to the right as well as to the top edge which means, that either one of the peaks is in the 25th fraction. Most proteins are non-shifting (5153 proteins). The largest group of shifting proteins are left shifting (782 proteins). Only a few proteins are right shifting (41 proteins) and even fewer are precipitated (14 proteins).
+In *Fig. 3*, the shifting behavior is represented by plotting the global peak positions of the Control against those of the RNase samples. Non-shifting proteins lie in a straight line through the origin with a slope of 1, signifying equal positions of both global peaks. Left shifting proteins lie below this line, right shifting proteins lie above. Precipitated proteins lie close to the right as well as to the top edge which means that either one of the peaks is in the 25th fraction. Most proteins are non-shifting (5153 proteins). The largest group of shifting proteins are left shifting (782 proteins). Only a few proteins are right shifting (41 proteins) and even fewer are precipitated (14 proteins).
 
 ```{r shifting behavior, echo=FALSE, out.width = "65%"}
 
@@ -246,10 +246,10 @@ legend("topright", inset = c(-0.47, 0), legend = c(paste("left (", length(which(
 ```
 <br>  
 \footnotesize  
-**Figure 3: Shifting Behavior.** All analyzed proteins were classified into left, right and non-shifting and precipitated using the criteria mentioned above. They were plotted using the global peak positions of the Control and RNase samples.\normalsize  
+**Figure 3: Shifting Behavior.** All analyzed proteins were classified into left, right, and non-shifting, and precipitated using the criteria mentioned above. They were plotted using the global peak positions of the Control and RNase samples.\normalsize  
 
 ## 3.3 Results of PCA
-In *Fig. 4 (left)* the PCA was applied to all selection criteria and the first two principle components were plotted against each other (also included in appendix as *Fig. A.1*). The different shifting behaviors of the proteins are shown by using different colors. Left shifting proteins are mostly separated from non-shifting proteins along the following four selection criteria: delta_Glb_mu_%, Ctrl_Gbl_prt_prop_%, RNase_Gbl_prt_prop_% and negative Gbl_overlap_% (the point density is illustrated in *Fig. A.2*). Therefore, they were defined as the optimal selection criteria. To illustrate this, *Fig. 4 (right)* shows the first two principle components plotted against each other when PCA is performed solely for the optimal selection criteria. As expected the proteins separate into two rough clusters along these criteria.
+In *Fig. 4 (left)* the PCA was applied to all selection criteria and the first two principle components were plotted against each other (also included in appendix as *Fig. A.1*). The different shifting behaviors of the proteins are shown by using different colors. Left shifting proteins are mostly separated from non-shifting proteins along the following four selection criteria: delta_Glb_mu_%, Ctrl_Gbl_prt_prop_%, RNase_Gbl_prt_prop_%, and negative Gbl_overlap_% (the point density is illustrated in *Fig. A.2*). Therefore, they were defined as the optimal selection criteria. To illustrate this, *Fig. 4 (right)* shows the first two principle components plotted against each other when PCA is performed solely for the optimal selection criteria. As expected, the proteins separate into two rough clusters along these criteria.
 
 ```{r Principal components, echo=FALSE, out.width="50%"}
 
@@ -262,7 +262,7 @@ library(factoextra)
 
 fviz_pca_biplot(pca, axes = c(1,2) , label = "var", col.var = "black", repel = T, col.ind = Sel_Crit[,25], pointshape =16, pointsize =1.5, palette = c("#6699FF", "gray", "orange", "red"), labelsize=5, title = "PCA (All Selection Criteria)")+ theme(axis.text=element_text(size=12), axis.title=element_text(size=15), plot.title=element_text(size=18, face="bold", hjust=0.5), legend.text=element_text(size=12), legend.title=element_blank(), legend.box.background = element_rect(color="black", size=0.4), legend.position ="none")
 
-# PCA applied to following 4 selection criteria: delta_Gbl_mu_%**, **Ctrl_Gbl_prt_prop_%**, **RNase_Gbl_prt_prop_%** and **Gbl_overlap_%
+# PCA applied to following 4 selection criteria: delta_Gbl_mu_%**, **Ctrl_Gbl_prt_prop_%**, **RNase_Gbl_prt_prop_%**, and **Gbl_overlap_%
 
 pca = prcomp(Sel_Crit[, c(2, 10, 12, 13)])
 library(ggplot2)
@@ -275,10 +275,10 @@ fviz_pca_biplot(pca, axes = c(1,2), label = "var", col.var = "black", repel = T,
 
 ```
 \footnotesize  
-**Figure 4: PCA Biplots.** Principle Component Analysis of all selection criteria (left). Principle Component Analysis of optimal selection criteria (right). The first two principle components are plotted against each other, the shift classification of the proteins is shown via different colors.\normalsize 
+**Figure 4: PCA Biplots.** Principle component analysis of all selection criteria (left). Principle component analysis of optimal selection criteria (right). The first two principle components are plotted against each other, the shift classification of the proteins is shown via different colors.\normalsize 
 
 ## 3.4 Application of Selection Criteria and Determination of RDPs
-Application of the optimal selection criteria classifies 539 proteins as RDPs, 274 as partial RDPs and 5177 as non-RDPs (individual proteins are illustrated in *Fig. A.5*). All proteins are plotted in a biplot of the first two principle components and colored according to their classification (*Fig. 5, left* and also *Fig. A.4, left*). Two main clusters are formed, one containing RDPs (blue) and one containing non-RDPs and partial RDPs (gray and orange) (see also *k*-means clustering in *Fig. A.3*).
+Application of the optimal selection criteria classifies 539 proteins as RDPs, 274 as partial RDPs, and 5177 as non-RDPs (individual proteins are illustrated in *Fig. A.5*). All proteins are plotted in a biplot of the first two principle components and colored according to their classification (*Fig. 5, left* and also *Fig. A.4, left*). Two main clusters are formed, one containing RDPs (blue) and one containing non-RDPs and partial RDPs (gray and orange) (see also *k*-means clustering in *Fig. A.3*).
 
 ```{r, echo=F}
 #Include locals too & show how including these righteously expands the number of RBPs
@@ -287,8 +287,7 @@ Application of the optimal selection criteria classifies 539 proteins as RDPs, 2
 ```
 
 ## 3.5 Comparison with the RBP2GO Database
-To determine the effectiveness of our method, the proteins classified as RDPs in our analysis were compared to the proteins classified as RBPs in the RBP2GO database.  
-Firstly, both RBP2GO-RDPs and -non-RDPs were plotted in the biplot of the first two principal components used in our analysis. As depicted in *Fig. 5 (right)*, the RBP2GO-classified RBPs distribute homogeneously across the two clusters with no clear observable trend (see also *Fig. A.4, right*). 
+To determine the effectiveness of our method, the proteins classified as RDPs in our analysis were compared to the proteins classified as RBPs in the RBP2GO database. Firstly, both RBP2GO-RDPs and -non-RDPs were plotted in the biplot of the first two principal components used in our analysis. As depicted in *Fig. 5 (right)*, the RBP2GO-classified RBPs distribute homogeneously across the two clusters with no clear observable trend (see also *Fig. A.4, right*). 
 
 ```{r comparison with RBP2GO Database, echo =F, out.width="50%"}
 
@@ -421,22 +420,22 @@ rm(affinity, RNase_h, fit, col, specifity)
 
 # 4. Discussion
 In conclusion, different parameters were calculated from the protein distributions provided by Caudron-Herger *et al.* for HeLa cells synchronized in interphase. Based on these parameters the RNA-dependence of these proteins was determined.  
-One step in this analyis was smoothing (*Fig. 1*). Smoothing was performed to help with global and local peak determination, because the averaged protein distributions were sometimes too jagged for unambiguous peak determination (*Fig. 2*). However, this approach has three problems: First, single fraction peaks result, upon smoothing, in multiple peaks in neighboring fractions. This problem was fixed by calculating the mean fraction position for multiple peaks. Second, smoothing sometimes caused the fraction position of peaks to change. But this did not have an influence on analysis, because the change in fraction position between raw and smoothed data was very slight (no more than one fraction position). Third, smoothing changed the protein amount which sometimes led to global peaks in the raw data becoming local peaks in the smoothed data and *vice versa*. This problem was partly fixed by defining additional selection criteria for partial RDPs using the main local peaks. 
+One step in this analyis was smoothing (*Fig. 1*). Smoothing was performed to help with global and local peak determination because the averaged protein distributions were sometimes too jagged for unambiguous peak determination (*Fig. 2*). However, this approach has three problems: First, single fraction peaks result, upon smoothing, in multiple peaks in neighboring fractions. This problem was fixed by calculating the mean fraction position for multiple peaks. Second, smoothing sometimes caused the fraction position of peaks to change. But this did not have an influence on analysis, because the change in fraction position between raw and smoothed data was very slight (no more than one fraction position). Third, smoothing changed the protein amount which sometimes led to global peaks in the raw data becoming local peaks in the smoothed data and *vice versa*. This problem was partly fixed by defining additional selection criteria for partial RDPs using the main local peaks. 
   
-Next, the shifting behavior of the proteins was analyzed. There were 782 left shifting, 41 right shifting, 5153 non-shifting and 14 precipitated proteins (*Fig. 3*).  
+Next, the shifting behavior of the proteins was analyzed. There were 782 left shifting, 41 right shifting, 5153 non-shifting, and 14 precipitated proteins (*Fig. 3*).  
   
 PCA helped with determining the optimal selection criteria for an RDP, namely the fraction shift between global peaks, the overlap of the Gaussian curves fitted to the global peaks and the protein amount gained or lost under the global peaks after treatment with RNase (*Fig. 4*).  
   
-Application of the selection criteria resulted in 539 RDPs, 274 partial RDPs and 5177 non-RDPs (*Fig. 5, left*). 
+Application of the selection criteria resulted in 539 RDPs, 274 partial RDPs, and 5177 non-RDPs (*Fig. 5, left*). 
 These results compare well with the genes’ identified shifting behavior of which 823 are categorized as either right  or left shifting compared to 813 identified RDPs and partial RDPs. Note that this does not mean that the individual genes are classified in the same way (compare *Fig. 4, right* with *Fig. 5, left*). 
 
-The identified RDPs are only partly comparable to the RBP2GO database (813 RDPs and partial RDPs and 5177 non-RDPs compared to 3577 RDPs and 2393 non-RDPs) (*Fig. 5*).   Another way to compare the identified RDPs with the RBP2GO database is the RBP2GO score. The mean of the RBP2GO scores for the identified RDPs was 21.5, compared to 13.6 for partial RDPs and 6.6 for non-RDPs. The differences in the mean values between RDPs, partial RDPs and non-RDPs are all highly significant based on p-values calculated using a two-sided Welch t-test. It is noticeable that the p-value of the t-test for the difference between the mean values of the RBP2GO score of RDPs and non-RDPs is by far the smallest (p(RDP, non-RDP) = 8.5e-54). But these findings are of limited use because the RBP2GO score was calculated very differently from the analysis presented here (Caudron-Herger *et al.*, 2020a).  
+The identified RDPs are only partly comparable to the RBP2GO database (813 RDPs and partial RDPs and 5177 non-RDPs compared to 3577 RDPs and 2393 non-RDPs) (*Fig. 5*).   Another way to compare the identified RDPs with the RBP2GO database is the RBP2GO score. The mean of the RBP2GO scores for the identified RDPs was 21.5, compared to 13.6 for partial RDPs and 6.6 for non-RDPs. The differences in the mean values between RDPs, partial RDPs, and non-RDPs are all highly significant based on p-values calculated using a two-sided Welch t-test. It is noticeable that the p-value of the t-test for the difference between the mean values of the RBP2GO score of RDPs and non-RDPs is by far the smallest (p(RDP, non-RDP) = 8.5e-54). But these findings are of limited use because the RBP2GO score was calculated very differently from the analysis presented here (Caudron-Herger *et al.*, 2020a).  
   
 The identified RDPs were also compared directly to the RBP2GO database (*Fig. 6*): 2231 genes (37 % of all analyzed genes) which are categorized as non-RDPs are also listed as non-RBPs in the RBP2GO database. In addition, 631 (11 %) RDPs are included as RBPs in RBP2GO. Yet, nearly half of the analyzed genes (2946 (49 %)) are categorized as non-RDPs, even though RBP2GO lists them as RBPs. Moreover, 182 (3 %) RDPs are listed as non-RBPs in the RBP2GO database. These "new" RDPs include proteins from which it is known that they are associated with RNA (e.g. *CDK13_HUMAN*, *Fig. A.6*) (Berro *et al.*, 2008).  
 
-The differences between these results and the RBP2GO database are possibly the result of different human cell lineages used, different stages of the cell cycle analyzed and different experimental methods. Notably, only the proteome present in interphase was analyzed here, so poor comparability with the RBP2GO database, which draws its data from many orthogonal experiments, should be expected.   
+The differences between these results and the RBP2GO database are possibly the result of different human cell lineages used, different stages of the cell cycle analyzed and different experimental methods. Notably, only the proteome present in interphase was analyzed here, so poor comparability with the RBP2GO database which draws its data from many orthogonal experiments should be expected.   
 
-Lastly, it was tested whether kinetic parameters could be determined using the mass spectrometry data. It would be expected that an RDP which binds tightly to its RNA target also forms very specific structures and, therefore, has a high binding specificity. This was partially observed when applying linear regression modeling only to the identified RDPs (*Fig. 7, right*). Analysis of all proteins or partial RDPs or non-RDPs show a lower coefficient of correlation (*Fig. 7, left* and *Fig. A.7*). However, the experiment was not set up to investigate the kinetics of RNA-protein interactions and therefore, these findings are of no particular use. Other methods have been developed to investigate the binding kinetics between RNA and proteins (Sharma *et al.*, 2021).  
+Lastly, it was tested whether kinetic parameters could be determined using the mass spectrometry data. It would be expected that an RDP which binds tightly to its RNA target also forms very specific structures and, therefore, has a high binding specificity. This was partially observed when applying linear regression modeling only to the identified RDPs (*Fig. 7, right*). Analysis of all proteins or partial RDPs or non-RDPs show a lower coefficient of correlation (*Fig. 7, left* and *Fig. A.7*). However, the experiment was not set up to investigate the kinetics of RNA-protein interactions; therefore, these findings are of no particular use. Other methods have been developed to investigate the binding kinetics between RNA and proteins (Sharma *et al.*, 2021).  
 
 The results of this analysis show that, besides the experimental methods used, bioinformatic analysis also plays a major role in determining the RNA-dependence of proteins. Further improvements in analysis of RNA-protein interactions will undoubtedly lead to better understanding and new therapies of human diseases associated with RBPs and RDPs. 
 \newpage
