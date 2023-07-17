@@ -579,7 +579,7 @@ legend("bottomright", legend = c(paste("RBP (", length(which(rownames(Sel_Crit) 
 
 ```{r Exemplary Graphs, echo=FALSE, out.width="50%"}
 #non-RDP:
-Gene_Plotter("CP2S1_HUMAN", cus.main = "CP2S1_HUMAN (non-RDP)", Leg.Pos = c(0.05, 0), grid = F)
+Gene_Plotter("STAG2_HUMAN", cus.main = "STAG2_HUMAN (non-RDP)", Leg.Pos = c(0.05, 0), grid = F)
 
 # RDP:
 Gene_Plotter("HNRPL_HUMAN", cus.main = "HNRPL_HUMAN (RDP)", Leg.Pos = c(0.05, 0), grid = F)
@@ -591,7 +591,7 @@ Gene_Plotter("HEXI1_HUMAN", cus.main = "HEXI1_HUMAN (partial RDP)", Leg.Pos = c(
 Gene_Plotter("RTCA_HUMAN", cus.main = "RTCA_HUMAN (partial RDP)", Leg.Pos = c(0.05, 0), grid = F)
 ```
 \footnotesize  
-**Figure A.4: Application of Selection Criteria.** Protein and Gaussian curves for the Control and RNase sample for the following four different proteins are plotted for comparison: *Cytochrome P450 2S1 (CP2S1_HUMAN)* (non-RDP), *Heterogeneous nuclear ribonucleoprotein L (HNRPL_HUMAN)* (RDP), *Hexamethylene bisacetamide-inducible protein 1 (HEXI1_HUMAN)* (partial RDP), *RNA 3'-terminal phosphate cyclase (RTCA_HUMAN)* (partial RDP).\normalsize 
+**Figure A.4: Application of Selection Criteria.** Protein and Gaussian curves for the Control and RNase sample for the following four different proteins are plotted for comparison: *Cohesin subunit SA-2 (STAG2_HUMAN)* (non-RDP), *Heterogeneous nuclear ribonucleoprotein L (HNRPL_HUMAN)* (RDP), *Hexamethylene bisacetamide-inducible protein 1 (HEXI1_HUMAN)* (partial RDP), *RNA 3'-terminal phosphate cyclase (RTCA_HUMAN)* (partial RDP).\normalsize 
 \newpage 
 
 ```{r New RDP with RNA function, echo=FALSE, out.width="50%"}
