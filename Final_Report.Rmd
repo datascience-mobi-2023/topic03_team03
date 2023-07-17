@@ -148,7 +148,7 @@ In addition, each protein was categorized as either *left*, *right*, *non-*shift
 $\Delta\mu = \mu(Control)-\mu(RNase)> +1$: left shift; $\Delta\mu = \mu(Control)-\mu(RNase)< -1$: right shift; $-1 \leq\Delta\mu = \mu(Control)-\mu(RNase)\leq +1$: no shift; $\mu(Control)>24 \lor \mu(RNase)>24$: precipitated.  
   
 ### 2.5.2 Principal Component Analysis
-Principal component analysis (PCA) was applied to the percentage values of the selection criteria mentioned above for comparability. The variables regarding main local peaks only served as determining partially shifting proteins and were therefore not included in the PCA. The selection criteria which separated the proteins the most based on their shifting behavior in the plot of the first two principal components were chosen as the optimal selection criteria for further analysis.  
+Principal component analysis (PCA) was applied to the percentage values of the selection criteria mentioned above for comparability. The variables regarding main local peaks only served for determining partially shifting proteins and were therefore not included in the PCA. The selection criteria which separated the proteins the most based on their shifting behavior in the plot of the first two principal components were chosen as the optimal selection criteria for further analysis.  
 
 ### 2.5.3 Application of Selection Criteria  
 Based on the PCA, four parameters were defined as most important for separating shifting from non-shifting proteins. The following thresholds for the four parameters were consecutively set for the classification of an RDP:
@@ -281,12 +281,6 @@ fviz_pca_biplot(pca, axes = c(1,2), label = "var", col.var = "black", repel = T,
 
 ## 3.4 Application of Selection Criteria and Determination of RDPs
 Application of the optimal selection criteria identified 539 proteins as RDPs, 274 as partial RDPs, and 5177 as non-RDPs (individual proteins are illustrated in *Appendix Fig. A.5*). All proteins are plotted in a biplot of the first two principle components and colored according to their classification (*Fig. 5, left* and also *Appendix Fig. A.4, left*). Two main clusters are formed, one containing RDPs (blue) and one containing non-RDPs and partial RDPs (gray and orange) (see also *k*-means clustering in *Appendix Fig. A.3*).
-
-```{r, echo=F}
-#Include locals too & show how including these righteously expands the number of RBPs
-#Example: HNRH3_HUMAN, Heterogeneous nuclear ribonucleoprotein H3, RBP2GO score of 84,8, partial shifter
-#and SRSF9_HUMAN, Serine/arginine-rich splicing factor 9, RBP2GO score 71.0
-```
 
 ## 3.5 Comparison with the RBP2GO Database
 To determine the effectiveness of our method, the proteins classified as RDPs in our analysis were compared to the proteins classified as RBPs in the RBP2GO database. Firstly, both RBP2GO-RDPs and -non-RDPs were plotted in the biplot of the first two principal components used in our analysis. As depicted in *Fig. 5 (right)*, the RBP2GO-classified RBPs distribute homogeneously across the two clusters with no clear observable trend (see also *Appendix Fig. A.4, right*). 
