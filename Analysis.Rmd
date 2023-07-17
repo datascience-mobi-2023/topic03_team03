@@ -88,7 +88,110 @@ RNase_RDeep <- RNase_RDeep[!(rownames(RNase_RDeep) %in% c("FHOD3_HUMAN","P210L_H
 ```
 
 
-##### 1.3 Pearson Correlation (Reproducibility)
+##### 1.3 Normalize Rows to 100
+
+This will be done for the Control and RNase Datasets separately:
+
+```{r cleanup, include=FALSE}
+Rep1 = Ctrl_RDeep[, seq(1,73,3)]
+
+Rep1_Smooth = 
+  as.data.frame(
+cbind((Rep1[,1]+Rep1[,2])/2,
+      sapply(seq(0,22,1), function(i) {apply(Rep1[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x)})}), 
+      (Rep1[,24]+Rep1[,25])/2)
+)
+
+colnames(Rep1_Smooth) = colnames(Rep1)
+
+Rep1_Smooth_Norm = as.data.frame(sapply(Rep1_Smooth, function(i){(i/apply(Rep1_Smooth,1, function(x) {sum(x, na.rm = T)}))*100}))
+
+
+Rep2 = Ctrl_RDeep[, seq(2,74,3)]
+
+Rep2_Smooth = 
+  as.data.frame(
+cbind((Rep2[,1]+Rep2[,2])/2,
+      sapply(seq(0,22,1), function(i) {apply(Rep2[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x)})}), 
+      (Rep2[,24]+Rep2[,25])/2)
+)
+
+colnames(Rep2_Smooth) = colnames(Rep2)
+
+Rep2_Smooth_Norm = as.data.frame(sapply(Rep2_Smooth, function(i){(i/apply(Rep2_Smooth,1, function(x) {sum(x, na.rm = T)}))*100}))
+
+
+Rep3 = Ctrl_RDeep[, seq(3,75,3)]
+
+Rep3_Smooth = 
+  as.data.frame(
+cbind((Rep3[,1]+Rep3[,2])/2,
+      sapply(seq(0,22,1), function(i) {apply(Rep3[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x)})}), 
+      (Rep3[,24]+Rep3[,25])/2)
+)
+
+colnames(Rep3_Smooth) = colnames(Rep3)
+
+Rep3_Smooth_Norm = as.data.frame(sapply(Rep3_Smooth, function(i){(i/apply(Rep3_Smooth,1, function(x) {sum(x, na.rm = T)}))*100}))
+
+
+Ctrl_Norm100 = cbind(Rep1_Smooth_Norm, Rep2_Smooth_Norm, Rep3_Smooth_Norm)
+
+Ctrl_Norm100 = Ctrl_Norm100[, as.vector(sapply(seq(0,24,1), function(n) {c(1,26,51) + c(n,n,n)}))]
+
+
+
+Rep1 = RNase_RDeep[, seq(1,73,3)]
+
+Rep1_Smooth = 
+  as.data.frame(
+cbind((Rep1[,1]+Rep1[,2])/2,
+      sapply(seq(0,22,1), function(i) {apply(Rep1[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x)})}), 
+      (Rep1[,24]+Rep1[,25])/2)
+)
+
+colnames(Rep1_Smooth) = colnames(Rep1)
+
+Rep1_Smooth_Norm = as.data.frame(sapply(Rep1_Smooth, function(i){(i/apply(Rep1_Smooth,1, function(x) {sum(x, na.rm = T)}))*100}))
+
+
+Rep2 = RNase_RDeep[, seq(2,74,3)]
+
+Rep2_Smooth = 
+  as.data.frame(
+cbind((Rep2[,1]+Rep2[,2])/2,
+      sapply(seq(0,22,1), function(i) {apply(Rep2[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x)})}), 
+      (Rep2[,24]+Rep2[,25])/2)
+)
+
+colnames(Rep2_Smooth) = colnames(Rep2)
+
+Rep2_Smooth_Norm = as.data.frame(sapply(Rep2_Smooth, function(i){(i/apply(Rep2_Smooth,1, function(x) {sum(x, na.rm = T)}))*100}))
+
+
+Rep3 = RNase_RDeep[, seq(3,75,3)]
+
+Rep3_Smooth = 
+  as.data.frame(
+cbind((Rep3[,1]+Rep3[,2])/2,
+      sapply(seq(0,22,1), function(i) {apply(Rep3[,c(1,2,3)+c(i,i,i)], 1, function(x) {mean(x)})}), 
+      (Rep3[,24]+Rep3[,25])/2)
+)
+
+colnames(Rep3_Smooth) = colnames(Rep3)
+
+Rep3_Smooth_Norm = as.data.frame(sapply(Rep3_Smooth, function(i){(i/apply(Rep3_Smooth,1, function(x) {sum(x, na.rm = T)}))*100}))
+
+
+RNase_Norm100 = cbind(Rep1_Smooth_Norm, Rep2_Smooth_Norm, Rep3_Smooth_Norm)
+
+RNase_Norm100 = RNase_Norm100[, as.vector(sapply(seq(0,24,1), function(n) {c(1,26,51) + c(n,n,n)}))]
+
+rm(Rep1, Rep1_Smooth, Rep1_Smooth_Norm, Rep2, Rep2_Smooth, Rep2_Smooth_Norm, Rep3, Rep3_Smooth, Rep3_Smooth_Norm)
+```
+
+
+##### 1.4 Pearson Correlation (Reproducibility)
 
 We will now test the reproducibility of the dataset: to do this we will calculate the pearson correlation between the 3 replicates. For each gene and condition this results in 3 correlation coefficients (cor(Rep1, Rep2), cor(Rep2, Rep3), cor(Rep1, Rep3)). The threshold for reproducibility is a correlation coefficient over or equal to 0.95.
 
@@ -150,6 +253,10 @@ Ctrl_RDeep <- Ctrl_RDeep[!(rownames(Ctrl_RDeep) %in% c("BHMT2_HUMAN", "MAP9_HUMA
 
 RNase_RDeep <- RNase_RDeep[!(rownames(RNase_RDeep) %in% c("BHMT2_HUMAN", "MAP9_HUMAN", "ECT2_HUMAN", "GP161_HUMAN", "PATZ1_HUMAN")),]
 
+Ctrl_Norm100 <- Ctrl_Norm100[!(rownames(Ctrl_Norm100) %in% c("BHMT2_HUMAN", "MAP9_HUMAN", "ECT2_HUMAN", "GP161_HUMAN", "PATZ1_HUMAN")),]
+
+RNase_Norm100 <- RNase_Norm100[!(rownames(RNase_Norm100) %in% c("BHMT2_HUMAN", "MAP9_HUMAN", "ECT2_HUMAN", "GP161_HUMAN", "PATZ1_HUMAN")),]
+
 # ---> Wenn gesamte Gene gelöscht werden, müssen diese jeweils auch aus den Ctrl_Cor und RNase_Cor Datensätzen entfernt werden, da ansonsten später falsche Replikate überschrieben werden würden
 Ctrl_Cor <- Ctrl_Cor[!(rownames(Ctrl_Cor) %in% c("BHMT2_HUMAN", "MAP9_HUMAN", "ECT2_HUMAN", "GP161_HUMAN", "PATZ1_HUMAN")),]
 
@@ -175,6 +282,20 @@ RNase_RDeep[which(rownames(Ctrl_RDeep) == "HEM0_HUMAN"), c(sapply(seq(0,72,3), f
 RNase_RDeep[which(rownames(Ctrl_RDeep) == "TSN3_HUMAN"), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
 
 
+Ctrl_Norm100[which(rownames(Ctrl_Norm100) == "BMX_HUMAN"), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+Ctrl_Norm100[which(rownames(Ctrl_Norm100) == "DCAF7_HUMAN"), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+Ctrl_Norm100[which(rownames(Ctrl_Norm100) == "TSC2_HUMAN"), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+RNase_Norm100[which(rownames(Ctrl_Norm100) == "CCDC9_HUMAN"), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+RNase_Norm100[which(rownames(Ctrl_Norm100) == "CQ051_HUMAN"), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+RNase_Norm100[which(rownames(Ctrl_Norm100) == "HEM0_HUMAN"), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+RNase_Norm100[which(rownames(Ctrl_Norm100) == "TSN3_HUMAN"), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
 # ---> zur vereinfachten Berechnung erstellen wir zwei Matrices, die genau so groß sind wie die Datenframes "Ctrl_Cor" und "RNase_Cor", aber bei jeder Korrelation über oder gleich 0.95 eine "1" enthalten und bei jeder Korrelation unter 0.95 eine "0" enthalten.
 Ctrl_Cor_Rep = rep(1, nrow(Ctrl_Cor)*3)
 Ctrl_Cor_Rep[which(Ctrl_Cor < 0.95)] = 0
@@ -195,6 +316,10 @@ Weird_RNase_RDeep <- RNase_RDeep[which(rowSums(Ctrl_Cor_Rep) == 0 | rowSums(RNas
 Ctrl_RDeep <- Ctrl_RDeep[- Gene.Pos,]
 
 RNase_RDeep <- RNase_RDeep[- Gene.Pos,]
+
+Ctrl_Norm100 <- Ctrl_Norm100[- Gene.Pos,]
+
+RNase_Norm100 <- RNase_Norm100[- Gene.Pos,]
 
 # ---> wie oben auch, müssen die Gene auch aus den "Ctrl_Cor" und "RNase_Cor" Dataframes gelöscht werden, zudem aus den "Ctrl_Cor_Rep" und "RNase_Cor_Rep" Dataframes
 Ctrl_Cor <- Ctrl_Cor[- Gene.Pos,]
@@ -219,6 +344,20 @@ RNase_RDeep[which(RNase_Cor_Rep[, 1] == RNase_Cor_Rep[, 3] & rowSums(RNase_Cor_R
 RNase_RDeep[which(RNase_Cor_Rep[, 1] == RNase_Cor_Rep[, 2] & rowSums(RNase_Cor_Rep) == 1), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
 
 RNase_RDeep[which(RNase_Cor_Rep[, 2] == RNase_Cor_Rep[, 3] & rowSums(RNase_Cor_Rep) == 1), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+
+Ctrl_Norm100[which(Ctrl_Cor_Rep[, 1] == Ctrl_Cor_Rep[, 3] & rowSums(Ctrl_Cor_Rep) == 1), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+Ctrl_Norm100[which(Ctrl_Cor_Rep[, 1] == Ctrl_Cor_Rep[, 2] & rowSums(Ctrl_Cor_Rep) == 1), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+Ctrl_Norm100[which(Ctrl_Cor_Rep[, 2] == Ctrl_Cor_Rep[, 3] & rowSums(Ctrl_Cor_Rep) == 1), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+
+RNase_Norm100[which(RNase_Cor_Rep[, 1] == RNase_Cor_Rep[, 3] & rowSums(RNase_Cor_Rep) == 1), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+RNase_Norm100[which(RNase_Cor_Rep[, 1] == RNase_Cor_Rep[, 2] & rowSums(RNase_Cor_Rep) == 1), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+RNase_Norm100[which(RNase_Cor_Rep[, 2] == RNase_Cor_Rep[, 3] & rowSums(RNase_Cor_Rep) == 1), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
 
 
 # ---> Zum Schluss ersetzen wir jeweils das Replikat mit NA-values, wenn eine der Korrelationen unter 0.95 liegt und die andere Korrelation kleiner ist als die dritte Korrelation (wenn bspw. cor(Rep1, Rep2) unter 0.95 liegt und cor(Rep2,Rep3) größer als cor(Rep1, Rep3) ist, dann wird Rep1 ersetzt)
@@ -254,19 +393,40 @@ RNase_RDeep[which(RNase_Cor_Rep[, 3] == 0 & rowSums(RNase_Cor_Rep) == 2 & RNase_
 RNase_RDeep[which(RNase_Cor_Rep[, 3] == 0 & rowSums(RNase_Cor_Rep) == 2 & RNase_Cor[, 1] < RNase_Cor[, 2]), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
 
 
+
+Ctrl_Norm100[which(Ctrl_Cor_Rep[, 1] == 0 & rowSums(Ctrl_Cor_Rep) == 2 & Ctrl_Cor[, 2] > Ctrl_Cor[, 3]), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+Ctrl_Norm100[which(Ctrl_Cor_Rep[, 1] == 0 & rowSums(Ctrl_Cor_Rep) == 2 & Ctrl_Cor[, 2] < Ctrl_Cor[, 3]), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+
+Ctrl_Norm100[which(Ctrl_Cor_Rep[, 2] == 0 & rowSums(Ctrl_Cor_Rep) == 2 & Ctrl_Cor[, 1] > Ctrl_Cor[, 3]), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+Ctrl_Norm100[which(Ctrl_Cor_Rep[, 2] == 0 & rowSums(Ctrl_Cor_Rep) == 2 & Ctrl_Cor[, 1] < Ctrl_Cor[, 3]), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+
+Ctrl_Norm100[which(Ctrl_Cor_Rep[, 3] == 0 & rowSums(Ctrl_Cor_Rep) == 2 & Ctrl_Cor[, 1] > Ctrl_Cor[, 2]), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+Ctrl_Norm100[which(Ctrl_Cor_Rep[, 3] == 0 & rowSums(Ctrl_Cor_Rep) == 2 & Ctrl_Cor[, 1] < Ctrl_Cor[, 2]), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+
+
+RNase_Norm100[which(RNase_Cor_Rep[, 1] == 0 & rowSums(RNase_Cor_Rep) == 2 & RNase_Cor[, 2] > RNase_Cor[, 3]), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+RNase_Norm100[which(RNase_Cor_Rep[, 1] == 0 & rowSums(RNase_Cor_Rep) == 2 & RNase_Cor[, 2] < RNase_Cor[, 3]), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+
+RNase_Norm100[which(RNase_Cor_Rep[, 2] == 0 & rowSums(RNase_Cor_Rep) == 2 & RNase_Cor[, 1] > RNase_Cor[, 3]), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+RNase_Norm100[which(RNase_Cor_Rep[, 2] == 0 & rowSums(RNase_Cor_Rep) == 2 & RNase_Cor[, 1] < RNase_Cor[, 3]), c(sapply(seq(0,72,3), function(k) {2 + k}))] = NA
+
+
+RNase_Norm100[which(RNase_Cor_Rep[, 3] == 0 & rowSums(RNase_Cor_Rep) == 2 & RNase_Cor[, 1] > RNase_Cor[, 2]), c(sapply(seq(0,72,3), function(k) {3 + k}))] = NA
+
+RNase_Norm100[which(RNase_Cor_Rep[, 3] == 0 & rowSums(RNase_Cor_Rep) == 2 & RNase_Cor[, 1] < RNase_Cor[, 2]), c(sapply(seq(0,72,3), function(k) {1 + k}))] = NA
+
+
 # ---> Entfernung der erzeugten Variablen
 rm(Rep1_Ctrl, Rep2_Ctrl, Rep3_Ctrl, Rep1_RNase, Rep2_RNase, Rep3_RNase, Ctrl_Cor_Rep, RNase_Cor_Rep, Gene.Pos)
-```
-
-
-##### 1.4 Normalize Rows to 100
-
-This will be done for the Control and RNase Datasets separately:
-
-```{r cleanup, include=FALSE}
-Ctrl_Norm100 = as.data.frame(sapply(Ctrl_RDeep, function(i){(i/apply(Ctrl_RDeep,1, function(x) {sum(x, na.rm = T)}))*100}))
-
-RNase_Norm100 = as.data.frame(sapply(RNase_RDeep, function(i){(i/apply(RNase_RDeep, 1, function(x) {sum(x, na.rm = T)}))*100}))
 ```
 
 
@@ -4142,5 +4302,5 @@ legend("topright",inset = c(-0.39,0) - Leg.Pos,
 
 Let us see if it works!
 ```{r gene plotter}
-Gene_Plotter("CTCF_HUMAN", Type = c("Smooth and Norm", "Norm", "Smooth", "Compare", "Raw"))
+Gene_Plotter("HNRPL_HUMAN", Type = c("Smooth and Norm"))
 ```
