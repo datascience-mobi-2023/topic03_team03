@@ -27,7 +27,7 @@ In this project, we investigated RNA dependence in the human proteome by analyzi
 
 | Name | Description |
 | --- | --- |
-| `Final_Report.pdf` | Documentation of project, including an Introduction, Materials and Methods, Results and Discussion |
+| `Topic03_Team03_Final_Report.pdf` | Documentation of project, including an Introduction, Materials and Methods, Results and Discussion |
 | `Final_Report.Rmd` | R code used to generate the final report |
 | `Analysis.Rmd` | Entire R code that was used for analysis of the mass spectrometry data |
 | `Data` | Folder that contains the datasets generated and used in our analysis (`Environment.RData` and `Table_HS_Non_RBP.RData`) with a Excel spreadsheet describing all dataframes in German (`Datensätze.xlsx`) and the vector graphic used for figure 1 of `README.md` (`HNRPL_HUMAN.svg`) |
